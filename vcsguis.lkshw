@@ -1,0 +1,10 @@
+Version of workspace file format:
+               1
+Time of storage:
+               "Wed Jun  1 17:20:05 CEST 2011"
+Name of the workspace:
+               "vcsguis"
+File paths of contained packages:
+               ["vcsgui/vcsgui.cabal"]
+Maybe file path of an active package:
+               Just "vcsgui/vcsgui.cabal"
