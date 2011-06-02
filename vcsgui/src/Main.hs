@@ -19,5 +19,21 @@ module Main (
 import VCSGui.Types
 import VCSGui.Commit
 
-main = showGUI
+-- test data
+author = "test-author"
+cwd = "/home/n0s/project1_work3"
+testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn.glade"
+
+main = do
+    showGUI
+        cwd
+        author
+        testgladepath
+        (GTKObjectAccessors
+            "commit_dialog"
+            "act_commit"
+            "act_cancel"
+            "buffer_commitmsg"
+            "treeview_files")
+        SVN
 
