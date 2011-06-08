@@ -12,7 +12,9 @@
 --
 -----------------------------------------------------------------------------
 module VCSGui.Commit (
-    showGUI
+    showGUI,
+    GTKObjectAccessors(..),
+    VCSType(..)
 ) where
 
 import qualified VCSGui.Svn.Commit as Svn

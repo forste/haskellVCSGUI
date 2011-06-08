@@ -21,6 +21,34 @@ data-files:
 data-dir: ""
 extra-source-files:
 extra-tmp-files:
+exposed-modules: VCSGui.Commit
+exposed: True
+buildable: True
+build-tools:
+cpp-options:
+cc-options:
+ld-options:
+pkgconfig-depends:
+frameworks:
+c-sources:
+default-language:
+other-languages:
+default-extensions:
+other-extensions:
+extensions:
+extra-libraries:
+extra-lib-dirs:
+includes:
+install-includes:
+include-dirs:
+hs-source-dirs: src
+other-modules: VCSGui.Types VCSGui.Svn.Commit
+ghc-prof-options:
+ghc-shared-options:
+ghc-options:
+hugs-options:
+nhc98-options:
+jhc-options:
  
 executable: vcsgui
 main-is: Main.hs
