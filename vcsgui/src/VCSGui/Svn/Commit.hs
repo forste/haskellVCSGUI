@@ -27,9 +27,10 @@ import Common.Types
 
 -- data types
 data SCFile = SCFile {
-        selected :: Bool,
-        path :: FilePath,
-        status :: String
+        selected :: Bool
+        ,path :: FilePath
+        ,status :: String
+        ,locked :: Bool
     }
 
 -- loads gui objects and connects them
@@ -52,17 +53,20 @@ showGUI cwd author gladepath gtkAccessors = do
     actCancel <- builderGetObject builder castToAction (gtkActCancel gtkAccessors)
     bufferCommitMsg <- builderGetObject builder castToTextBuffer (gtkBufferCommitMsg gtkAccessors)
     listView <- builderGetObject builder castToTreeView (gtkListView gtkAccessors)
+    btUnlockTargets <- builderGetObject builder castToCheckButton ("bt_unlockTargets")
 
     -- build and set model
     repoStatus <- runWithConfig $ Svn.status []
 
     -- create model
     listStore <- listStoreNew [
-            (SCFile { selected =
-                (stat==Added || stat==Deleted || stat==Modified || stat==Replaced),
-                      path = fileName,
-                      status = mapModificationToString stat})
-            | (fileName,stat) <- repoStatus]
+            (SCFile {
+                        selected = ctxSelect (modification status)
+                        ,path = file status
+                        ,status = show (modification status)
+                        ,locked = isLocked status
+                        })
+            | status <- repoStatus]
     treeViewSetModel listView listStore
 
     -- selection column
@@ -88,23 +92,42 @@ showGUI cwd author gladepath gtkAccessors = do
     set statusColumn [treeViewColumnTitle := "Status"]
     treeViewAppendColumn listView statusColumn
 
-    -- render status hint
+    -- render status
     statusRenderer <- cellRendererTextNew
     treeViewColumnPackEnd statusColumn statusRenderer False
     cellLayoutSetAttributes statusColumn statusRenderer listStore $
         \SCFile { status = s } -> [cellText := s]
 
+    -- lock column
+    lockColumn <- treeViewColumnNew
+    set lockColumn [treeViewColumnTitle := "Locked" ]
+    treeViewAppendColumn listView lockColumn
+
+    -- render lock
+    lockRenderer <- cellRendererToggleNew
+    treeViewColumnPackEnd lockColumn lockRenderer False
+    cellLayoutSetAttributes lockColumn lockRenderer listStore $
+        \SCFile { locked = l } -> [cellToggleActive := l]
 
     -- connect actions
     on commitDialog deleteEvent $ liftIO mainQuit >> return False
     on actCancel actionActivated $ quit >> return ()
-
     on actCommit actionActivated $ do
             putStrLn "Commit"
             msg <- getTextFromBuffer bufferCommitMsg
+            active <- get btUnlockTargets toggleButtonActive
             selectedFiles <- getSelectedFiles listStore
-            runWithConfig $ Svn.commit selectedFiles author msg []
+            let unlockOption = if active then [] else ["--no-unlock"]
+            runWithConfig $ Svn.commit selectedFiles author msg unlockOption
             liftIO mainQuit
+
+--    on btUnlockTargets toggled $ do
+--                            putStrLn "btUnlockTargets toggled"
+--                            active <- get btUnlockTargets toggleButtonActive
+--                            set btUnlockTargets [ toggleButtonActive := (not active)]
+--                            putStrLn "btUnlockTargets toggled"
+--                            return ()
+
     on selectedRenderer cellToggled $ \columnId -> do
                             Just treeIter <- treeModelGetIterFromString listStore columnId
                             value <- listStoreGetValue listStore $ listStoreIterToIndex treeIter
@@ -119,6 +142,7 @@ showGUI cwd author gladepath gtkAccessors = do
     putStrLn "Finished"
     return ()
     where
+        ctxSelect status =  status == Added || status == Deleted || status==Modified || status==Replaced
         runWithConfig = Svn.runSvn $ Svn.makeConfig (Just cwd) Nothing Nothing
 
 -- helper
@@ -126,12 +150,18 @@ showGUI cwd author gladepath gtkAccessors = do
 createNewValue :: (Svn.Ctx () -> IO ()) -- adder, needed if file needs to be added <=> is untracked
                 -> SCFile -- old value
                 -> IO SCFile
-createNewValue runWithConfig (SCFile False file "Untracked") = do
+createNewValue runWithConfig (SCFile False file "Untracked" isLocked) = do
                             runWithConfig $ Svn.add [file] []
-                            return SCFile { selected = True, path = file, status = "Added" }
+                            return SCFile { selected = True,
+                                            path = file,
+                                            status = "Added",
+                                            locked=isLocked
+                                            }
 createNewValue _ value = do
-            return SCFile { selected = not (selected value), path = (path value),
-                            status = (status value) }
+            return SCFile { selected = not (selected value),
+                            path = (path value),
+                            status = (status value)
+                            , locked = (locked value)}
 
 getTextFromBuffer :: TextBuffer -> IO String
 getTextFromBuffer buffer = do

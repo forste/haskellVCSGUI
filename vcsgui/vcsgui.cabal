@@ -6,8 +6,11 @@ license: AllRightsReserved
 license-file: ""
 copyright:
 maintainer:
-build-depends: base -any, common -any, git -any, gtk -any,
-               mtl -any, svn -any
+build-depends: base -any, base -any, base -any, base -any,
+               common -any, common -any, common -any, common -any, git -any,
+               git -any, git -any, git -any, gtk -any, gtk -any, gtk -any,
+               gtk -any, mtl -any, mtl -any, mtl -any, mtl -any, svn -any,
+               svn -any, svn -any, svn -any
 stability:
 homepage:
 package-url:
