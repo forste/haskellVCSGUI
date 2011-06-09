@@ -7,20 +7,6 @@
   (major1) == 4 && (major2) <  3 || \
   (major1) == 4 && (major2) == 3 && (minor) <= 1)
 
-/* package common-0.0.1 */
-#define VERSION_common "0.0.1"
-#define MIN_VERSION_common(major1,major2,minor) (\
-  (major1) <  0 || \
-  (major1) == 0 && (major2) <  0 || \
-  (major1) == 0 && (major2) == 0 && (minor) <= 1)
-
-/* package git-0.0.1 */
-#define VERSION_git "0.0.1"
-#define MIN_VERSION_git(major1,major2,minor) (\
-  (major1) <  0 || \
-  (major1) == 0 && (major2) <  0 || \
-  (major1) == 0 && (major2) == 0 && (minor) <= 1)
-
 /* package gtk-0.12.0 */
 #define VERSION_gtk "0.12.0"
 #define MIN_VERSION_gtk(major1,major2,minor) (\
@@ -35,9 +21,9 @@
   (major1) == 2 && (major2) <  0 || \
   (major1) == 2 && (major2) == 0 && (minor) <= 1)
 
-/* package svn-0.0.1 */
-#define VERSION_svn "0.0.1"
-#define MIN_VERSION_svn(major1,major2,minor) (\
+/* package vcswrapper-0.0.1 */
+#define VERSION_vcswrapper "0.0.1"
+#define MIN_VERSION_vcswrapper(major1,major2,minor) (\
   (major1) <  0 || \
   (major1) == 0 && (major2) <  0 || \
   (major1) == 0 && (major2) == 0 && (minor) <= 1)

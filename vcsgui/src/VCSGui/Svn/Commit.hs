@@ -22,8 +22,7 @@ import Control.Monad.Trans(liftIO)
 import Control.Monad
 
 import VCSGui.Types
-import qualified Lib.Svn as Svn
-import Common.Types
+import qualified VCSWrapper.Svn as Svn
 
 -- data types
 data SCFile = SCFile {
@@ -53,7 +52,7 @@ showGUI cwd author gladepath gtkAccessors = do
     actCancel <- builderGetObject builder castToAction (gtkActCancel gtkAccessors)
     bufferCommitMsg <- builderGetObject builder castToTextBuffer (gtkBufferCommitMsg gtkAccessors)
     listView <- builderGetObject builder castToTreeView (gtkListView gtkAccessors)
-    btUnlockTargets <- builderGetObject builder castToCheckButton ("bt_unlockTargets")
+    btUnlockTargets <- builderGetObject builder castToCheckButton (gtkBtUnlockTargets gtkAccessors)
 
     -- build and set model
     repoStatus <- runWithConfig $ Svn.status []
@@ -61,10 +60,10 @@ showGUI cwd author gladepath gtkAccessors = do
     -- create model
     listStore <- listStoreNew [
             (SCFile {
-                        selected = ctxSelect (modification status)
-                        ,path = file status
-                        ,status = show (modification status)
-                        ,locked = isLocked status
+                        selected = ctxSelect (Svn.modification status)
+                        ,path = Svn.file status
+                        ,status = show (Svn.modification status)
+                        ,locked = Svn.isLocked status
                         })
             | status <- repoStatus]
     treeViewSetModel listView listStore
@@ -142,7 +141,8 @@ showGUI cwd author gladepath gtkAccessors = do
     putStrLn "Finished"
     return ()
     where
-        ctxSelect status =  status == Added || status == Deleted || status==Modified || status==Replaced
+        ctxSelect status =  status == Svn.Added || status == Svn.Deleted || status==Svn.Modified ||
+                            status==Svn.Replaced
         runWithConfig = Svn.runSvn $ Svn.makeConfig (Just cwd) Nothing Nothing
 
 -- helper

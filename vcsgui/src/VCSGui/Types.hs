@@ -17,17 +17,15 @@ module VCSGui.Types (
     VCSType (..)
 ) where
 
-import Common.Types
-import qualified Lib.Svn as Svn
-
 data VCSType = SVN | GIT
 
-data GTKObjectAccessors = GTKObjectAccessors
+data GTKObjectAccessors = SVNGTKObjectAccessors
     {
-    gtkCommitDialog :: String,
-    gtkActCommit :: String,
-    gtkActCancel :: String,
-    gtkBufferCommitMsg :: String,
-    gtkListView :: String
+    gtkCommitDialog :: String
+    ,gtkActCommit :: String
+    ,gtkActCancel :: String
+    ,gtkBufferCommitMsg :: String
+    ,gtkListView :: String
+    ,gtkBtUnlockTargets :: String
     }
 

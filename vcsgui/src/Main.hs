@@ -29,11 +29,12 @@ main = do
         cwd
         author
         testgladepath
-        (GTKObjectAccessors
+        (SVNGTKObjectAccessors
             "commit_dialog"
             "act_commit"
             "act_cancel"
             "buffer_commitmsg"
-            "treeview_files")
+            "treeview_files"
+            "bt_unlockTargets")
         SVN
 
