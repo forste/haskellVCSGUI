@@ -17,7 +17,7 @@ module Main (
 ) where
 
 import VCSGui.Types
-import VCSGui.Commit
+import VCSGui.Common.Commit
 
 -- test data
 author = "test-author"

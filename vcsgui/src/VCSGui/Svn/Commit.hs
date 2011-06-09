@@ -21,7 +21,7 @@ import Graphics.UI.Gtk.Builder
 import Control.Monad.Trans(liftIO)
 import Control.Monad
 
-import VCSGui.Types
+import VCSGui.Common.Types
 import qualified VCSWrapper.Svn as Svn
 
 -- data types
