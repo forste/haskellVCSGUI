@@ -109,23 +109,17 @@ showGUI cwd author gladepath gtkAccessors = do
         \SCFile { locked = l } -> [cellToggleActive := l]
 
     -- connect actions
-    on commitDialog deleteEvent $ liftIO mainQuit >> return False
-    on actCancel actionActivated $ quit >> return ()
+    on commitDialog deleteEvent $ liftIO $ quit commitDialog >> return False
+    on actCancel actionActivated $ quit commitDialog >> return ()
     on actCommit actionActivated $ do
-            putStrLn "Commit"
+            putStrLn $ "Commiting to: "++cwd
             msg <- getTextFromBuffer bufferCommitMsg
             active <- get btUnlockTargets toggleButtonActive
             selectedFiles <- getSelectedFiles listStore
             let unlockOption = if active then [] else ["--no-unlock"]
             runWithConfig $ Svn.commit selectedFiles author msg unlockOption
-            liftIO mainQuit
-
---    on btUnlockTargets toggled $ do
---                            putStrLn "btUnlockTargets toggled"
---                            active <- get btUnlockTargets toggleButtonActive
---                            set btUnlockTargets [ toggleButtonActive := (not active)]
---                            putStrLn "btUnlockTargets toggled"
---                            return ()
+            quit commitDialog
+            return ()
 
     on selectedRenderer cellToggled $ \columnId -> do
                             Just treeIter <- treeModelGetIterFromString listStore columnId
@@ -145,7 +139,13 @@ showGUI cwd author gladepath gtkAccessors = do
                             status==Svn.Replaced
         runWithConfig = Svn.runSvn $ Svn.makeConfig (Just cwd) Nothing Nothing
 
--- helper
+--
+-- HELPERS
+--
+quit :: Dialog -> IO ()
+quit commitDialog  = do
+        widgetDestroy commitDialog
+        liftIO mainQuit
 
 createNewValue :: (Svn.Ctx () -> IO ()) -- adder, needed if file needs to be added <=> is untracked
                 -> SCFile -- old value
@@ -175,8 +175,6 @@ getSelectedFiles listStore = do
                                 $ filter (\SCFile { selected = s } -> s) listedFiles
             return (selectedFiles)
 
-quit :: IO ()
-quit = liftIO mainQuit
 
 createBuilder :: FilePath -> IO Builder
 createBuilder filePath =
