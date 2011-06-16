@@ -6,87 +6,11 @@ license: AllRightsReserved
 license-file: ""
 copyright:
 maintainer:
-build-depends: base -any, base -any, base -any, base -any,
-               gtk -any, gtk -any, gtk -any, gtk -any, mtl -any, mtl -any,
-               mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any, base -any, base -any, base -any,
-               base -any, gtk -any, gtk -any, gtk -any, gtk -any, mtl -any,
-               mtl -any, mtl -any, mtl -any, vcswrapper -any, vcswrapper -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, mtl -any, mtl -any,
-               mtl -any, gtk -any, gtk -any, gtk -any, gtk -any, base -any,
-               base -any, base -any, base -any
+build-depends: base -any,
+               gtk -any,
+               directory -any,
+               mtl -any,
+               vcswrapper -any
 stability:
 homepage:
 package-url:
@@ -96,11 +20,11 @@ description: .
 category:
 author:
 tested-with:
-data-files:
-data-dir: ""
+data-files: guiGit.glade
+data-dir: data
 extra-source-files:
 extra-tmp-files:
-exposed-modules:
+exposed-modules: VCSGui.Git.Gui
 exposed: True
 buildable: True
 build-tools:
@@ -122,6 +46,8 @@ install-includes:
 include-dirs:
 hs-source-dirs: src
 other-modules: VCSGui.Common.Types VCSGui.Common.Commit VCSGui.Svn.Commit
+               VCSGui.Common.GtkHelper
+               Paths_vcsgui
 ghc-prof-options:
 ghc-shared-options:
 ghc-options:
@@ -151,6 +77,8 @@ install-includes:
 include-dirs:
 hs-source-dirs: src
 other-modules: VCSGui.Common.Types VCSGui.Common.Commit VCSGui.Svn.Commit
+               VCSGui.Common.GtkHelper
+               Paths_vcsgui
 ghc-prof-options:
 ghc-shared-options:
 ghc-options:
