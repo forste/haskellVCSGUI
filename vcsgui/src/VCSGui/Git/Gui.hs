@@ -8,8 +8,9 @@
 -- Stability   :  experimental
 -- Portability :
 --
--- |
 --
+--
+-- TODO catch GitError and display instead of crushing ;)
 -----------------------------------------------------------------------------
 
 module VCSGui.Git.Gui (
@@ -268,9 +269,8 @@ setupCommitFiles item repoStatus = do
 connectCommitGui :: Core.GitRepo -> CommitGUI -> IO ()
 connectCommitGui repo gui = do
     registerClose $ commitWin gui
-    on (getItem (commitWin gui)) deleteEvent $ liftIO (widgetHideAll (getItem (commitWin gui))) >> return False --liftIO mainQuit >> return False
-    on (getItem (actCancel gui)) actionActivated $ liftIO (widgetHideAll (getItem (commitWin gui)))
-    on (getItem (actCommit gui)) actionActivated $ doCommit gui repo
+    on (getItem (actCancel gui)) actionActivated $ closeWin (commitWin gui)
+    on (getItem (actCommit gui)) actionActivated $ doCommit gui repo >> closeWin (commitWin gui)
     on (toggleRenderer gui) cellToggled $ \filepath -> do
         putStrLn ("toggle called: " ++ filepath)
         let (_, (store, _), _) = commitFiles gui
