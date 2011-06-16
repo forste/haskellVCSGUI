@@ -7,15 +7,15 @@
   </object>
   <object class="GtkActionGroup" id="logActions">
     <child>
-      <object class="GtkAction" id="actCheckout"/>
+      <object class="GtkAction" id="actCancel"/>
     </child>
     <child>
-      <object class="GtkAction" id="actCancel"/>
+      <object class="GtkAction" id="actCheckout"/>
     </child>
   </object>
   <object class="GtkActionGroup" id="setupRepoActions">
     <child>
-      <object class="GtkAction" id="actSelectRepo"/>
+      <object class="GtkAction" id="actInitRepo"/>
     </child>
     <child>
       <object class="GtkAction" id="actOk">
@@ -23,6 +23,9 @@
         <property name="short_label" translatable="yes">Ok</property>
         <property name="stock_id">gtk-ok</property>
       </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actSelectRepo"/>
     </child>
   </object>
   <object class="GtkActionGroup" id="windowActions">
@@ -262,8 +265,26 @@
           <object class="GtkTable" id="table1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="n_rows">3</property>
+            <property name="n_rows">4</property>
             <property name="n_columns">2</property>
+            <child>
+              <object class="GtkLabel" id="lblEmail">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Author Email</property>
+              </object>
+              <packing>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="lblAuthor">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Author</property>
+              </object>
+            </child>
             <child>
               <object class="GtkEntry" id="entAuthor">
                 <property name="visible">True</property>
@@ -278,30 +299,6 @@
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="lblEmail">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Author Email</property>
-              </object>
-              <packing>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="lblAuthor">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Author</property>
-              </object>
-              <packing>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
               </packing>
             </child>
             <child>
@@ -318,8 +315,8 @@
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
               </packing>
             </child>
             <child>
@@ -331,12 +328,17 @@
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
                 <property name="y_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
+              <placeholder/>
+            </child>
+            <child>
               <object class="GtkButton" id="btnChooseRepoPath">
-                <property name="label" translatable="yes">Select Repository</property>
+                <property name="label" translatable="yes">Select existing repository</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -345,6 +347,23 @@
                 <property name="use_underline">True</property>
               </object>
               <packing>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+                <property name="y_options">GTK_FILL</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="btnCreateRepo">
+                <property name="label" translatable="yes">Create new repository</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="related_action">actInitRepo</property>
+                <property name="use_action_appearance">False</property>
+              </object>
+              <packing>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
                 <property name="y_options">GTK_FILL</property>
               </packing>
             </child>

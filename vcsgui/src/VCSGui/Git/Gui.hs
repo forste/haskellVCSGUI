@@ -30,7 +30,7 @@ import System.Directory
 import Control.Monad.Trans(liftIO, lift)
 import Control.Monad
 
-import Paths_vcsgui(getDataFileName) -- TODO check this
+import Paths_vcsgui(getDataFileName)
 import Control.Monad.Reader (ReaderT(..))
 
 
@@ -107,6 +107,7 @@ data SetupRepoGUI = SetupRepoGUI {
     setupRepoWin :: WindowItem
     , actOk :: ActionItem
     , actSelectRepo :: ActionItem
+    , actInitRepo :: ActionItem
     , lblRepoPath :: LabelItem
     , entryAuthor :: TextEntryItem
     , entryEmail :: TextEntryItem
@@ -124,12 +125,13 @@ loadSetupRepoGui mbRepo = loadGuiTemplate (\builder -> do
     win <- getWindowFromGlade builder "setupRepoWindow"
     actOk <- getActionFromGlade builder "actOk"
     actSelRepo <- getActionFromGlade builder "actSelectRepo"
+    actInitRepo <- getActionFromGlade builder "actInitRepo"
     lblRepoPath <- getLabelFromGlade builder "lblRepoPath"
     entAuthor <- getTextEntryFromGlade builder "entAuthor"
     entEmail <- getTextEntryFromGlade builder "entEmail"
     case mbRepo of
-        Nothing -> return $ SetupRepoGUI win actOk actSelRepo lblRepoPath entAuthor entEmail Nothing
-        Just (Core.GitRepo path _ _) -> return $ SetupRepoGUI win actOk actSelRepo lblRepoPath entAuthor entEmail (Just path)
+        Nothing -> return $ SetupRepoGUI win actOk actSelRepo actInitRepo lblRepoPath entAuthor entEmail Nothing
+        Just (Core.GitRepo path _ _) -> return $ SetupRepoGUI win actOk actSelRepo actInitRepo lblRepoPath entAuthor entEmail (Just path)
     )
 
 connectSetupRepoGui :: Maybe Core.GitRepo -> (Maybe Core.GitRepo -> IO ()) -> SetupRepoGUI -> IO ()
@@ -146,23 +148,34 @@ connectSetupRepoGui mbRepo repoSetter gui = do
         -- register handlers
         registerClose $ setupRepoWin gui
         registerOkAct gui
+
+        on (getItem (actInitRepo gui)) actionActivated $ liftIO (do
+            mbPath <- selectRepoWindow "Choose location for new repository" (getItem (setupRepoWin gui))
+            case mbPath of
+                Nothing -> return ()
+                Just path -> do
+                    (Core.GitRepo path _ _) <- Core.initRepo path "" ""
+                    registerNewGuiOnOkAct path
+                    )
+
         on (getItem (actSelectRepo gui)) actionActivated $ liftIO (do
             mbPath <- selectRepoWindow "Choose repository location" (getItem (setupRepoWin gui))
             case mbPath of
                 Nothing -> return ()
-                Just path -> do
-                    let newGui = gui { repoPath = mbPath }
-                    getSetter (lblRepoPath newGui) path
-
-                    -- register actOk with new gui
-                    registerOkAct newGui
-                    return ()
-                    )
+                Just path -> registerNewGuiOnOkAct path
+                )
         return ()
     where
     registerOkAct gui = on (getItem (actOk gui)) actionActivated $ (extractRepo gui >>=
                             repoSetter >>
                             closeWin (setupRepoWin gui))
+    registerNewGuiOnOkAct path = do
+        let newGui = gui { repoPath = Just path }
+        getSetter (lblRepoPath newGui) path
+
+        -- register actOk with new gui
+        registerOkAct newGui
+        return ()
 
 
 -- TODO how to use maybe monad here? don't use IO here!
