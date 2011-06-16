@@ -25,6 +25,7 @@ data-dir: data
 extra-source-files:
 extra-tmp-files:
 exposed-modules: VCSGui.Git.Gui
+                 VCSGui.Common.Commit
 exposed: True
 buildable: True
 build-tools:
@@ -45,7 +46,7 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src
-other-modules: VCSGui.Common.Types VCSGui.Common.Commit VCSGui.Svn.Commit
+other-modules: VCSGui.Svn.Commit VCSGui.Common.Types
                VCSGui.Common.GtkHelper
                Paths_vcsgui
 ghc-prof-options:
@@ -76,7 +77,7 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src
-other-modules: VCSGui.Common.Types VCSGui.Common.Commit VCSGui.Svn.Commit
+other-modules: VCSGui.Svn.Commit VCSGui.Common.Types
                VCSGui.Common.GtkHelper
                Paths_vcsgui
 ghc-prof-options:

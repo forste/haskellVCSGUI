@@ -16,7 +16,7 @@ module Main (
     main
 ) where
 
-import VCSGui.Types
+import VCSGui.Common.Types
 import VCSGui.Common.Commit
 
 -- test data
