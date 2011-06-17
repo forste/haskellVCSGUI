@@ -19,6 +19,7 @@ module VCSGui.Common.GtkHelper (
     , getLabelFromGlade
     , getTextEntryFromGlade
     , getTextViewFromGlade
+    , getComboBoxFromGlade
     , getTreeViewFromGlade
     , addColumnToTreeView
     , addTextColumnToTreeView
@@ -33,6 +34,7 @@ module VCSGui.Common.GtkHelper (
     , LabelItem
     , TextEntryItem
     , TextViewItem
+    , ComboBoxItem
     , TreeViewItem
 ) where
 
@@ -45,6 +47,7 @@ type WindowItem = (String, Gtk.Window, ())
 type ActionItem = (String, Gtk.Action, ())
 type LabelItem = (String, Gtk.Label, (IO (Maybe String), String -> IO ()))
 type TextEntryItem = (String, Gtk.Entry, (IO (Maybe String), String -> IO ()))
+type ComboBoxItem = (String, Gtk.ComboBox, (IO (Maybe String), [String] -> IO ()))
 type TextViewItem = (String, Gtk.TextView, (IO (Maybe String), String -> IO ()))
 type TreeViewItem a = (String, (Gtk.ListStore a, Gtk.TreeView), (IO (Maybe [a]), [a] -> IO ()))
 
@@ -106,6 +109,21 @@ getTextEntryFromGlade builder name = do
     let getter = fmap testBlank $ Gtk.entryGetText entry :: IO (Maybe String)
         setter val = Gtk.entrySetText entry val :: IO ()
     return (name, entry, (getter, setter))
+
+getComboBoxFromGlade :: Gtk.Builder
+                    -> String
+                    -> IO ComboBoxItem
+getComboBoxFromGlade builder name = do
+    (_, combo) <- wrapWidget builder Gtk.castToComboBox name
+    Gtk.comboBoxSetModelText combo
+    let getter = Gtk.comboBoxGetActiveText combo -- get selected text
+        setter entries = do -- fill with new entries
+            store <- Gtk.comboBoxGetModelText combo
+            Gtk.listStoreClear store
+            mapM_ (Gtk.listStoreAppend store) entries
+            return ()
+    return (name, combo, (getter, setter))
+
 
 
 getTextViewFromGlade :: Gtk.Builder
