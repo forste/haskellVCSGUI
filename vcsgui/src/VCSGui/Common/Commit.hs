@@ -35,3 +35,16 @@ showGUI cwd author gladepath gtkAccessors SVN = return ()
 
 
 
+--data CheckoutCtx a = CheckoutCtx (ReaderT CheckoutConfig IO a)
+--   deriving (Monad)
+--   , MonadIO b, MonadReader CheckoutConfig b)
+
+--usage e.g. runWithConfig $ loadGui "path/to/repo"
+--  where
+--      runWithConfig = runCtx curConfig
+--      runCtx config (Checkout a) = runReaderT a config
+--      curConfig = makeConfig options ...
+
+--loadGui :: FilePath -> CheckoutCtx ()
+
+

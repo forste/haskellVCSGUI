@@ -25,38 +25,20 @@ data LogConfig a = LogConfig {
     ,treeViewSetter :: TreeView -> TreeViewItem a
     }
 
--- don't use state, use
--- use state monad
--- e.g. mainLog :: [Log] -> BranchHandler -> IO()
--- type BranchHandler = (Label -> Dropbox -> ListModel -> IO ())
--- mainLog logs handler = do
---                              on dropSelect $ do
---                                                  put branch
---                              on checkoutButtonPress $ do
---                                                  get branch
 
---data LogCtx a b = LogCtx (ReaderT (LogConfig b) IO a)
---   deriving (Monad)
---   , MonadIO b, MonadReader (LogConfig b) b)
+--loadGui branches branchHandler listStoreSetter checkOutAction = do
+        --    logWindow <- getWindowFromGlade builder "logWindow"
+        --    treeView <- getTreeViewFromGlade builder "historyTreeView" ([] :: [Core.LogEntry])
+        --    lblRevisionDetails <- getLabelFromGlade builder "lblRevisionDetails"
 
---usage e.g. runWithConfig $ loadGui "path/to/repo"
---  where
---      runWithConfig = runLogCtx curConfig
---      runLogCtx config (LogCtx a) = runReaderT a config
---      curConfig = makeConfig options ...
+--            listStoreSetter treeView
 
---loadGui :: FilePath -> LogCtx ()
---loadGui path = loadGuiTemplate \builder ->
---    logWindow <- getWindowFromGlade builder "logWindow"
---    treeView <- getTreeViewFromGlade builder "historyTreeView" ([] :: [Core.LogEntry])
---    lblRevisionDetails <- getLabelFromGlade builder "lblRevisionDetails"
+--            if empty branches then setInvisible branchLabel+dropDownList (or change vbox)
+--            else on select branches branchHandler --somehow pass liststore to handler so he can refill it
 
---    config <- ask
+
+
+--            on buttonActivated checkoutButton $ do
+--               checkOutAction listStore --pass selected branch if not invisible
 --
 
---    Just log <- Core.simpleLog repo
---    setupLogEntries treeView log
-
---    actCheck <- getActionFromGlade builder "actCheckout"
---    actCanc <- getActionFromGlade builder "actCancel"
---    return $ LogGUI logWindow treeView lblRevisionDetails actCheck actCanc)
