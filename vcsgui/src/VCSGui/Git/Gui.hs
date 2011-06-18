@@ -14,12 +14,25 @@
 -----------------------------------------------------------------------------
 
 module VCSGui.Git.Gui (
+    openLogWindow
 --    main
 --    , openCommitWindow
 --    , openErrorWin
 --    , openRepoWindow
---    , openLogWindow
 ) where
+
+import VCSGui.Common.Log
+import qualified VCSWrapper.Git as Git
+-- TODO import common types
+
+
+openLogWindow :: Git.Ctx (IO ()) -- TODO use Ctx here? use Ctx in common.log?
+openLogWindow = newLogGui log [] Nothing checkout
+    where
+    log = Git.simpleLog
+    checkout log _ = Git.checkout (Git.commitID log) Nothing
+
+
 --import VCSGui.Common.GtkHelper
 --
 --import Graphics.UI.Gtk

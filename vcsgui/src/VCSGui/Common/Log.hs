@@ -40,9 +40,9 @@ data LogConfig a = LogConfig {
 ---- LOG VIEWER / CHECKOUT
 --------------------------------------------------
 
-data LogGUI a = LogGUI {
+data LogGUI = LogGUI {
     logWin :: WindowItem
-    , logTreeView :: TreeViewItem a
+    , logTreeView :: TreeViewItem LogEntry
     , lblRevisionDetails :: LabelItem
     , actCheckout :: ActionItem
     , actLogCancel :: ActionItem
@@ -54,16 +54,16 @@ data LogGUI a = LogGUI {
 --openLogWindow repo = loadAndOpenWindow (loadLogGui repo) (connectLogGui repo) logWin
 --
 
--- TODO give only a list of logEntries
-newLogGui :: (TreeView -> IO (ListStore LogEntry)) -- ^ setup the liststore to display logEntries
+newLogGui :: IO [LogEntry] -- ^ logEntries to be displayed initially
             -> [String] -- ^ options will be displayed in a menu as checkboxes TODO implement
             -> Maybe (ListStore LogEntry -> IO String -> IO ()) -- ^ called when a different branch is selected
             -> (IO LogEntry -- ^ selected line
-                -> IO (Maybe String) -- ^ branchname
+                -> IO (Maybe String) -- ^ name of the branch to checkout from
                 -> IO ()) -- ^ TODO change a to revision? called on checkout action. will close window afterwards
             -> IO ()
-newLogGui setupListStore _ mbDoBranchSwitch doCheckout = do
-        gui <- loadLogGui setupListStore
+newLogGui logEntries _ mbDoBranchSwitch doCheckout = do
+        logs <- logEntries
+        gui <- loadLogGui logs
 
         -- connect gui elements
         registerClose $ logWin gui
@@ -83,8 +83,8 @@ newLogGui setupListStore _ mbDoBranchSwitch doCheckout = do
             return selectedLog) (getGetter combo)
 
 
-loadLogGui :: (TreeView -> IO (ListStore a)) -> IO (LogGUI a)
-loadLogGui setupListStore = do
+loadLogGui :: [LogEntry] -> IO LogGUI
+loadLogGui logEntries = do
         gladepath <- getGladepath
         builder <- openGladeFile gladepath
         win <- getWindowFromGlade builder "logWindow"
@@ -93,7 +93,7 @@ loadLogGui setupListStore = do
         actCanc <- getActionFromGlade builder "actCancel"
         comboBranch <- getComboBoxFromGlade builder "comboBranch"
 
-        treeView <- getTreeViewFromGladeCustomStore builder "historyTreeView" setupListStore
+        treeView <- getTreeViewFromGlade builder "historyTreeView" logEntries
         return $ LogGUI win treeView revDetails actCheck actCanc comboBranch
 
 
