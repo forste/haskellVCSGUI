@@ -23,14 +23,14 @@ module VCSGui.Git.Gui (
 
 import VCSGui.Common.Log
 import qualified VCSWrapper.Git as Git
--- TODO import common types
 
 
-openLogWindow :: Git.Ctx (IO ()) -- TODO use Ctx here? use Ctx in common.log?
-openLogWindow = newLogGui log [] Nothing checkout
+openLogWindow :: Git.Config -> Git.Ctx () -- TODO use Ctx here? use Ctx in common.log?
+openLogWindow config = do
+        log <- Git.simpleLog
+        newLogGui log [] Nothing checkout
     where
-    log = Git.simpleLog
-    checkout log _ = Git.checkout (Git.commitID log) Nothing
+    checkout log _ = Git.runVcs config $ Git.checkout (Just $ Git.commitID log) Nothing
 
 
 --import VCSGui.Common.GtkHelper

@@ -21,8 +21,7 @@ import Graphics.UI.Gtk
 import Data.Maybe
 
 import VCSGui.Common.GtkHelper
-import VCSWrapper.Git
-import VCSWrapper.Svn
+import qualified VCSWrapper.Common as Common
 
 
 import Data.Maybe (fromMaybe)
@@ -42,7 +41,7 @@ data LogConfig a = LogConfig {
 
 data LogGUI = LogGUI {
     logWin :: WindowItem
-    , logTreeView :: TreeViewItem LogEntry
+    , logTreeView :: TreeViewItem Common.LogEntry
     , lblRevisionDetails :: LabelItem
     , actCheckout :: ActionItem
     , actLogCancel :: ActionItem
@@ -54,47 +53,48 @@ data LogGUI = LogGUI {
 --openLogWindow repo = loadAndOpenWindow (loadLogGui repo) (connectLogGui repo) logWin
 --
 
-newLogGui :: IO [LogEntry] -- ^ logEntries to be displayed initially
+newLogGui :: [Common.LogEntry] -- ^ logEntries to be displayed initially
             -> [String] -- ^ options will be displayed in a menu as checkboxes TODO implement
-            -> Maybe (ListStore LogEntry -> IO String -> IO ()) -- ^ called when a different branch is selected
-            -> (IO LogEntry -- ^ selected line
-                -> IO (Maybe String) -- ^ name of the branch to checkout from
-                -> IO ()) -- ^ TODO change a to revision? called on checkout action. will close window afterwards
-            -> IO ()
+            -> Maybe (ListStore Common.LogEntry -> IO String -> IO ()) -- ^ called when a different branch is selected
+            -> (Common.LogEntry -- ^ selected line
+                -> (Maybe String) -- ^ name of the branch to checkout from
+                -> IO ()) -- ^ called on checkout action. will close window afterwards
+            -> Common.Ctx ()
 newLogGui logEntries _ mbDoBranchSwitch doCheckout = do
-        logs <- logEntries
-        gui <- loadLogGui logs
+        gui <- loadLogGui logEntries
 
         -- connect gui elements
-        registerClose $ logWin gui
-        registerCloseAction (actLogCancel gui) (logWin gui)
+        liftIO $ registerClose $ logWin gui
+        liftIO $ registerCloseAction (actLogCancel gui) (logWin gui)
 
-        on (getItem (actCheckout gui)) actionActivated $
+        liftIO $ on (getItem (actCheckout gui)) actionActivated $
             doCheckout' (logTreeView gui) (comboBranch gui)
                 >> (closeWin (logWin gui))
 
         return ()
     where
-    doCheckout' :: TreeViewItem LogEntry -> ComboBoxItem -> IO ()
-    doCheckout' (_, (store, view), _) combo = doCheckout (do
-            (path, _) <- treeViewGetCursor view
-            Just treeIter <- treeModelGetIter store path
-            selectedLog <- listStoreGetValue store $ listStoreIterToIndex treeIter
-            return selectedLog) (getGetter combo)
+    doCheckout' :: TreeViewItem Common.LogEntry -> ComboBoxItem -> IO ()
+    doCheckout' (_, (store, view), _) combo = do
+        (path, _) <- treeViewGetCursor view
+        Just treeIter <- treeModelGetIter store path
+        selectedLog <- listStoreGetValue store $ listStoreIterToIndex treeIter
+        selectedBranch <- getGetter combo
+        doCheckout selectedLog selectedBranch
 
 
-loadLogGui :: [LogEntry] -> IO LogGUI
+loadLogGui :: [Common.LogEntry] -> Common.Ctx LogGUI
 loadLogGui logEntries = do
-        gladepath <- getGladepath
-        builder <- openGladeFile gladepath
-        win <- getWindowFromGlade builder "logWindow"
-        revDetails <- getLabelFromGlade builder "lblRevisionDetails"
-        actCheck <- getActionFromGlade builder "actCheckout"
-        actCanc <- getActionFromGlade builder "actCancel"
-        comboBranch <- getComboBoxFromGlade builder "comboBranch"
+        liftIO $ do
+            gladepath <- getGladepath
+            builder <- openGladeFile gladepath
+            win <- getWindowFromGlade builder "logWindow"
+            revDetails <- getLabelFromGlade builder "lblRevisionDetails"
+            actCheck <- getActionFromGlade builder "actCheckout"
+            actCanc <- getActionFromGlade builder "actCancel"
+            comboBranch <- getComboBoxFromGlade builder "comboBranch"
 
-        treeView <- getTreeViewFromGlade builder "historyTreeView" logEntries
-        return $ LogGUI win treeView revDetails actCheck actCanc comboBranch
+            treeView <- getTreeViewFromGlade builder "historyTreeView" logEntries
+            return $ LogGUI win treeView revDetails actCheck actCanc comboBranch
 
 
 -- TODO move this methods to helper?
