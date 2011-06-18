@@ -13,17 +13,19 @@
 -----------------------------------------------------------------------------
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module VCSGui.Common.Log (
-
+    newLogGui
 ) where
 
 import Control.Monad.Reader
 import Graphics.UI.Gtk
+import Data.Maybe
 
 import VCSGui.Common.GtkHelper
 import VCSWrapper.Git
 import VCSWrapper.Svn
 
 
+import Data.Maybe (fromMaybe)
 import Paths_vcsgui(getDataFileName)
 
 getGladepath = getDataFileName "guiGit.glade"
@@ -38,12 +40,13 @@ data LogConfig a = LogConfig {
 ---- LOG VIEWER / CHECKOUT
 --------------------------------------------------
 
-data LogGUI = LogGUI {
+data LogGUI a = LogGUI {
     logWin :: WindowItem
-    , logTreeView :: TreeView
+    , logTreeView :: TreeViewItem a
     , lblRevisionDetails :: LabelItem
     , actCheckout :: ActionItem
     , actLogCancel :: ActionItem
+    , comboBranch :: ComboBoxItem
 }
 
 
@@ -51,49 +54,61 @@ data LogGUI = LogGUI {
 --openLogWindow repo = loadAndOpenWindow (loadLogGui repo) (connectLogGui repo) logWin
 --
 
-loadLogGui :: (TreeView -> IO (ListStore a))
-            -> [String]
-            -> (ListStore a -> IO ())
-            -> (a -> String -> Ctx ())
-            -> IO LogGUI
-loadLogGui setupListStore options doBranchSwitch doCheckout = loadGuiTemplate (\builder -> do
-        -- load gui elements
-        logWindow <- getWindowFromGlade builder "logWindow"
-        treeView <- builderGetObject builder castToTreeView "historyTreeView" -- TODO move this to gtkHelper?
-        lblRevisionDetails <- getLabelFromGlade builder "lblRevisionDetails"
+newLogGui :: (TreeView -> IO (ListStore a)) -- ^ setup the liststore to display logEntries
+            -> [String] -- ^ options will be displayed in a menu as checkboxes TODO implement
+            -> Maybe (ListStore a -> IO String -> IO ()) -- ^ called when a different branch is selected
+            -> (a -- ^ selected line
+                -> IO (Maybe String) -- ^ branchname
+                -> IO ()) -- ^ TODO change a to revision? called on checkout action. will close window afterwards
+            -> IO ()
+newLogGui setupListStore _ doBranchSwitch doCheckout = do
+        gui <- loadLogGui setupListStore
+
+        -- connect gui elements
+        registerClose $ logWin gui
+        registerCloseAction (actLogCancel gui) (logWin gui)
+
+        on (getItem (actCheckout gui)) actionActivated $
+            doCheckout' (logTreeView gui) (comboBranch gui)
+                >> (closeWin (logWin gui))
+
+        return ()
+    where
+    doCheckout' (_, (store, view), _) combo = doCheckout (do
+            (path, _) <- treeViewGetCursor view
+            Just treeIter <- treeModelGetIter store path
+            selectedLog <- listStoreGetValue store $ listStoreIterToIndex treeIter
+            return selectedLog) (getGetter combo)
+
+
+loadLogGui :: (TreeView -> IO (ListStore a)) -> IO (LogGUI a)
+loadLogGui setupListStore = do
+        gladepath <- getGladepath
+        builder <- openGladeFile gladepath
+        win <- getWindowFromGlade builder "logWindow"
+        revDetails <- getLabelFromGlade builder "lblRevisionDetails"
         actCheck <- getActionFromGlade builder "actCheckout"
         actCanc <- getActionFromGlade builder "actCancel"
         comboBranch <- getComboBoxFromGlade builder "comboBranch"
 
-        -- init gui
-        listStore <- setupListStore treeView
-
-        on (getItem (actCheckout gui)) actionActivated $ doCheckout'  >> (closeWin (logWin gui))
-
-        return $ LogGUI logWindow treeView lblRevisionDetails actCheck actCanc)
-    where
-    doCheckout' store view combo = doCheckout (do
-            (path, _) <- treeViewGetCursor view
-            Just treeIter <- treeModelGetIter store path
-            selectedLog <- listStoreGetValue store $ listStoreIterToIndex treeIter
-            return selectedLog) getGetter comboBranch -- TODO fix IO here...
+        treeView <- getTreeViewFromGladeCustomStore builder "historyTreeView" setupListStore
+        return $ LogGUI win treeView revDetails actCheck actCanc comboBranch
 
 
---
---setupLogEntries :: TreeViewItem Core.LogEntry -> Core.GitLog -> IO ()
---setupLogEntries item (Core.GitLog logs) = do
---    getSetter item logs
---    addTextColumnToTreeView item "Subject" (\Core.LogEntry { Core.subject = t } -> [cellText := t])
---    addTextColumnToTreeView item "Author" (\Core.LogEntry { Core.author = t, Core.email = mail } -> [cellText := (t ++ " <" ++ mail ++ ">")])
---    addTextColumnToTreeView item "Date" (\Core.LogEntry { Core.date = t } -> [cellText := t])
---
---connectLogGui :: Core.GitRepo -> LogGUI -> IO ()
---connectLogGui repo gui = do
---    registerClose $ logWin gui
---    registerCloseAction (actLogCancel gui) (logWin gui)
---    on (getItem (actCheckout gui)) actionActivated $ doCheckout gui repo >> liftIO (closeWin (logWin gui))
---
---    return ()
+-- TODO move this methods to helper?
+
+closeWin :: WindowItem -> IO ()
+closeWin win = (widgetHideAll (getItem win))
+
+registerClose :: WindowItem -> IO ()
+registerClose win = on (getItem win) deleteEvent (liftIO (closeWin win) >> return False) >> return ()
+
+registerCloseAction :: ActionItem -> WindowItem -> IO ()
+registerCloseAction act win = on (getItem act) actionActivated (liftIO (closeWin win)) >> return ()
+
+
+
+
 --
 --doCheckout :: LogGUI -> Core.GitRepo -> IO ()
 --doCheckout gui repo = do
