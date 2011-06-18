@@ -54,14 +54,15 @@ data LogGUI a = LogGUI {
 --openLogWindow repo = loadAndOpenWindow (loadLogGui repo) (connectLogGui repo) logWin
 --
 
-newLogGui :: (TreeView -> IO (ListStore a)) -- ^ setup the liststore to display logEntries
+-- TODO give only a list of logEntries
+newLogGui :: (TreeView -> IO (ListStore LogEntry)) -- ^ setup the liststore to display logEntries
             -> [String] -- ^ options will be displayed in a menu as checkboxes TODO implement
-            -> Maybe (ListStore a -> IO String -> IO ()) -- ^ called when a different branch is selected
-            -> (a -- ^ selected line
+            -> Maybe (ListStore LogEntry -> IO String -> IO ()) -- ^ called when a different branch is selected
+            -> (IO LogEntry -- ^ selected line
                 -> IO (Maybe String) -- ^ branchname
                 -> IO ()) -- ^ TODO change a to revision? called on checkout action. will close window afterwards
             -> IO ()
-newLogGui setupListStore _ doBranchSwitch doCheckout = do
+newLogGui setupListStore _ mbDoBranchSwitch doCheckout = do
         gui <- loadLogGui setupListStore
 
         -- connect gui elements
@@ -74,6 +75,7 @@ newLogGui setupListStore _ doBranchSwitch doCheckout = do
 
         return ()
     where
+    doCheckout' :: TreeViewItem LogEntry -> ComboBoxItem -> IO ()
     doCheckout' (_, (store, view), _) combo = doCheckout (do
             (path, _) <- treeViewGetCursor view
             Just treeIter <- treeModelGetIter store path
