@@ -17,7 +17,8 @@ module Main (
 ) where
 
 import VCSGui.Common.Types
-import VCSGui.Common.Commit
+import VCSGui.Svn.Commit
+import VCSWrapper.Common
 
 -- test data
 author = "test-author"
@@ -25,9 +26,8 @@ cwd = "/home/n0s/project1_work3"
 testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn.glade"
 
 main = do
-    showGUI
-        cwd
-        author
+    runWithConfig $ showGUI
+        Main.author
         testgladepath
         (SVNGTKObjectAccessors
             "commit_dialog"
@@ -36,5 +36,5 @@ main = do
             "buffer_commitmsg"
             "treeview_files"
             "bt_unlockTargets")
-        SVN
-
+    where
+        runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing

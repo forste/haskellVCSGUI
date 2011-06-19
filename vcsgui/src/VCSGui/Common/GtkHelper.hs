@@ -21,6 +21,7 @@ module VCSGui.Common.GtkHelper (
     , getTextViewFromGlade
     , getComboBoxFromGlade
     , getTreeViewFromGlade
+    , getTreeViewFromGladeCustomStore
     , addColumnToTreeView
     , addTextColumnToTreeView
 
@@ -116,7 +117,7 @@ getComboBoxFromGlade :: Gtk.Builder
 getComboBoxFromGlade builder name = do
     (_, combo) <- wrapWidget builder Gtk.castToComboBox name
     Gtk.comboBoxSetModelText combo
-    let getter = Gtk.comboBoxGetActiveText combo -- get selected text
+    let getter = Gtk.comboBoxGetActiveText combo  :: IO (Maybe String) -- ^ get selected text
         setter entries = do -- fill with new entries
             store <- Gtk.comboBoxGetModelText combo
             Gtk.listStoreClear store
@@ -159,6 +160,18 @@ getTreeViewFromGlade builder name rows = do
     let getter = getFromListStore entry
         setter = setToListStore entry
     return (name, (store, treeView), (getter, setter))
+
+getTreeViewFromGladeCustomStore :: Gtk.Builder
+                        -> String
+                        -> (Gtk.TreeView -> IO (Gtk.ListStore a)) -- ^ fn defining how to setup the liststore
+                        -> IO (TreeViewItem a)
+getTreeViewFromGladeCustomStore builder name setupListStore = do
+    (_, tView) <- wrapWidget builder Gtk.castToTreeView name
+    store <- setupListStore tView
+    Gtk.treeViewSetModel tView store
+    let getter = getFromListStore (store, tView)
+        setter = setToListStore (store, tView)
+    return (name, (store, tView), (getter, setter))
 
 
 createStoreForTreeView :: Gtk.TreeView
