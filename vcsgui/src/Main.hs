@@ -31,7 +31,7 @@ import Graphics.UI.Gtk
 -- commit
 --
 
--- {-
+ {-
 -- test data
 author = "test-author"
 cwd = "/home/n0s/project1_work3"
@@ -45,7 +45,7 @@ main = do
     mainQuit
     where
         runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
----}
+-}
 
 --
 -- checkout
@@ -72,18 +72,18 @@ main = do
 --log
 --
 
-{-
+--{-
 cwdGit = "/home/n0s/project1_work3"
 
 main = do
         initGUI
         runWithConfig $
-            SvnLog.showLogGUI
+            Svn.showLogGUI
         mainGUI
         mainQuit
     where
         runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
--}
+---}
 
 --
 --git

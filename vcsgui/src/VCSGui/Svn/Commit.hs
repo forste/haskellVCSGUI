@@ -11,7 +11,6 @@
 -- |
 --
 -----------------------------------------------------------------------------
-{-# LANGUAGE ScopedTypeVariables #-}
 module VCSGui.Svn.Commit (
     showCommitGUI
 ) where
