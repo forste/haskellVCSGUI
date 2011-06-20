@@ -15,7 +15,7 @@
 module VCSGui.Common.Commit (
     SCFile(..)
     ,Option
-    ,showGUI
+    ,showCommitGUI
     ,selected
     ,filePath
     ,status
@@ -54,7 +54,7 @@ isLocked _                   = False
 type Option = String
 
 -- loads gui objects and connects them
-showGUI :: (TreeView -> Wrapper.Ctx (ListStore SCFile))   -- ^ function to set listStore model for treeview
+showCommitGUI :: (TreeView -> Wrapper.Ctx (ListStore SCFile))   -- ^ function to set listStore model for treeview
         -> (   String
             -> [FilePath]
             -> [Option]
@@ -64,7 +64,7 @@ showGUI :: (TreeView -> Wrapper.Ctx (ListStore SCFile))   -- ^ function to set l
         -> FilePath             -- ^ glade
         -> GTKObjectAccessors   -- ^ accessors for gtk objects
         -> Wrapper.Ctx()
-showGUI setUpTreeView okCallback author gladepath gtkAccessors = do
+showCommitGUI setUpTreeView okCallback author gladepath gtkAccessors = do
     liftIO $ putStrLn "Starting gui ..."
     liftIO $ initGUI
 

@@ -12,7 +12,7 @@
 --
 -----------------------------------------------------------------------------
 module VCSGui.Svn.Commit (
-    showGUI
+    showCommitGUI
 ) where
 
 import qualified VCSGui.Common.Commit as C
@@ -22,11 +22,11 @@ import qualified VCSWrapper.Svn as Svn
 import Control.Monad.Trans(liftIO)
 import VCSWrapper.Common
 
-showGUI :: String               -- ^ author
+showCommitGUI :: String               -- ^ author
         -> FilePath             -- ^ glade
         -> GTKObjectAccessors   -- ^ accessors for gtk objects
         -> Svn.Ctx()
-showGUI = C.showGUI setUpTreeView okCallback
+showCommitGUI = C.showCommitGUI setUpTreeView okCallback
 
 
 
