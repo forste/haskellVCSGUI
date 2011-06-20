@@ -9,7 +9,10 @@ maintainer:
 build-depends: base -any, directory -any, directory -any, gtk -any,
                haskell98 -any, mtl -any, mtl -any, vcswrapper -any,
                vcswrapper -any, mtl -any, mtl -any, haskell98 -any, gtk -any,
-               directory -any, directory -any, base -any
+               directory -any, directory -any, base -any, base -any,
+               directory -any, directory -any, gtk -any, haskell98 -any, mtl -any,
+               mtl -any, vcswrapper -any, vcswrapper -any, mtl -any, mtl -any,
+               haskell98 -any, gtk -any, directory -any, directory -any, base -any
 stability:
 homepage:
 package-url:
@@ -44,7 +47,7 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src
-other-modules: VCSGui.Svn.Checkout VCSGui.Svn.Commit
+other-modules: VCSGui.Svn.Log VCSGui.Svn.Checkout VCSGui.Svn.Commit
                VCSGui.Common.Types VCSGui.Common.GtkHelper VCSGui.Common.Log
 ghc-prof-options:
 ghc-shared-options:
@@ -74,7 +77,7 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src
-other-modules: VCSGui.Svn.Checkout VCSGui.Svn.Commit
+other-modules: VCSGui.Svn.Log VCSGui.Svn.Checkout VCSGui.Svn.Commit
                VCSGui.Common.Types VCSGui.Common.GtkHelper VCSGui.Common.Log
 ghc-prof-options:
 ghc-shared-options:

@@ -17,8 +17,9 @@ module Main (
 ) where
 
 import VCSGui.Common.Types
-import VCSGui.Svn.Commit
-import VCSGui.Svn.Checkout
+import qualified VCSGui.Svn.Commit as SvnCommit
+import qualified VCSGui.Svn.Checkout as SvnCheckout
+import qualified VCSGui.Svn.Log as SvnLog
 import VCSWrapper.Common
 
 import qualified VCSGui.Git.Log as GitLog
@@ -77,6 +78,23 @@ main = do
 ---}
 
 --
+--log
+--
+
+--{-
+cwdGit = "/home/n0s/project1_work3"
+
+main = do
+        initGUI
+        runWithConfig $
+            SvnLog.showLogGUI
+        mainGUI
+        mainQuit
+    where
+        runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
+---}
+
+--
 --git
 --
 
@@ -84,7 +102,7 @@ main = do
 --log
 --
 
---{-
+{-
 cwdGit = "/home/n0s-ubuntu/testrepo"
 
 main = do
@@ -95,7 +113,7 @@ main = do
         mainQuit
     where
         runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
----}
+-}
 
 
 

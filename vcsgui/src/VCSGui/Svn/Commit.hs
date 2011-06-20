@@ -22,10 +22,7 @@ import qualified VCSWrapper.Svn as Svn
 import Control.Monad.Trans(liftIO)
 import VCSWrapper.Common
 
-showCommitGUI :: String               -- ^ author
-        -> FilePath             -- ^ glade
-        -> GTKObjectAccessors   -- ^ accessors for gtk objects
-        -> Svn.Ctx()
+showCommitGUI :: Svn.Ctx()
 showCommitGUI = C.showCommitGUI setUpTreeView okCallback
 
 
