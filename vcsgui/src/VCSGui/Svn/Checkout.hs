@@ -14,7 +14,7 @@
 -----------------------------------------------------------------------------
 
 module VCSGui.Svn.Checkout (
-    showGUI
+    showCheckoutGUI
     ,SVNCheckoutObjectAccessors(..)
 ) where
 
@@ -33,10 +33,10 @@ data SVNCheckoutObjectAccessors = SVNCheckoutObjectAccessors {
     ,gtkBufferPath :: String
     }
 
-showGUI :: FilePath             -- ^ glade
+showCheckoutGUI :: FilePath             -- ^ glade
         -> SVNCheckoutObjectAccessors   -- ^ accessors for gtk objects
         -> Svn.Ctx()
-showGUI gladepath gtkAccessors = do
+showCheckoutGUI gladepath gtkAccessors = do
     liftIO $ putStrLn "Starting gui ..."
     liftIO $ initGUI
 
