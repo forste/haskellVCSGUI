@@ -22,7 +22,7 @@ import qualified VCSWrapper.Git as Git
 showLogGUI :: Git.Ctx ()
 showLogGUI = do
         log <- Git.simpleLog
-        Common.showLogGUI log [] Nothing checkout
+        Common.showLogGUI log [] (Just (["master", "otherBranch"], \_ -> return [])) checkout
     where
     checkout log _ = Git.checkout (Just $ Git.commitID log) Nothing
 

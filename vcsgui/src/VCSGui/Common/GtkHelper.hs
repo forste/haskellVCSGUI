@@ -27,8 +27,8 @@ module VCSGui.Common.GtkHelper (
 
     , getName
     , getItem
-    , getGetter
-    , getSetter
+    , get
+    , set
 
     , WindowItem
     , ActionItem
@@ -53,17 +53,22 @@ type TextViewItem = (String, Gtk.TextView, (IO (Maybe String), String -> IO ()))
 type TreeViewItem a = (String, (Gtk.ListStore a, Gtk.TreeView), (IO (Maybe [a]), [a] -> IO ()))
 
 -- Type accessors
+
+-- | return the name of this item (as in the gladefile)
 getName :: (String, a, b) -> String
 getName (n, _, _) = n
 
+-- | return the Gtk object wrapped by given item
 getItem :: (String, a, b) -> a
 getItem (_, item, _) = item
 
-getGetter :: (String, a, (b, c)) -> b
-getGetter (_, _, (getter, _)) = getter
+-- | call teh get method of an *Item
+get :: (String, a, (b, c)) -> b
+get (_, _, (getter, _)) = getter
 
-getSetter :: (String, a, (b, c)) -> c
-getSetter (_,_, (_, setter)) = setter
+-- | call the set method of an *Item
+set :: (String, a, (b, c)) -> c
+set (_,_, (_, setter)) = setter
 
 
 ----------------------
