@@ -8,7 +8,8 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | TODO this module needs refactoring. showGUI should use GtkHelper to avoid code redundance
+-- | TODO helpers (end of file) should be moved to GtkHelper
 --
 -----------------------------------------------------------------------------
 module VCSGui.Common.Commit (
@@ -48,28 +49,12 @@ status (SVNSCFile _ _ s _) = s
 
 isLocked :: SCFile -> Bool
 isLocked (SVNSCFile _ _ _ l) = l
---
---
----- TODO add parent as parameter? add author
---openCommitWindow :: Core.GitRepo -> IO ()
---openCommitWindow repo = loadAndOpenWindow (loadCommitGui repo) (connectCommitGui repo) commitWin
---
+isLocked _                   = False
 
-
---type OKCallback = IO ()
-
---SVN OK CALLBACK
-
---svnOkCallback :: String -- buffer text
---                -> IO ()
---svnOkCallback bufferText options selectedFiles = do
-
-
---setUPTreeView :: TreeView -> IO()
 type Option = String
 
 -- loads gui objects and connects them
-showGUI :: (TreeView -> Wrapper.Ctx (ListStore SCFile))   -- ^ function to setup treeview
+showGUI :: (TreeView -> Wrapper.Ctx (ListStore SCFile))   -- ^ function to set listStore model for treeview
         -> (   String
             -> [FilePath]
             -> [Option]
@@ -96,8 +81,6 @@ showGUI setUpTreeView okCallback author gladepath gtkAccessors = do
     btUnlockTargets <- liftIO $ builderGetObject builder castToCheckButton (gtkBtUnlockTargets gtkAccessors)
 
     listStore <- setUpTreeView listView
-    -- build and set model
---    repoStatus <- runWithConfig $ Svn.status []
 
     -- connect actions
     liftIO $ on commitDialog deleteEvent $ liftIO $ quit commitDialog >> return False
@@ -108,16 +91,6 @@ showGUI setUpTreeView okCallback author gladepath gtkAccessors = do
                                         selectedFiles <- getSelectedFiles listStore
                                         okCallback msg selectedFiles [] config
                                         quit commitDialog
---            putStrLn $ "Commiting to: "++cwd
---            msg <- getTextFromBuffer bufferCommitMsg
---            active <- get btUnlockTargets toggleButtonActive
---            selectedFiles <- getSelectedFiles listStore
---            let unlockOption = if active then [] else ["--no-unlock"]
---            runWithConfig $ Svn.commit selectedFiles author msg unlockOption
---            quit commitDialog
---            return ()
-
-
 
     -- present window and start main loop
     liftIO $ windowPresent commitDialog
@@ -125,10 +98,6 @@ showGUI setUpTreeView okCallback author gladepath gtkAccessors = do
 
     liftIO $ putStrLn "Finished"
     return ()
---    where
---        ctxSelect status =  status == Svn.Added || status == Svn.Deleted || status==Svn.Modified ||
---                            status==Svn.Replaced
---        runWithConfig = Svn.runSvn $ Svn.makeConfig (Just cwd) Nothing Nothing
 
 ----
 ---- HELPERS
@@ -137,22 +106,6 @@ quit :: Dialog -> IO ()
 quit commitDialog  = do
         widgetDestroy commitDialog
         liftIO mainQuit
-
---createNewValue :: (Svn.Ctx () -> IO ()) -- adder, needed if file needs to be added <=> is untracked
---                -> SCFile -- old value
---                -> IO SCFile
---createNewValue runWithConfig (SCFile False file "Untracked" isLocked) = do
---                            runWithConfig $ Svn.add [file] []
---                            return SCFile { selected = True,
---                                            path = file,
---                                            status = "Added",
---                                            locked=isLocked
---                                            }
---createNewValue _ value = do
---            return SCFile { selected = not (selected value),
---                            path = (path value),
---                            status = (status value)
---                            , locked = (locked value)}
 
 getTextFromBuffer :: TextBuffer -> IO String
 getTextFromBuffer buffer = do
@@ -165,158 +118,3 @@ getSelectedFiles listStore = do
             let selectedFiles = map (\scf -> filePath scf )
                                 $ filter (\scf -> selected scf) listedFiles
             return (selectedFiles)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---loadCommitGui :: Core.GitRepo -> IO CommitGUI
---loadCommitGui repo = do
---    -- create and load builder
---    builder <- builderNew
---    builderAddFromFile builder gladepath
-
---    -- retrieve gtk objects
---    commitWin <- getWindowFromGlade builder "commitWindow"
---    commitMsg <- getTextViewFromGlade builder "txtCommitMsg"
---    actCommit <- getActionFromGlade builder "actCommit"
-
---    listView <- builderGetObject builder castToTreeView (gtkListView gtkAccessors)
-
---
-
---    listViewItem <- getTreeViewFromGlade builder "treeViewCommitFiles" ([] :: [SelectableCommitFile])
---    repoStatus <- Core.status repo
---    toggleRenderer <- setupCommitFiles listViewItem repoStatus
-
---    actCancel <- getActionFromGlade builder "actCancel"
---
---    return $ CommitGUI commitWin commitMsg actCommit listViewItem toggleRenderer actCancel)
---
---
---setupCommitFiles :: TreeViewItem SelectableCommitFile -> Core.GitStatus -> IO CellRendererToggle
---setupCommitFiles item repoStatus = do
---    let modFiles = map (\file -> SCFile { selected = True, path = file, hint = "modified" }) (Core.modifiedFiles repoStatus)
---        addFiles = map (\file -> SCFile { selected = True, path = file, hint = "added" }) (Core.addedFiles repoStatus)
---        untrackFiles = map (\file -> SCFile { selected = False, path = file, hint = "untracked" }) (Core.untrackedFiles repoStatus)
---    getSetter item (modFiles ++ addFiles ++ untrackFiles)
---
---    toggleRenderer <- cellRendererToggleNew
---    addColumnToTreeView item toggleRenderer "Commit" (\SCFile { selected = s } -> [cellToggleActive := s])
---
---    addTextColumnToTreeView item "File" (\SCFile { path = p } -> [cellText := p])
---
---    addTextColumnToTreeView item "File status" (\SCFile { hint = h } -> [cellText := h])
---
---    return toggleRenderer
---
---
---connectCommitGui :: Core.GitRepo -> CommitGUI -> IO ()
---connectCommitGui repo gui = do
---    registerClose $ commitWin gui
---    on (getItem (actCancel gui)) actionActivated $ closeWin (commitWin gui)
---    on (getItem (actCommit gui)) actionActivated $ doCommit gui repo >> closeWin (commitWin gui)
---    on (toggleRenderer gui) cellToggled $ \filepath -> do
---        putStrLn ("toggle called: " ++ filepath)
---        let (_, (store, _), _) = commitFiles gui
---        Just treeIter <- treeModelGetIterFromString store filepath
---        value <- listStoreGetValue store $ listStoreIterToIndex treeIter
---        let newValue = value { selected = not (selected value) }
---        listStoreSetValue store (listStoreIterToIndex treeIter) newValue
---        return ()
---    return ()
---
---
---doCommit :: CommitGUI -> Core.GitRepo -> IO ()
---doCommit gui repo = do
---    Just commitMsg <- getGetter $ commitMsg gui
---    Just listedFiles <- getGetter $ commitFiles gui
---    let selectedFiles = map (\SCFile { path = p} -> p ) $ filter (\SCFile { selected = s } -> s) listedFiles
---
---    Core.commit repo selectedFiles commitMsg
-
-
-
-
---------------------------------------------------
----- MISC
---------------------------------------------------
---
---openErrorWin :: String -> IO ()
---openErrorWin msg = do
---    dialog <- messageDialogNew Nothing [] MessageError ButtonsOk msg
---    _ <- dialogRun dialog
---    widgetDestroy dialog
---    return ()
-
---------------------------------------------------
----- HELPERS
---------------------------------------------------
---
---loadAndOpenWindow :: IO gui -- ^ load gui fn
---    -> (gui -> IO ()) -- ^ connect gui fn
---    -> (gui -> WindowItem) -- ^ get WindowItem from gui
---    -> IO ()
---loadAndOpenWindow loadGui connectGui getWindow = do
---    gui <- loadGui
---    connectGui gui
---    widgetShowAll $ getItem (getWindow gui)
---    return ()
---
---
---loadGuiTemplate :: (Builder -> IO a) -> IO a
---loadGuiTemplate builderFn = do
---    gladepath <- getGladepath
---    builder <- openGladeFile gladepath
---    return builder
---    builderFn builder
---
---registerClose :: WindowItem -> IO ()
---registerClose win = on (getItem win) deleteEvent (liftIO (closeWin win) >> return False) >> return ()
---
---registerCloseAction :: ActionItem -> WindowItem -> IO ()
---registerCloseAction act win = on (getItem act) actionActivated (liftIO (closeWin win)) >> return ()
---
---closeWin :: WindowItem -> IO ()
---closeWin win = (widgetHideAll (getItem win))
-
-
-
----- loads gui objects and connects them
---showGUI :: String               -- author
---        -> FilePath             -- current working directory
---        -> FilePath             -- glade
---        -> GTKObjectAccessors   -- accessors for gtk objects
---        -> VCSType              -- version control type
---        -> IO()
---showGUI cwd author gladepath gtkAccessors SVN = return ()
-----showGUI cwd author gladepath gtkAccessors SVN = do
-----    Svn.showGUI cwd author gladepath gtkAccessors
---
---showGUI listStore options
---
---
-----data CheckoutCtx a = CheckoutCtx (ReaderT CheckoutConfig IO a)
-----   deriving (Monad)
-----   , MonadIO b, MonadReader CheckoutConfig b)
---
-----usage e.g. runWithConfig $ loadGui "path/to/repo"
-----  where
-----      runWithConfig = runCtx curConfig
-----      runCtx config (Checkout a) = runReaderT a config
-----      curConfig = makeConfig options ...
---
-----loadGui :: FilePath -> CheckoutCtx ()

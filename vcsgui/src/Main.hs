@@ -18,23 +18,48 @@ module Main (
 
 import VCSGui.Common.Types
 import VCSGui.Svn.Commit
+import VCSGui.Svn.Checkout
 import VCSWrapper.Common
 
--- test data
-author = "test-author"
-cwd = "/home/n0s/project1_work3"
-testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn.glade"
+--
+-- commit
+--
 
+-- test data
+--author = "test-author"
+--cwd = "/home/n0s/project1_work3"
+--testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn.glade"
+--
+--main = do
+--    runWithConfig $ VCSGui.Svn.Commit.showGUI
+--        Main.author
+--        testgladepath
+--        (SVNGTKObjectAccessors
+--            "commit_dialog"
+--            "act_commit"
+--            "act_cancel"
+--            "buffer_commitmsg"
+--            "treeview_files"
+--            "bt_unlockTargets")
+--    runWithConfig $ VCSGui.Svn.Checkout.showGUI
+--    where
+--        runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
+
+
+--
+-- checkout
+--
+cwd = "/home/n0s/"
+testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn_checkout2.glade"
 main = do
-    runWithConfig $ showGUI
-        Main.author
+    runWithConfig $ VCSGui.Svn.Checkout.showGUI
         testgladepath
-        (SVNGTKObjectAccessors
-            "commit_dialog"
-            "act_commit"
+        (SVNCheckoutObjectAccessors
+            "window_checkout"
+            "act_checkout"
             "act_cancel"
-            "buffer_commitmsg"
-            "treeview_files"
-            "bt_unlockTargets")
+            "buffer_url"
+            "buffer_revision"
+            "buffer_path")
     where
         runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
