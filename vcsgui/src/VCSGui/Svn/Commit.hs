@@ -13,15 +13,19 @@
 -----------------------------------------------------------------------------
 module VCSGui.Svn.Commit (
     showCommitGUI
+    ,Svn.Config
+    ,Svn.Ctx
 ) where
 
 import qualified VCSGui.Common.Commit as C
-import VCSGui.Common.Types
-import Graphics.UI.Gtk
-import qualified VCSWrapper.Svn as Svn
-import Control.Monad.Trans(liftIO)
-import VCSWrapper.Common
 import qualified VCSGui.Common.GtkHelper as H
+
+import qualified VCSWrapper.Svn as Svn
+
+import Graphics.UI.Gtk
+import Control.Monad.Trans(liftIO)
+
+
 
 showCommitGUI :: Svn.Ctx()
 showCommitGUI = C.showCommitGUI setUpTreeView okCallback
@@ -29,7 +33,7 @@ showCommitGUI = C.showCommitGUI setUpTreeView okCallback
 okCallback :: String        -- ^ commit message
             -> [FilePath]   -- ^ selected files
             -> [C.Option]   -- ^ TODO options
-            -> Ctx ()
+            -> Svn.Ctx ()
 okCallback msg filesToCommit _ =  do
                                 liftIO $ putStrLn $ "Files to commit (adding them also): "++show filesToCommit
                                 liftIO $ putStrLn $ "Commit message: "++msg
