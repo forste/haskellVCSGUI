@@ -30,16 +30,13 @@ showCommitGUI = C.showCommitGUI setUpTreeView okCallback
 okCallback :: String        -- ^ commit message
             -> [FilePath]   -- ^ selected files
             -> [C.Option]   -- ^ TODO options
-            -> Config       -- ^ vcs config
-            -> IO()
-okCallback msg filesToCommit _ config =  do
-                                putStrLn $ "Files to commit (adding them also): "++show filesToCommit
-                                putStrLn $ "Commit message: "++msg
-                                runWithConfig $ Svn.add [] filesToCommit
-                                runWithConfig $ Svn.commit filesToCommit msg []
+            -> Ctx ()
+okCallback msg filesToCommit _ =  do
+                                liftIO $ putStrLn $ "Files to commit (adding them also): "++show filesToCommit
+                                liftIO $ putStrLn $ "Commit message: "++msg
+                                Svn.add [] filesToCommit
+                                Svn.commit filesToCommit msg []
                                 return ()
-                                where
-                                    runWithConfig = Svn.runVcs config
 
 setUpTreeView :: TreeView -> Svn.Ctx (ListStore C.SCFile)
 setUpTreeView listView = do

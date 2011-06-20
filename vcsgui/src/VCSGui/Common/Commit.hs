@@ -82,8 +82,7 @@ showCommitGUI :: (TreeView -> Wrapper.Ctx (ListStore SCFile))   -- ^ fn to set l
         -> (   String                           -- ^ commit message
             -> [FilePath]                       -- ^ selected files
             -> [Option]                         -- ^ options TODO not implemented
-            -> Wrapper.Config                   -- ^ vcs config
-            -> IO())                                            -- ^ callback for ok action
+            -> Wrapper.Ctx ())                                  -- ^ callback for ok action
         -> Wrapper.Ctx()
 showCommitGUI setUpTreeView okCallback = do
     liftIO $ putStrLn "Starting gui ..."
@@ -98,13 +97,14 @@ showCommitGUI setUpTreeView okCallback = do
                                         selectedFiles <- getSelectedFiles store
 
                                         msg <- H.get (txtViewMsg gui)
-                                        okCallback (fromMaybe "" msg) selectedFiles [] config
+                                        Wrapper.runVcs config $ okCallback (fromMaybe "" msg) selectedFiles []
                                         H.closeWin (windowCommit gui)
 
     -- present window
     liftIO $ widgetShowAll $ H.getItem $ windowCommit gui
 
     return ()
+
 
 
 loadCommitGUI :: (TreeView
