@@ -43,15 +43,6 @@ main = do
     runWithConfig $ Svn.showCommitGUI
     mainGUI
     mainQuit
---        Main.author
---        testgladepath
---        (SVNGTKObjectAccessors
---            "commit_dialog"
---            "act_commit"
---            "act_cancel"
---            "buffer_commitmsg"
---            "treeview_files"
---            "bt_unlockTargets")
     where
         runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
 ---}

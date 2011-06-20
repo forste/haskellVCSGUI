@@ -23,6 +23,7 @@ module VCSGui.Common.GtkHelper (
     , getTreeViewFromGlade
     , getTreeViewFromGladeCustomStore
     , addColumnToTreeView
+    , addColumnToTreeView'
     , addTextColumnToTreeView
 
     , getName
@@ -232,13 +233,26 @@ addColumnToTreeView :: Gtk.CellRendererClass r =>
     -> String
     -> (a -> [Gtk.AttrOp r])
     -> IO ()
-addColumnToTreeView (_, (listStore, listView), _) renderer title value2attributes = do
+addColumnToTreeView (_, item, _) = do
+    addColumnToTreeView' item
+--    newCol <- Gtk.treeViewColumnNew
+--    Gtk.set newCol [Gtk.treeViewColumnTitle Gtk.:= title]
+--    Gtk.treeViewAppendColumn listView newCol
+--    Gtk.treeViewColumnPackStart newCol renderer True
+--    Gtk.cellLayoutSetAttributes newCol renderer listStore value2attributes
+
+addColumnToTreeView' :: Gtk.CellRendererClass r =>
+    (Gtk.ListStore a, Gtk.TreeView)
+    -> r
+    -> String
+    -> (a -> [Gtk.AttrOp r])
+    -> IO ()
+addColumnToTreeView' (listStore, listView) renderer title value2attributes = do
     newCol <- Gtk.treeViewColumnNew
     Gtk.set newCol [Gtk.treeViewColumnTitle Gtk.:= title]
     Gtk.treeViewAppendColumn listView newCol
     Gtk.treeViewColumnPackStart newCol renderer True
     Gtk.cellLayoutSetAttributes newCol renderer listStore value2attributes
-
 
 addTextColumnToTreeView :: TreeViewItem a
     -> String
