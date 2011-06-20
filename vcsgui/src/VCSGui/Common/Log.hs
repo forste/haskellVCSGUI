@@ -52,7 +52,7 @@ data LogGUI = LogGUI {
 
 showLogGUI :: [Common.LogEntry] -- ^ logEntries to be displayed initially
             -> [String] -- ^ options will be displayed in a menu as checkboxes TODO implement
-            -> Maybe ([String], -- ^ list of branchnames to display
+            -> Maybe ((String, [String]), -- ^ list of branchnames to display
                 (String -> Common.Ctx [Common.LogEntry])) -- ^ called when a different branch is selected. gets the new branchname
             -> (Common.LogEntry -- ^ selected line
                 -> (Maybe String) -- ^ name of the branch to checkout from
@@ -102,18 +102,20 @@ guiWithoutBranches logEntries options doCheckoutFn = do
         addTextColumnToTreeView item "Date" (\Common.LogEntry { Common.date = t } -> [Gtk.cellText Gtk.:= t])
         return ()
 
-guiAddBranches :: LogGUI -> [String] -> (String -> Common.Ctx [Common.LogEntry]) -> Common.Ctx ()
-guiAddBranches gui branches changeBranchFn = do
+guiAddBranches :: LogGUI -> (String, [String]) -> (String -> Common.Ctx [Common.LogEntry]) -> Common.Ctx ()
+guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
         -- set branch selection visible
         liftIO $ Gtk.set (getItem $ lblBranch gui) [Gtk.widgetVisible Gtk.:= True]
         liftIO $ Gtk.set (getItem $ comboBranch gui) [Gtk.widgetVisible Gtk.:= True]
 
         -- fill with data
-        liftIO $ set (comboBranch gui) branches
+        liftIO $ set (comboBranch gui) otherBranches
+        liftIO $ Gtk.comboBoxPrependText (getItem $ comboBranch gui) curBranch
+        liftIO $ Gtk.comboBoxSetActive (getItem $ comboBranch gui) 0
 
         -- register branch switch fn
         config <- ask
-        liftIO $ Gtk.on (getItem $ comboBranch gui) Gtk.changed $ changeBranchFn' config (getItem $ logTreeView gui) (fmap (fromMaybe "") $ get $ comboBranch gui) -- TODO check fromMaybe
+        liftIO $ Gtk.on (getItem $ comboBranch gui) Gtk.changed $ changeBranchFn' config (getItem $ logTreeView gui) (fmap (fromMaybe "") $ get $ comboBranch gui)
         return ()
     where
     changeBranchFn' :: Common.Config -> (Gtk.ListStore Common.LogEntry, Gtk.TreeView) -> IO String -> IO ()

@@ -21,8 +21,9 @@ import qualified VCSWrapper.Git as Git
 
 showLogGUI :: Git.Ctx ()
 showLogGUI = do
-        log <- Git.simpleLog
-        Common.showLogGUI log [] (Just (["master", "otherBranch"], \_ -> return [])) checkout
+        log <- Git.simpleLog Nothing
+        branches <- Git.localBranches
+        Common.showLogGUI log [] (Just (branches, \branch -> Git.simpleLog (Just branch))) checkout
     where
     checkout log _ = Git.checkout (Just $ Git.commitID log) Nothing
 
