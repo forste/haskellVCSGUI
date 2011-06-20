@@ -53,7 +53,7 @@ data LogGUI = LogGUI {
 showLogGUI :: [Common.LogEntry] -- ^ logEntries to be displayed initially
             -> [String] -- ^ options will be displayed in a menu as checkboxes TODO implement
             -> Maybe ((String, [String]), -- ^ list of branchnames to display
-                (String -> Common.Ctx [Common.LogEntry])) -- ^ called when a different branch is selected. gets the new branchname
+                (String -> Common.Ctx [Common.LogEntry])) -- ^ called when a different branch is selected. called with the new branchname
             -> (Common.LogEntry -- ^ selected line
                 -> (Maybe String) -- ^ name of the branch to checkout from
                 -> Common.Ctx ()) -- ^ called on checkout action. will close window afterwards
@@ -89,7 +89,7 @@ guiWithoutBranches logEntries options doCheckoutFn = do
     where
     doCheckout' :: Common.Config -> TreeViewItem Common.LogEntry -> ComboBoxItem -> IO ()
     doCheckout' cfg (_, (store, view), _) combo = do
-        (path, _) <- Gtk.treeViewGetCursor view
+        (path, _) <- Gtk.treeViewGetCursor view -- TODO fix nothing selected bug here
         Just treeIter <- Gtk.treeModelGetIter store path
         selectedLog <- Gtk.listStoreGetValue store $ Gtk.listStoreIterToIndex treeIter
         selectedBranch <- get combo
@@ -120,10 +120,13 @@ guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
         return ()
     where
     changeBranchFn' :: Common.Config -> (Gtk.ListStore Common.LogEntry, Gtk.TreeView) -> IO String -> IO ()
-    changeBranchFn' cfg (store, _) branchIO = do
+    changeBranchFn' cfg (store, view) branchIO = do
         branch <- branchIO
         newLogEntries <- Common.runVcs cfg $ changeBranchFn branch
         set (logTreeView gui) newLogEntries
+        selection <- Gtk.treeViewGetSelection view
+        Just iterFirst <- Gtk.treeModelGetIterFirst store
+        Gtk.treeSelectionSelectIter selection iterFirst
 
 loadLogGui :: [Common.LogEntry] -> Common.Ctx LogGUI
 loadLogGui logEntries = do

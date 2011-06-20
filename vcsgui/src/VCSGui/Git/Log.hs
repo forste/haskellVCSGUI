@@ -22,7 +22,6 @@ import qualified VCSWrapper.Git as Git
 import Control.Monad.Reader (liftIO)
 import Data.Maybe (fromMaybe)
 
--- TODO handle new branch creation
 showLogGUI :: Git.Ctx ()
 showLogGUI = do
         log <- Git.simpleLog Nothing
