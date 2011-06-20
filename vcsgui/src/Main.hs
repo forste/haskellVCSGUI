@@ -21,6 +21,7 @@ import qualified VCSGui.Svn as Svn
 import VCSWrapper.Common
 
 import qualified VCSGui.Git.Log as GitLog
+import qualified VCSGui.Git.Commit as GitCommit
 import Graphics.UI.Gtk
 
 --
@@ -31,13 +32,13 @@ import Graphics.UI.Gtk
 -- commit
 --
 
- {-
+--{-
 -- test data
 author = "test-author"
 cwd = "/home/n0s/project1_work3"
 testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn.glade"
 
-
+{-
 main = do
     initGUI
     runWithConfig $ Svn.showCommitGUI
@@ -72,7 +73,7 @@ main = do
 --log
 --
 
---{-
+{-
 cwdGit = "/home/n0s/project1_work3"
 
 main = do
@@ -93,21 +94,32 @@ main = do
 --log
 --
 
-{-
 cwdGit = "/home/n0s-ubuntu/testrepo"
 
+{-
 main = do
         initGUI
         runWithConfig $
             GitLog.showLogGUI
         mainGUI
-        mainQuit
     where
         runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
 -}
 
 
+--
+-- commit
+--
+--{-
+main = do
+    initGUI
+    runWithConfig $
+        GitCommit.showCommitGUI
+    mainGUI
+    where
+        runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
 
+---}
 
 
 

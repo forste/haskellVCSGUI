@@ -25,6 +25,7 @@ module VCSGui.Common.GtkHelper (
     , addColumnToTreeView
     , addColumnToTreeView'
     , addTextColumnToTreeView
+    , addTextColumnToTreeView'
 
     , getName
     , getItem
@@ -261,6 +262,14 @@ addTextColumnToTreeView :: TreeViewItem a
 addTextColumnToTreeView tree title map = do
     r <- Gtk.cellRendererTextNew
     addColumnToTreeView tree r title map
+
+addTextColumnToTreeView' :: (Gtk.ListStore a, Gtk.TreeView)
+    -> String
+    -> (a -> [Gtk.AttrOp Gtk.CellRendererText])
+    -> IO ()
+addTextColumnToTreeView' item title map = do
+    r <- Gtk.cellRendererTextNew
+    addColumnToTreeView' item r title map
 
 ---------------------------
 -- internal helpers
