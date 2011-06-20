@@ -55,10 +55,10 @@ data LogGUI = LogGUI {
 
 newLogGui :: [Common.LogEntry] -- ^ logEntries to be displayed initially
             -> [String] -- ^ options will be displayed in a menu as checkboxes TODO implement
-            -> Maybe (ListStore Common.LogEntry -> IO String -> IO ()) -- ^ called when a different branch is selected
+            -> Maybe (ListStore Common.LogEntry -> IO String -> IO ()) -- ^ called when a different branch is selected TODO implement
             -> (Common.LogEntry -- ^ selected line
                 -> (Maybe String) -- ^ name of the branch to checkout from
-                -> IO ()) -- ^ called on checkout action. will close window afterwards
+                -> Common.Ctx ()) -- ^ called on checkout action. will close window afterwards
             -> Common.Ctx ()
 newLogGui logEntries _ mbDoBranchSwitch doCheckout = do
         gui <- loadLogGui logEntries
@@ -67,19 +67,20 @@ newLogGui logEntries _ mbDoBranchSwitch doCheckout = do
         liftIO $ registerClose $ logWin gui
         liftIO $ registerCloseAction (actLogCancel gui) (logWin gui)
 
+        config <- ask
         liftIO $ on (getItem (actCheckout gui)) actionActivated $
-            doCheckout' (logTreeView gui) (comboBranch gui)
+            doCheckout' config (logTreeView gui) (comboBranch gui)
                 >> (closeWin (logWin gui))
 
         return ()
     where
-    doCheckout' :: TreeViewItem Common.LogEntry -> ComboBoxItem -> IO ()
-    doCheckout' (_, (store, view), _) combo = do
+    doCheckout' :: Common.Config -> TreeViewItem Common.LogEntry -> ComboBoxItem -> IO ()
+    doCheckout' cfg (_, (store, view), _) combo = do
         (path, _) <- treeViewGetCursor view
         Just treeIter <- treeModelGetIter store path
         selectedLog <- listStoreGetValue store $ listStoreIterToIndex treeIter
         selectedBranch <- getGetter combo
-        doCheckout selectedLog selectedBranch
+        Common.runVcs cfg $ doCheckout selectedLog selectedBranch
 
 
 loadLogGui :: [Common.LogEntry] -> Common.Ctx LogGUI

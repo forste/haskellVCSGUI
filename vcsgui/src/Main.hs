@@ -21,34 +21,44 @@ import VCSGui.Svn.Commit
 import VCSGui.Svn.Checkout
 import VCSWrapper.Common
 
+import VCSGui.Git.Gui
+
+--
+--svn
+--
+
 --
 -- commit
 --
 
--- test data
---author = "test-author"
---cwd = "/home/n0s/project1_work3"
---testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn.glade"
---
---main = do
---    runWithConfig $ VCSGui.Svn.Commit.showGUI
---        Main.author
---        testgladepath
---        (SVNGTKObjectAccessors
---            "commit_dialog"
---            "act_commit"
---            "act_cancel"
---            "buffer_commitmsg"
---            "treeview_files"
---            "bt_unlockTargets")
---    runWithConfig $ VCSGui.Svn.Checkout.showGUI
---    where
---        runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
+ {-
+ test data
+author = "test-author"
+cwd = "/home/n0s/project1_work3"
+testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn.glade"
 
+
+main = do
+    runWithConfig $ VCSGui.Svn.Commit.showGUI
+        Main.author
+        testgladepath
+        (SVNGTKObjectAccessors
+            "commit_dialog"
+            "act_commit"
+            "act_cancel"
+            "buffer_commitmsg"
+            "treeview_files"
+            "bt_unlockTargets")
+    runWithConfig $ VCSGui.Svn.Checkout.showGUI
+    where
+        runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
+-}
 
 --
 -- checkout
 --
+
+--{-
 cwd = "/home/n0s/"
 testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn_checkout2.glade"
 main = do
@@ -63,3 +73,22 @@ main = do
             "buffer_path")
     where
         runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
+---}
+
+--
+--git
+--
+
+--
+--log
+--
+
+{-
+cwdGit = "/home/n0s/testrepo"
+
+main = do
+        runWithConfig $
+            openLogWindow
+    where
+        runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
+-}
