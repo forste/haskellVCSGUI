@@ -13,16 +13,16 @@
 -----------------------------------------------------------------------------
 
 module VCSGui.Git.Log (
-    openLogWindow
+    showLogGUI
 ) where
 
-import VCSGui.Common.Log
+import qualified VCSGui.Common.Log as Common
 import qualified VCSWrapper.Git as Git
 
-openLogWindow :: Git.Ctx ()
-openLogWindow = do
+showLogGUI :: Git.Ctx ()
+showLogGUI = do
         log <- Git.simpleLog
-        showLogGUI log [] Nothing checkout
+        Common.showLogGUI log [] Nothing checkout
     where
     checkout log _ = Git.checkout (Just $ Git.commitID log) Nothing
 
