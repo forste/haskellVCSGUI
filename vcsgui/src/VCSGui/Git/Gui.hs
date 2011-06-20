@@ -14,7 +14,7 @@
 -----------------------------------------------------------------------------
 
 module VCSGui.Git.Gui (
-    openLogWindow
+--    openLogWindow
 --    , openCommitWindow
 --    , openErrorWin
 --    , openRepoWindow
@@ -24,12 +24,7 @@ import VCSGui.Common.Log
 import qualified VCSWrapper.Git as Git
 
 
-openLogWindow :: Git.Ctx ()
-openLogWindow = do
-        log <- Git.simpleLog
-        newLogGui log [] Nothing checkout
-    where
-    checkout log _ = Git.checkout (Just $ Git.commitID log) Nothing
+
 
 
 --import VCSGui.Common.GtkHelper

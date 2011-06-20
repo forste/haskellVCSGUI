@@ -13,7 +13,7 @@
 -----------------------------------------------------------------------------
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module VCSGui.Common.Log (
-    newLogGui
+    showLogGUI
 ) where
 
 import Control.Monad.Reader
@@ -53,7 +53,7 @@ data LogGUI = LogGUI {
 --openLogWindow repo = loadAndOpenWindow (loadLogGui repo) (connectLogGui repo) logWin
 --
 
-newLogGui :: [Common.LogEntry] -- ^ logEntries to be displayed initially
+showLogGUI :: [Common.LogEntry] -- ^ logEntries to be displayed initially
             -> [String] -- ^ options will be displayed in a menu as checkboxes TODO implement
             -> Maybe ([String], -- ^ list of branchnames to display
                 (ListStore Common.LogEntry -> IO String -> Common.Ctx [Common.LogEntry])) -- ^ called when a different branch is selected TODO implement
@@ -61,7 +61,7 @@ newLogGui :: [Common.LogEntry] -- ^ logEntries to be displayed initially
                 -> (Maybe String) -- ^ name of the branch to checkout from
                 -> Common.Ctx ()) -- ^ called on checkout action. will close window afterwards
             -> Common.Ctx ()
-newLogGui logEntries _ mbDoBranchSwitch doCheckout = do
+showLogGUI logEntries _ mbDoBranchSwitch doCheckout = do
         gui <- loadLogGui logEntries
 
         liftIO $ setupLogColumns gui

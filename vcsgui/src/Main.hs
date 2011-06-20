@@ -21,7 +21,7 @@ import VCSGui.Svn.Commit
 import VCSGui.Svn.Checkout
 import VCSWrapper.Common
 
-import qualified VCSGui.Git.Gui as Git
+import qualified VCSGui.Git.Log as GitLog
 import Graphics.UI.Gtk
 
 --
@@ -90,7 +90,7 @@ cwdGit = "/home/n0s-ubuntu/testrepo"
 main = do
         initGUI
         runWithConfig $
-            Git.openLogWindow
+            GitLog.openLogWindow
         mainGUI
         mainQuit
     where

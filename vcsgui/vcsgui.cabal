@@ -6,10 +6,10 @@ license: AllRightsReserved
 license-file: ""
 copyright:
 maintainer:
-build-depends: base -any, 
-               directory -any, directory -any,
-               gtk -any, haskell98 -any, mtl -any,
-               mtl -any, vcswrapper -any
+build-depends: base -any, directory -any, directory -any, gtk -any,
+               haskell98 -any, mtl -any, mtl -any, vcswrapper -any,
+               vcswrapper -any, mtl -any, mtl -any, haskell98 -any, gtk -any,
+               directory -any, directory -any, base -any
 stability:
 homepage:
 package-url:
@@ -23,7 +23,7 @@ data-files: guiGit.glade
 data-dir: data
 extra-source-files:
 extra-tmp-files:
-exposed-modules: VCSGui.Common.Commit VCSGui.Git.Gui
+exposed-modules: VCSGui.Git.Log VCSGui.Common.Commit VCSGui.Git.Gui
 exposed: True
 buildable: True
 build-tools:
