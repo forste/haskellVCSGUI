@@ -108,7 +108,7 @@ cwdGit = "/home/n0s-ubuntu/testrepo"
 main = do
         initGUI
         runWithConfig $
-            GitLog.openLogWindow
+            GitLog.showLogGUI
         mainGUI
         mainQuit
     where
