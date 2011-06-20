@@ -94,6 +94,7 @@ guiWithoutBranches logEntries options doCheckoutFn = do
         selectedLog <- Gtk.listStoreGetValue store $ Gtk.listStoreIterToIndex treeIter
         selectedBranch <- get combo
         Common.runVcs cfg $ doCheckoutFn selectedLog selectedBranch
+
     setupLogColumns :: LogGUI -> IO ()
     setupLogColumns gui = do
         let item = (logTreeView gui)
