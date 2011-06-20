@@ -2,20 +2,25 @@
 <interface>
   <requires lib="gtk+" version="2.22"/>
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkActionGroup" id="windowActions">
+    <child>
+      <object class="GtkAction" id="actCommit"/>
+    </child>
+  </object>
   <object class="GtkTextBuffer" id="buffCommitMsg">
     <property name="text">&lt;enter commit msg here&gt;</property>
   </object>
   <object class="GtkActionGroup" id="logActions">
     <child>
-      <object class="GtkAction" id="actCancel"/>
+      <object class="GtkAction" id="actCheckout"/>
     </child>
     <child>
-      <object class="GtkAction" id="actCheckout"/>
+      <object class="GtkAction" id="actCancel"/>
     </child>
   </object>
   <object class="GtkActionGroup" id="setupRepoActions">
     <child>
-      <object class="GtkAction" id="actInitRepo"/>
+      <object class="GtkAction" id="actSelectRepo"/>
     </child>
     <child>
       <object class="GtkAction" id="actOk">
@@ -25,12 +30,7 @@
       </object>
     </child>
     <child>
-      <object class="GtkAction" id="actSelectRepo"/>
-    </child>
-  </object>
-  <object class="GtkActionGroup" id="windowActions">
-    <child>
-      <object class="GtkAction" id="actCommit"/>
+      <object class="GtkAction" id="actInitRepo"/>
     </child>
   </object>
   <object class="GtkWindow" id="commitWindow">
@@ -142,8 +142,8 @@
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="lblBranch">
-                    <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
                     <property name="label" translatable="yes">Branch:</property>
                   </object>
                   <packing>
@@ -154,8 +154,8 @@
                 </child>
                 <child>
                   <object class="GtkComboBox" id="comboBranch">
-                    <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -334,9 +334,6 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
-            </child>
-            <child>
               <object class="GtkButton" id="btnChooseRepoPath">
                 <property name="label" translatable="yes">Select existing repository</property>
                 <property name="visible">True</property>
@@ -366,6 +363,9 @@
                 <property name="bottom_attach">4</property>
                 <property name="y_options">GTK_FILL</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
