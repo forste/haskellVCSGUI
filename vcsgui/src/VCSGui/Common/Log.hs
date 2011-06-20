@@ -55,7 +55,8 @@ data LogGUI = LogGUI {
 
 newLogGui :: [Common.LogEntry] -- ^ logEntries to be displayed initially
             -> [String] -- ^ options will be displayed in a menu as checkboxes TODO implement
-            -> Maybe (ListStore Common.LogEntry -> IO String -> IO ()) -- ^ called when a different branch is selected TODO implement
+            -> Maybe ([String], -- ^ list of branchnames to display
+                (ListStore Common.LogEntry -> IO String -> Common.Ctx [Common.LogEntry])) -- ^ called when a different branch is selected TODO implement
             -> (Common.LogEntry -- ^ selected line
                 -> (Maybe String) -- ^ name of the branch to checkout from
                 -> Common.Ctx ()) -- ^ called on checkout action. will close window afterwards
