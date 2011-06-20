@@ -17,8 +17,7 @@ module Main (
 ) where
 
 import VCSGui.Common.Types
-import VCSGui.Svn.Commit
-import VCSGui.Svn.Checkout
+import qualified VCSGui.Svn as Svn
 import VCSWrapper.Common
 
 import qualified VCSGui.Git.Log as GitLog
@@ -32,28 +31,30 @@ import Graphics.UI.Gtk
 -- commit
 --
 
- {-
- test data
+-- {-
+-- test data
 author = "test-author"
 cwd = "/home/n0s/project1_work3"
 testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn.glade"
 
 
 main = do
-    runWithConfig $ VCSGui.Svn.Commit.showGUI
-        Main.author
-        testgladepath
-        (SVNGTKObjectAccessors
-            "commit_dialog"
-            "act_commit"
-            "act_cancel"
-            "buffer_commitmsg"
-            "treeview_files"
-            "bt_unlockTargets")
-    runWithConfig $ VCSGui.Svn.Checkout.showGUI
+    initGUI
+    runWithConfig $ Svn.showCommitGUI
+    mainGUI
+    mainQuit
+--        Main.author
+--        testgladepath
+--        (SVNGTKObjectAccessors
+--            "commit_dialog"
+--            "act_commit"
+--            "act_cancel"
+--            "buffer_commitmsg"
+--            "treeview_files"
+--            "bt_unlockTargets")
     where
         runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
--}
+---}
 
 --
 -- checkout
@@ -77,6 +78,23 @@ main = do
 ---}
 
 --
+--log
+--
+
+{-
+cwdGit = "/home/n0s/project1_work3"
+
+main = do
+        initGUI
+        runWithConfig $
+            SvnLog.showLogGUI
+        mainGUI
+        mainQuit
+    where
+        runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
+-}
+
+--
 --git
 --
 
@@ -84,7 +102,7 @@ main = do
 --log
 --
 
---{-
+{-
 cwdGit = "/home/n0s-ubuntu/testrepo"
 
 main = do
@@ -95,7 +113,7 @@ main = do
         mainQuit
     where
         runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
----}
+-}
 
 
 

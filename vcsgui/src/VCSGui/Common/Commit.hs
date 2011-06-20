@@ -8,14 +8,13 @@
 -- Stability   :
 -- Portability :
 --
--- | TODO this module needs refactoring. showGUI should use GtkHelper to avoid code redundance
--- | TODO helpers (end of file) should be moved to GtkHelper
+-- |
 --
 -----------------------------------------------------------------------------
 module VCSGui.Common.Commit (
     SCFile(..)
     ,Option
-    ,showGUI
+    ,showCommitGUI
     ,selected
     ,filePath
     ,status
@@ -24,13 +23,37 @@ module VCSGui.Common.Commit (
 
 import qualified VCSWrapper.Common as Wrapper
 import VCSGui.Common.Types
+import qualified VCSGui.Common.GtkHelper as H
 import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 import Control.Monad
 import Control.Monad.Reader
 import Maybe
+import Paths_vcsgui(getDataFileName)
 
---TODO add copy ctor for SCFile, similar to createNewValue just changing selected status
+--
+-- glade path and object accessors
+--
+
+getGladepath = getDataFileName "guiCommonCommit.glade"
+accessorWindowCommit = "windowCommit"
+accessorTreeViewFiles = "treeViewFiles"
+accessorActCommit = "actCommit"
+accessorActCancel = "actCancel"
+accessorActTxtViewMsg = "txtViewMsg"
+
+--
+-- types
+--
+
+data CommitGUI = LogGUI {
+    windowCommit :: H.WindowItem
+    , treeViewFiles :: H.TreeViewItem SCFile
+    , actCommit :: H.ActionItem
+    , actCancel :: H.ActionItem
+    , txtViewMsg :: H.TextViewItem
+}
+
 data SCFile = GITSCFile Bool FilePath String |
               SVNSCFile Bool FilePath String Bool
     deriving (Show)
@@ -53,64 +76,53 @@ isLocked _                   = False
 
 type Option = String
 
--- loads gui objects and connects them
-showGUI :: (TreeView -> Wrapper.Ctx (ListStore SCFile))   -- ^ function to set listStore model for treeview
-        -> (   String
-            -> [FilePath]
-            -> [Option]
-            -> Wrapper.Config
-            -> IO())            -- ^ callback for ok action
-        -> String               -- ^ author
-        -> FilePath             -- ^ glade
-        -> GTKObjectAccessors   -- ^ accessors for gtk objects
+
+
+showCommitGUI :: (TreeView -> Wrapper.Ctx (ListStore SCFile))   -- ^ fn to set listStore model for treeview
+        -> (   String                           -- ^ commit message
+            -> [FilePath]                       -- ^ selected files
+            -> [Option]                         -- ^ options TODO not implemented
+            -> Wrapper.Config                   -- ^ vcs config
+            -> IO())                                            -- ^ callback for ok action
         -> Wrapper.Ctx()
-showGUI setUpTreeView okCallback author gladepath gtkAccessors = do
+showCommitGUI setUpTreeView okCallback = do
     liftIO $ putStrLn "Starting gui ..."
-    liftIO $ initGUI
-
-    -- create and load builder
-    builder <- liftIO $ builderNew
-    liftIO $ builderAddFromFile builder gladepath
-
-    -- retrieve gtk objects
-    commitDialog <- liftIO $ builderGetObject builder castToDialog (gtkCommitDialog gtkAccessors)
-    actCommit <- liftIO $ builderGetObject builder castToAction (gtkActCommit gtkAccessors)
-    actCancel <- liftIO $ builderGetObject builder castToAction (gtkActCancel gtkAccessors)
-    bufferCommitMsg <- liftIO $ builderGetObject builder castToTextBuffer (gtkBufferCommitMsg gtkAccessors)
-    listView <- liftIO $ builderGetObject builder castToTreeView (gtkListView gtkAccessors)
-    btUnlockTargets <- liftIO $ builderGetObject builder castToCheckButton (gtkBtUnlockTargets gtkAccessors)
-
-    listStore <- setUpTreeView listView
+    gui <- loadCommitGUI setUpTreeView
 
     -- connect actions
-    liftIO $ on commitDialog deleteEvent $ liftIO $ quit commitDialog >> return False
-    liftIO $ on actCancel actionActivated $ quit commitDialog >> return ()
+    liftIO $ H.registerClose $ windowCommit gui
+    liftIO $ H.registerCloseAction (actCancel gui) (windowCommit gui)
     config <- ask
-    liftIO $ on actCommit actionActivated $ do
-                                        msg <- getTextFromBuffer bufferCommitMsg
-                                        selectedFiles <- getSelectedFiles listStore
-                                        okCallback msg selectedFiles [] config
-                                        quit commitDialog
+    liftIO $ on (H.getItem (actCommit gui)) actionActivated $ do
+                                        let (store,_) = H.getItem (treeViewFiles gui)
+                                        selectedFiles <- getSelectedFiles store
 
-    -- present window and start main loop
-    liftIO $ windowPresent commitDialog
-    liftIO $ mainGUI
+                                        msg <- H.get (txtViewMsg gui)
+                                        okCallback (fromMaybe "" msg) selectedFiles [] config
+                                        H.closeWin (windowCommit gui)
 
-    liftIO $ putStrLn "Finished"
+    -- present window
+    liftIO $ widgetShowAll $ H.getItem $ windowCommit gui
+
     return ()
 
+
+loadCommitGUI :: (TreeView
+                    -> Wrapper.Ctx (ListStore SCFile))   -- ^ fn to set listStore model for treeview
+                -> Wrapper.Ctx CommitGUI
+loadCommitGUI setUpTreeView = do
+                gladepath <- liftIO getGladepath
+                builder <- liftIO $ H.openGladeFile gladepath
+
+                win <- liftIO $ H.getWindowFromGlade builder accessorWindowCommit
+                treeViewFiles <- getTreeViewFromGladeCustomStore builder accessorTreeViewFiles setUpTreeView
+                actCommit <- liftIO $  H.getActionFromGlade builder accessorActCommit
+                actCancel <- liftIO $  H.getActionFromGlade builder accessorActCancel
+                txtViewMsg <- liftIO $  H.getTextViewFromGlade builder accessorActTxtViewMsg
+                return $ LogGUI win treeViewFiles actCommit actCancel txtViewMsg
 ----
 ---- HELPERS
 ----
-quit :: Dialog -> IO ()
-quit commitDialog  = do
-        widgetDestroy commitDialog
-        liftIO mainQuit
-
-getTextFromBuffer :: TextBuffer -> IO String
-getTextFromBuffer buffer = do
-        (start, end) <- textBufferGetBounds buffer
-        textBufferGetText buffer start end False
 
 getSelectedFiles :: ListStore SCFile -> IO [FilePath]
 getSelectedFiles listStore = do
@@ -118,3 +130,45 @@ getSelectedFiles listStore = do
             let selectedFiles = map (\scf -> filePath scf )
                                 $ filter (\scf -> selected scf) listedFiles
             return (selectedFiles)
+
+getTreeViewFromGladeCustomStore :: Builder
+                        -> String
+                        -> (TreeView -> Wrapper.Ctx (ListStore SCFile)) -- ^ fn defining how to setup the liststore
+                        -> Wrapper.Ctx (H.TreeViewItem SCFile)
+getTreeViewFromGladeCustomStore builder name setupListStore = do
+    (_, tView) <- liftIO $ wrapWidget builder castToTreeView name
+    store <- setupListStore tView
+    let getter = getFromListStore (store, tView)
+        setter = setToListStore (store, tView)
+    return (name, (store, tView), (getter, setter))
+
+---
+--- same as gtkhelper, but avoiding exposing it
+---
+wrapWidget :: GObjectClass objClass =>
+     Builder
+     -> (GObject -> objClass)
+     -> String -> IO (String, objClass)
+wrapWidget builder cast name = do
+    putStrLn $ " cast " ++ name
+    gobj <- builderGetObject builder cast name
+    return (name, gobj)
+
+getFromListStore :: (ListStore a, TreeView)
+    -> IO (Maybe [a])
+getFromListStore (store, _) = do
+    list <- listStoreToList store
+    if null list
+        then return Nothing
+        else return $ Just list
+
+setToListStore :: (ListStore a, TreeView)
+    -> [a]
+    -> IO ()
+setToListStore (store, view) newList = do
+    listStoreClear store
+    mapM_ (listStoreAppend store) newList
+    return ()
+
+
+

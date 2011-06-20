@@ -141,17 +141,6 @@ loadLogGui logEntries = do
             return $ LogGUI win treeView revDetails actCheck actCanc comboBranch lblBranch
 
 
--- TODO move this methods to helper?
-
-closeWin :: WindowItem -> IO ()
-closeWin win = (Gtk.widgetHideAll (getItem win))
-
-registerClose :: WindowItem -> IO ()
-registerClose win = Gtk.on (getItem win) Gtk.deleteEvent (liftIO (closeWin win) >> return False) >> return ()
-
-registerCloseAction :: ActionItem -> WindowItem -> IO ()
-registerCloseAction act win = Gtk.on (getItem act) Gtk.actionActivated (liftIO (closeWin win)) >> return ()
-
 
 
 

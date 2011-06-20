@@ -30,6 +30,10 @@ module VCSGui.Common.GtkHelper (
     , get
     , set
 
+    , closeWin
+    , registerClose
+    , registerCloseAction
+
     , WindowItem
     , ActionItem
     , LabelItem
@@ -42,6 +46,7 @@ module VCSGui.Common.GtkHelper (
 import qualified Graphics.UI.Gtk as Gtk
 
 import System.Directory
+import Control.Monad.Trans(liftIO)
 
 -- Typesynonyms
 type WindowItem = (String, Gtk.Window, ())
@@ -205,6 +210,19 @@ setToListStore (store, view) newList = do
     mapM_ (Gtk.listStoreAppend store) newList
     return ()
 
+
+--
+-- Various helpers
+--
+
+closeWin :: WindowItem -> IO ()
+closeWin win = (Gtk.widgetHideAll (getItem win))
+
+registerClose :: WindowItem -> IO ()
+registerClose win = Gtk.on (getItem win) Gtk.deleteEvent (liftIO (closeWin win) >> return False) >> return ()
+
+registerCloseAction :: ActionItem -> WindowItem -> IO ()
+registerCloseAction act win = Gtk.on (getItem act) Gtk.actionActivated (liftIO (closeWin win)) >> return ()
 
 -- | Add a column to given ListStore and TreeView using a mapping.
 -- The mapping consists of a CellRenderer, the title and a function, that maps each row to attributes of the column
