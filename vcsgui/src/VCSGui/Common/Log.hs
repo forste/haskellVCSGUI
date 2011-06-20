@@ -63,6 +63,8 @@ newLogGui :: [Common.LogEntry] -- ^ logEntries to be displayed initially
 newLogGui logEntries _ mbDoBranchSwitch doCheckout = do
         gui <- loadLogGui logEntries
 
+        liftIO $ setupLogColumns gui
+
         -- connect gui elements
         liftIO $ registerClose $ logWin gui
         liftIO $ registerCloseAction (actLogCancel gui) (logWin gui)
@@ -72,6 +74,7 @@ newLogGui logEntries _ mbDoBranchSwitch doCheckout = do
             doCheckout' config (logTreeView gui) (comboBranch gui)
                 >> (closeWin (logWin gui))
 
+        liftIO $ widgetShowAll $ getItem $ logWin gui
         return ()
     where
     doCheckout' :: Common.Config -> TreeViewItem Common.LogEntry -> ComboBoxItem -> IO ()
@@ -81,6 +84,13 @@ newLogGui logEntries _ mbDoBranchSwitch doCheckout = do
         selectedLog <- listStoreGetValue store $ listStoreIterToIndex treeIter
         selectedBranch <- getGetter combo
         Common.runVcs cfg $ doCheckout selectedLog selectedBranch
+    setupLogColumns :: LogGUI -> IO ()
+    setupLogColumns gui = do
+        let item = (logTreeView gui)
+        addTextColumnToTreeView item "Subject" (\Common.LogEntry { Common.subject = t } -> [cellText := t])
+        addTextColumnToTreeView item "Author" (\Common.LogEntry { Common.author = t, Common.email = mail } -> [cellText := (t ++ " <" ++ mail ++ ">")])
+        addTextColumnToTreeView item "Date" (\Common.LogEntry { Common.date = t } -> [cellText := t])
+        return ()
 
 
 loadLogGui :: [Common.LogEntry] -> Common.Ctx LogGUI
@@ -109,38 +119,6 @@ registerClose win = on (getItem win) deleteEvent (liftIO (closeWin win) >> retur
 registerCloseAction :: ActionItem -> WindowItem -> IO ()
 registerCloseAction act win = on (getItem act) actionActivated (liftIO (closeWin win)) >> return ()
 
-
-
-
---
---doCheckout :: LogGUI -> Core.GitRepo -> IO ()
---doCheckout gui repo = do
---    let (store, view) = getItem $ logTreeView gui
---    (path, _) <- treeViewGetCursor view
---    Just treeIter <- treeModelGetIter store path
---    selectedValue <- listStoreGetValue store $ listStoreIterToIndex treeIter
---    putStrLn $ "checking out rev: " ++ (Core.commitID selectedValue)
---    Core.checkout repo $ Core.commitID selectedValue
-
-
-
-
-
---loadGui branches branchHandler listStoreSetter checkOutAction = do
-        --    logWindow <- getWindowFromGlade builder "logWindow"
-        --    treeView <- getTreeViewFromGlade builder "historyTreeView" ([] :: [Core.LogEntry])
-        --    lblRevisionDetails <- getLabelFromGlade builder "lblRevisionDetails"
-
---            listStoreSetter treeView
-
---            if empty branches then setInvisible branchLabel+dropDownList (or change vbox)
---            else on select branches branchHandler --somehow pass liststore to handler so he can refill it
-
-
-
---            on buttonActivated checkoutButton $ do
---               checkOutAction listStore --pass selected branch if not invisible
---
 
 
 

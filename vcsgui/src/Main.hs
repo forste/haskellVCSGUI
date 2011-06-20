@@ -21,7 +21,8 @@ import VCSGui.Svn.Commit
 import VCSGui.Svn.Checkout
 import VCSWrapper.Common
 
-import VCSGui.Git.Gui
+import qualified VCSGui.Git.Gui as Git
+import Graphics.UI.Gtk
 
 --
 --svn
@@ -58,7 +59,7 @@ main = do
 -- checkout
 --
 
---{-
+{-
 cwd = "/home/n0s/"
 testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn_checkout2.glade"
 main = do
@@ -83,12 +84,24 @@ main = do
 --log
 --
 
-{-
-cwdGit = "/home/n0s/testrepo"
+--{-
+cwdGit = "/home/n0s-ubuntu/testrepo"
 
 main = do
+        initGUI
         runWithConfig $
-            openLogWindow
+            Git.openLogWindow
+        mainGUI
+        mainQuit
     where
-        runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
--}
+        runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
+---}
+
+
+
+
+
+
+
+
+
