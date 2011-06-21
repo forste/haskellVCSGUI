@@ -17,6 +17,7 @@ module VCSGui.Git.Commit (
 ) where
 
 import Control.Monad.Trans(liftIO)
+import Control.Monad.Reader(ask)
 
 import Graphics.UI.Gtk
 
@@ -27,9 +28,16 @@ import qualified VCSWrapper.Git as Git
 import qualified VCSWrapper.Common as Wrapper
 
 
+doCommit :: String -> [FilePath] -> [Commit.Option] -> Wrapper.Ctx ()
 doCommit commitMsg files _ = do
     Git.add files
-    Git.commit files Nothing commitMsg []
+    (Wrapper.Config _ _ mbAuthor) <- ask
+    case mbAuthor of
+        Nothing -> Git.commit files Nothing commitMsg []
+        Just (Wrapper.Author author mbEmail) -> do
+            case mbEmail of
+                Nothing -> Git.commit files (Just (author, "noEmailSet@noEmailSet")) commitMsg []
+                Just m -> Git.commit files (Just (author, m)) commitMsg []
 
 showCommitGUI :: Git.Ctx ()
 showCommitGUI = do
