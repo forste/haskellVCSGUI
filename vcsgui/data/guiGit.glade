@@ -2,25 +2,23 @@
 <interface>
   <requires lib="gtk+" version="2.22"/>
   <!-- interface-naming-policy project-wide -->
-  <object class="GtkActionGroup" id="windowActions">
-    <child>
-      <object class="GtkAction" id="actCommit"/>
-    </child>
-  </object>
   <object class="GtkTextBuffer" id="buffCommitMsg">
     <property name="text">&lt;enter commit msg here&gt;</property>
   </object>
   <object class="GtkActionGroup" id="logActions">
     <child>
-      <object class="GtkAction" id="actCheckout"/>
+      <object class="GtkAction" id="actCancel"/>
     </child>
     <child>
-      <object class="GtkAction" id="actCancel"/>
+      <object class="GtkAction" id="actCheckout"/>
     </child>
   </object>
   <object class="GtkActionGroup" id="setupRepoActions">
     <child>
-      <object class="GtkAction" id="actSelectRepo"/>
+      <object class="GtkAction" id="actInitRepo">
+        <property name="sensitive">False</property>
+        <property name="visible">False</property>
+      </object>
     </child>
     <child>
       <object class="GtkAction" id="actOk">
@@ -30,7 +28,12 @@
       </object>
     </child>
     <child>
-      <object class="GtkAction" id="actInitRepo"/>
+      <object class="GtkAction" id="actSelectRepo"/>
+    </child>
+  </object>
+  <object class="GtkActionGroup" id="windowActions">
+    <child>
+      <object class="GtkAction" id="actCommit"/>
     </child>
   </object>
   <object class="GtkWindow" id="commitWindow">
@@ -355,6 +358,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="no_show_all">True</property>
                 <property name="related_action">actInitRepo</property>
                 <property name="use_action_appearance">False</property>
               </object>
