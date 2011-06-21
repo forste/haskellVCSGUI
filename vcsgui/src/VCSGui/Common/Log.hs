@@ -116,17 +116,20 @@ guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
 
         -- register branch switch fn
         config <- ask
-        liftIO $ Gtk.on (getItem $ comboBranch gui) Gtk.changed $ changeBranchFn' config (getItem $ logTreeView gui) (fmap (fromMaybe "") $ get $ comboBranch gui)
+        liftIO $ Gtk.on (getItem $ comboBranch gui) Gtk.changed $ changeBranchFn' config (fmap (fromMaybe "") $ get $ comboBranch gui)
         return ()
     where
-    changeBranchFn' :: Common.Config -> (Gtk.ListStore Common.LogEntry, Gtk.TreeView) -> IO String -> IO ()
-    changeBranchFn' cfg (store, view) branchIO = do
+    changeBranchFn' :: Common.Config -> IO String -> IO ()
+    changeBranchFn' cfg branchIO = do
+        let (store, view) = getItem $ logTreeView gui
         branch <- branchIO
         newLogEntries <- Common.runVcs cfg $ changeBranchFn branch
         set (logTreeView gui) newLogEntries
-        selection <- Gtk.treeViewGetSelection view
-        Just iterFirst <- Gtk.treeModelGetIterFirst store
-        Gtk.treeSelectionSelectIter selection iterFirst
+        -- set cursor to first log entry (so checkoutbutton works)
+        Just firstRowIter <- Gtk.treeModelGetIterFirst store
+        firstRow <- Gtk.treeModelGetPath store firstRowIter
+        Gtk.treeViewSetCursor view firstRow Nothing
+
 
 loadLogGui :: [Common.LogEntry] -> Common.Ctx LogGUI
 loadLogGui logEntries = do
