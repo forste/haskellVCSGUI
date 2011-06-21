@@ -32,13 +32,8 @@ import Graphics.UI.Gtk
 -- commit
 --
 
---{-
--- test data
-author = "test-author"
-cwd = "/home/n0s/project1_work3"
-testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn.glade"
-
 {-
+cwd = "/home/n0s/project1_work3"
 main = do
     initGUI
     runWithConfig $ Svn.showCommitGUI
@@ -52,19 +47,13 @@ main = do
 -- checkout
 --
 
-{-
+--{-
 cwd = "/home/n0s/"
-testgladepath = "/home/n0s/home/leksahworkspace/svngui/gui/data/svn_checkout2.glade"
 main = do
-    runWithConfig $ VCSGui.Svn.Checkout.showGUI
-        testgladepath
-        (SVNCheckoutObjectAccessors
-            "window_checkout"
-            "act_checkout"
-            "act_cancel"
-            "buffer_url"
-            "buffer_revision"
-            "buffer_path")
+    initGUI
+    runWithConfig $ Svn.showCheckoutGUI
+    mainGUI
+    mainQuit
     where
         runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
 ---}
@@ -74,8 +63,7 @@ main = do
 --
 
 {-
-cwdGit = "/home/n0s/project1_work3"
-
+cwd = "/home/n0s/project1_work3"
 main = do
         initGUI
         runWithConfig $
@@ -83,7 +71,7 @@ main = do
         mainGUI
         mainQuit
     where
-        runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
+        runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
 ---}
 
 --
@@ -94,8 +82,8 @@ main = do
 --log
 --
 
-cwdGit = "/home/n0s-ubuntu/testrepo"
 
+--cwdGit = "/home/n0s-ubuntu/testrepo"
 {-
 main = do
         initGUI
@@ -110,7 +98,7 @@ main = do
 --
 -- commit
 --
---{-
+{-
 main = do
     initGUI
     runWithConfig $
@@ -119,7 +107,7 @@ main = do
     where
         runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
 
----}
+-}
 
 
 

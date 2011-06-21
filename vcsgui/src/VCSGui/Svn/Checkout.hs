@@ -15,7 +15,6 @@
 
 module VCSGui.Svn.Checkout (
     showCheckoutGUI
-    ,SVNCheckoutObjectAccessors(..)
 ) where
 
 import Graphics.UI.Gtk
@@ -23,62 +22,68 @@ import Control.Monad.Trans(liftIO)
 import Control.Monad
 import Control.Monad.Reader
 import qualified VCSWrapper.Svn as Svn
+import qualified VCSGui.Common.GtkHelper as H
+import Paths_vcsgui(getDataFileName)
+import Maybe
+--
+-- glade path and object accessors
+--
 
-data SVNCheckoutObjectAccessors = SVNCheckoutObjectAccessors {
-    gtkCheckoutWindow :: String
-    ,gtkActCheckout :: String
-    ,gtkActCancel :: String
-    ,gtkBufferURL :: String
-    ,gtkBufferRevision :: String
-    ,gtkBufferPath :: String
+getGladepath = getDataFileName "guiSvnCheckout.glade"
+accessorWindowCheckout = "windowCheckout"
+accessorActCheckout = "actCheckout"
+accessorActCancel = "actCancel"
+accessorActTxtViewUrl = "txtViewUrl"
+accessorActTxtViewRevision = "txtViewRevision"
+accessorActTxtViewPath = "txtViewPath"
+
+data CheckoutGUI = CheckoutGUI {
+    windowCheckout :: H.WindowItem
+    ,actCheckout :: H.ActionItem
+    ,actCancel :: H.ActionItem
+    ,txtViewUrl :: H.TextViewItem
+    ,txtViewRevision :: H.TextViewItem
+    ,txtViewPath :: H.TextViewItem
     }
 
-showCheckoutGUI :: FilePath             -- ^ glade
-        -> SVNCheckoutObjectAccessors   -- ^ accessors for gtk objects
-        -> Svn.Ctx()
-showCheckoutGUI gladepath gtkAccessors = do
-    liftIO $ putStrLn "Starting gui ..."
-    liftIO $ initGUI
-
-    -- create and load builder
-    builder <- liftIO $ builderNew
-    liftIO $ builderAddFromFile builder gladepath
-
-    -- retrieve gtk objects
-    checkoutWindow <- liftIO $ builderGetObject builder castToWindow (gtkCheckoutWindow gtkAccessors)
-    actCheckout <- liftIO $ builderGetObject builder castToAction (gtkActCheckout gtkAccessors)
-    actCancel <- liftIO $ builderGetObject builder castToAction (gtkActCancel gtkAccessors)
-    bufferURL <- liftIO $ builderGetObject builder castToTextBuffer (gtkBufferURL gtkAccessors)
-    bufferRevision <- liftIO $ builderGetObject builder castToTextBuffer (gtkBufferRevision gtkAccessors)
-    bufferPath <- liftIO $ builderGetObject builder castToTextBuffer (gtkBufferPath gtkAccessors)
-
-     -- connect actions
-    liftIO $ on checkoutWindow deleteEvent $ liftIO $ quit checkoutWindow >> return False
-    liftIO $ on actCancel actionActivated $ quit checkoutWindow >> return ()
+showCheckoutGUI :: Svn.Ctx()
+showCheckoutGUI = do
     config <- ask
-    liftIO $ on actCheckout actionActivated $ do
-                                        url <- getTextFromBuffer bufferURL
-                                        revision <- getTextFromBuffer bufferRevision
-                                        let realRevision = if revision == "" then Nothing else Just revision
-                                        filePath <- getTextFromBuffer bufferPath
-                                        let realFilePath = if filePath == "" then Nothing else Just filePath
-                                        Svn.runVcs config $ Svn.checkout [(url, realRevision)] realFilePath []
-                                        quit checkoutWindow
-    liftIO $ windowPresent checkoutWindow
-    liftIO $ mainGUI
+    liftIO $ do
+        putStrLn "Starting gui ..."
+        gui <- loadCheckoutGUI
 
-    liftIO $ putStrLn "Finished"
+         -- connect actions
+        H.registerClose $ windowCheckout gui
+        H.registerCloseAction (actCancel gui) (windowCheckout gui)
+        liftIO $ on (H.getItem (actCheckout gui)) actionActivated $ do
+                                            url <- H.get (txtViewUrl gui)
+                                            revision <- H.get (txtViewRevision gui)
+                                            let realRevision = revision
+                                            filePath <- H.get (txtViewPath gui)
+                                            let realFilePath = filePath
+                                            Svn.runVcs config $ Svn.checkout [(fromMaybe "" url, realRevision)] realFilePath []
+                                            H.closeWin $ windowCheckout gui
+
+
+        liftIO $ widgetShowAll $ H.getItem $ windowCheckout gui
+
+        liftIO $ putStrLn "Finished"
     return ()
 
-----
----- HELPERS
-----
-quit :: Window -> IO ()
-quit commitDialog  = do
-        widgetDestroy commitDialog
-        liftIO mainQuit
 
-getTextFromBuffer :: TextBuffer -> IO String
-getTextFromBuffer buffer = do
-        (start, end) <- textBufferGetBounds buffer
-        textBufferGetText buffer start end False
+loadCheckoutGUI :: IO CheckoutGUI
+loadCheckoutGUI = do
+                putStrLn $ "Creating builder from gladefile"
+                gladepath <- liftIO getGladepath
+                builder <- liftIO $ H.openGladeFile gladepath
+
+                putStrLn $ "Creating gtk widgets from builder"
+                win <- liftIO $ H.getWindowFromGlade builder accessorWindowCheckout
+                actCheckout <- liftIO $  H.getActionFromGlade builder accessorActCheckout
+                actCancel <- liftIO $  H.getActionFromGlade builder accessorActCancel
+                txtViewUrl <- liftIO $  H.getTextViewFromGlade builder accessorActTxtViewUrl
+                txtViewRevision <- liftIO $  H.getTextViewFromGlade builder accessorActTxtViewRevision
+                txtViewPath <- liftIO $  H.getTextViewFromGlade builder accessorActTxtViewPath
+                return $ CheckoutGUI win actCheckout actCancel txtViewUrl txtViewRevision txtViewPath
+
