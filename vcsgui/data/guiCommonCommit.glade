@@ -14,6 +14,8 @@
     <property name="text" translatable="yes">Enter commit message here.</property>
   </object>
   <object class="GtkWindow" id="windowCommit">
+    <property name="width_request">400</property>
+    <property name="height_request">400</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Commit</property>
     <child>
@@ -52,53 +54,45 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="bottom">
+          <object class="GtkHButtonBox" id="btBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
             <child>
-              <object class="GtkHButtonBox" id="btBox">
+              <object class="GtkButton" id="btCancel">
+                <property name="label" translatable="yes">Cancel</property>
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkButton" id="btCommit">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="related_action">actCommit</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btCancel">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="related_action">actCancel</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="related_action">actCancel</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkButton" id="btCommit">
+                <property name="label" translatable="yes">Commit</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="related_action">actCommit</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">True</property>
+            <property name="pack_type">end</property>
             <property name="position">2</property>
           </packing>
         </child>
