@@ -7,18 +7,15 @@
   </object>
   <object class="GtkActionGroup" id="logActions">
     <child>
-      <object class="GtkAction" id="actCancel"/>
+      <object class="GtkAction" id="actCheckout"/>
     </child>
     <child>
-      <object class="GtkAction" id="actCheckout"/>
+      <object class="GtkAction" id="actCancel"/>
     </child>
   </object>
   <object class="GtkActionGroup" id="setupRepoActions">
     <child>
-      <object class="GtkAction" id="actInitRepo">
-        <property name="sensitive">False</property>
-        <property name="visible">False</property>
-      </object>
+      <object class="GtkAction" id="actSelectRepo"/>
     </child>
     <child>
       <object class="GtkAction" id="actOk">
@@ -28,7 +25,10 @@
       </object>
     </child>
     <child>
-      <object class="GtkAction" id="actSelectRepo"/>
+      <object class="GtkAction" id="actInitRepo">
+        <property name="sensitive">False</property>
+        <property name="visible">False</property>
+      </object>
     </child>
   </object>
   <object class="GtkActionGroup" id="windowActions">
@@ -194,8 +194,8 @@
         </child>
         <child>
           <object class="GtkLabel" id="lblRevisionDetails">
-            <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="no_show_all">True</property>
             <property name="label" translatable="yes">label</property>
           </object>
           <packing>
