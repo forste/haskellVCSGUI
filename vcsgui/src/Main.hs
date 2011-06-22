@@ -47,7 +47,7 @@ main = do
 -- checkout
 --
 
---{-
+{-
 cwd = "/home/n0s/"
 main = do
     initGUI
@@ -56,7 +56,7 @@ main = do
     mainQuit
     where
         runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
----}
+-}
 
 --
 --log
@@ -110,7 +110,12 @@ main = do
 -}
 
 
-
-
+--
+-- common
+--
+main = do
+    initGUI
+    Svn.showSetupConfigGUI Nothing $ \_ -> return ()
+    mainGUI
 
 
