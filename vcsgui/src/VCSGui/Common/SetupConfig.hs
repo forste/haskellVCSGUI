@@ -19,6 +19,10 @@ import Graphics.UI.Gtk hiding (set, get)
 import Control.Monad.Trans(liftIO)
 import Data.Maybe
 
+import Monad
+import Directory
+
+import VCSGui.Common.Error
 import VCSGui.Common.GtkHelper
 import qualified VCSWrapper.Common as Wrapper
 
@@ -32,10 +36,10 @@ data SetupRepoGUI = SetupRepoGUI {
     , actCancel :: ActionItem
     , actSelectRepo :: ActionItem
 --    , actInitRepo :: ActionItem
-    , lblRepoPath :: LabelItem
+    , entryPath :: TextEntryItem
     , entryAuthor :: TextEntryItem
     , entryEmail :: TextEntryItem
-    , repoPath :: Maybe FilePath
+    , comboBoxVCSType :: ComboBoxItem
 }
 
 
@@ -63,42 +67,39 @@ loadSetupRepoGui mbConfig = loadGuiTemplate $ \builder -> do
     actCancel <- getActionFromGlade builder "actCancel"
     actSelRepo <- getActionFromGlade builder "actSelectRepo"
 --    actInitRepo <- getActionFromGlade builder "actInitRepo"
-    lblRepoPath <- getLabelFromGlade builder "lblRepoPath"
+--    lblRepoPath <- getLabelFromGlade builder "lblRepoPath"
+    entPath <- getTextEntryFromGlade builder "entPath"
     entAuthor <- getTextEntryFromGlade builder "entAuthor"
     entEmail <- getTextEntryFromGlade builder "entEmail"
-    let path = case mbConfig of
-                    Nothing -> Nothing
-                    Just (Wrapper.Config p _ _) -> p
-    return $ SetupRepoGUI win actOk actCancel actSelRepo lblRepoPath entAuthor entEmail path
+    comboBoxVCSType <- getComboBoxFromGlade builder "comboBoxVCSType"
+    -- init gui with existing repo
+    case mbConfig of
+        Nothing -> return ()
+        Just (Wrapper.Config mbPath _ mbAuthor) -> do
+            set entPath $ fromMaybe "" mbPath
+            case mbAuthor of
+                Nothing -> return ()
+                Just (Wrapper.Author author email) -> do
+                    set entAuthor author
+                    set entEmail $ fromMaybe "" email
+            return ()
+    return $ SetupRepoGUI win actOk actCancel actSelRepo entPath entAuthor entEmail comboBoxVCSType
 
 connectSetupRepoGui :: Maybe Wrapper.Config
                     -> (Maybe (Wrapper.VCSType, Wrapper.Config)
                         -> IO ())
                     -> SetupRepoGUI -> IO ()
 connectSetupRepoGui mbConfig callback gui = do
-        -- init gui with existing repo
-        case mbConfig of
-            Nothing -> return ()
-            Just (Wrapper.Config mbPath _ mbAuthor) -> do
-                set (lblRepoPath gui) $ fromMaybe "" mbPath
-                case mbAuthor of
-                    Nothing -> return ()
-                    Just (Wrapper.Author author email) -> do
-                        set (entryAuthor gui) author
-                        set (entryEmail gui) $ fromMaybe "" email
-                return ()
-
-        -- register handlers
         registerClose $ setupRepoWin gui
         liftIO $ registerCloseAction (actCancel gui) (setupRepoWin gui)
 
-        registerOkAct gui
-
---        on (getItem (actInitRepo gui)) actionActivated $ liftIO (do
---            mbPath <- selectRepoWindow "Choose location for new repository" (getItem (setupRepoWin gui))
---            let (Wrapper.Config path _ _) = Wrapper.initNewRepo mbPath Nothing Nothing -- TODO implement this
---            registerNewGuiOnOkAct $ fromMaybe "" path
---            )
+        on (getItem (actOk gui)) actionActivated $
+                                do mbConfig <- createVCSTypAndConfig gui
+                                   case mbConfig of
+                                    Left errorMsg ->  showErrorGUI errorMsg
+                                    Right tuple   -> do
+                                                       callback $ Just tuple
+                                                       closeWin $ setupRepoWin gui
 
         on (getItem (actSelectRepo gui)) actionActivated $ liftIO $ do
             mbPath <- selectRepoWindow "Choose repository location" $ getItem $ setupRepoWin gui
@@ -108,39 +109,56 @@ connectSetupRepoGui mbConfig callback gui = do
         return ()
     where
     updateGUI path = do
-        -- update gui
-        let newGui = gui { repoPath = Just path }
-        set (lblRepoPath newGui) path
+        -- discover vcs here
+        availableVCS <- discoverVCS path
+        set (comboBoxVCSType gui) $ map (\vcs -> show vcs) availableVCS
 
-        -- register actOk with new gui
-        registerOkAct newGui
+        -- update gui
+        set (entryPath gui) path
+
         return ()
-    registerOkAct gui = on (getItem (actOk gui)) actionActivated $
-                                do mbConfig <- createVCSTypAndConfig gui
-                                   callback $ mbConfig
-                                   closeWin $ setupRepoWin gui
-    createVCSTypAndConfig :: SetupRepoGUI -> IO (Maybe (Wrapper.VCSType, Wrapper.Config))
+    createVCSTypAndConfig :: SetupRepoGUI -> IO (Either String (Wrapper.VCSType, Wrapper.Config))
     createVCSTypAndConfig gui = do
-            let path = repoPath gui
+--            let path = repoPath gui
+            path <- get (entryPath gui)
             author <- get (entryAuthor gui)
             mail <- get (entryEmail gui)
             let executable = Nothing :: Maybe String
-            let vcstype = Wrapper.SVN   -- TODO get type on okAction from combobox/liststore
-            return $ createVCSTypAndConfig' path author mail executable vcstype
-    createVCSTypAndConfig' :: Maybe FilePath -> Maybe String -> Maybe String -> Maybe String -> Wrapper.VCSType
-                     -> (Maybe (Wrapper.VCSType, Wrapper.Config))
-    createVCSTypAndConfig' Nothing Nothing Nothing Nothing _ = Nothing
-    createVCSTypAndConfig' Nothing _ _ _ _ = Nothing --TODO repoPath not filled out but other fields are (partly) => throw error message so gui can handle it ?
-    createVCSTypAndConfig' _ Nothing (Just _) _ _ = Nothing --TODO author not filled out but email is => throw error message so gui can handle it ?
-    createVCSTypAndConfig' mbPath@(Just path) authorName email executable vcstype = Just $
-                                                                (vcstype,
-                                                                Wrapper.makeConfig mbPath
-                                                                                   executable
-                                                                                   $ author authorName)
+            selectedVCSType <- get (comboBoxVCSType gui)
+            let tuple = createVCSTypAndConfig' path author mail executable selectedVCSType
+            putStrLn $ "tuple"++show tuple
+            return tuple
             where
-                author (Just name) =  (Just (Wrapper.Author name email))
-                author Nothing     =  Nothing
+                createVCSTypAndConfig' Nothing _ _ _ _ = Left "You have to set path and type of VCS. Missing path."
+                createVCSTypAndConfig' _ _ _ _ Nothing = Left "You have to set path and type of VCS. Missing vcs type."
+                createVCSTypAndConfig' _ Nothing (Just _) _ _ = Left "If you provide an email you have to provide author as well"
+                createVCSTypAndConfig' mbPath@(Just path) authorName email executable (Just vcsType) = Right $
+                                                                            (read vcsType,
+                                                                            Wrapper.makeConfig mbPath
+                                                                                               executable
+                                                                                               $ author authorName)
+                        where
+                            author (Just name) =  (Just (Wrapper.Author name email))
+                            author Nothing     =  Nothing
 
+
+discoverVCS :: FilePath -- ^ path to root
+           -> IO [Wrapper.VCSType] -- ^ vcs discovered
+discoverVCS path = do
+    content <- getDirectoryContents path
+    let vcsFiles = map vcsMapping $ filter vcsFilter content
+    return vcsFiles
+    where
+        vcsFilter :: FilePath -> Bool
+        vcsFilter path = case path of
+                            ".git" -> True
+                            ".svn" -> True
+                            _      -> False
+        vcsMapping :: FilePath -> Wrapper.VCSType
+        vcsMapping path = case path of
+                            ".git" -> Wrapper.GIT
+                            ".svn" -> Wrapper.SVN
+                            _      -> Wrapper.SVN --TODO throw error on this, improve this code
 
 -- | shows a dialog to choose a folder, returns Just FilePath to folder if succesfull, Nothing if cancelled
 selectRepoWindow :: String -- ^ title of the window

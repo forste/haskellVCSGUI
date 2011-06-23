@@ -115,7 +115,7 @@ main = do
 --
 main = do
     initGUI
-    Svn.showSetupConfigGUI Nothing $ \_ -> return ()
+    Svn.showSetupConfigGUI Nothing $ \(Just(x,y)) -> putStrLn $ "Config:" ++ show y ++ ", Chosen vcs:" ++ show x
     mainGUI
 
 

@@ -212,7 +212,6 @@ setToListStore (store, view) newList = do
     mapM_ (Gtk.listStoreAppend store) newList
     return ()
 
-
 --
 -- Various helpers
 --
