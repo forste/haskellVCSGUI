@@ -803,7 +803,7 @@ data-files: guiGit.glade guiCommonCommit.glade guiSvnCheckout.glade guiCommonSet
 data-dir: data
 extra-source-files:
 extra-tmp-files:
-exposed-modules: VCSGui.Svn VCSGui.Git
+exposed-modules: VCSGui.Svn VCSGui.Git VCSGui.Common
 exposed: True
 buildable: True
 build-tools:
@@ -827,7 +827,7 @@ hs-source-dirs: src
 other-modules: VCSGui.Git.Gui VCSGui.Git.Log VCSGui.Git.Commit
                VCSGui.Svn.Checkout VCSGui.Svn.Log VCSGui.Svn.Commit
                VCSGui.Common.GtkHelper VCSGui.Common.Log VCSGui.Common.SetupConfig
-               VCSGui.Common.Error VCSGui.Common VCSGui VCSGui.Common.Types
+               VCSGui.Common.Error VCSGui VCSGui.Common.Types
                VCSGui.Common.Commit
                Paths_vcsgui
 ghc-prof-options:
@@ -861,7 +861,7 @@ hs-source-dirs: src
 other-modules: VCSGui.Git.Gui VCSGui.Git.Log VCSGui.Git.Commit
                VCSGui.Svn.Checkout VCSGui.Svn.Log VCSGui.Svn.Commit
                VCSGui.Common.GtkHelper VCSGui.Common.Log VCSGui.Common.SetupConfig
-               VCSGui.Common.Error VCSGui.Common VCSGui VCSGui.Common.Types
+               VCSGui.Common.Error VCSGui VCSGui.Common.Types
                VCSGui.Common.Commit
                Paths_vcsgui
 ghc-prof-options:
