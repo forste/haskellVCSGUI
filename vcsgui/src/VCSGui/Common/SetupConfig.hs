@@ -66,8 +66,6 @@ loadSetupRepoGui mbConfig = loadGuiTemplate $ \builder -> do
     actOk <- getActionFromGlade builder "actOk"
     actCancel <- getActionFromGlade builder "actCancel"
     actSelRepo <- getActionFromGlade builder "actSelectRepo"
---    actInitRepo <- getActionFromGlade builder "actInitRepo"
---    lblRepoPath <- getLabelFromGlade builder "lblRepoPath"
     entPath <- getTextEntryFromGlade builder "entPath"
     entAuthor <- getTextEntryFromGlade builder "entAuthor"
     entEmail <- getTextEntryFromGlade builder "entEmail"
@@ -76,12 +74,17 @@ loadSetupRepoGui mbConfig = loadGuiTemplate $ \builder -> do
     case mbConfig of
         Nothing -> return ()
         Just (Wrapper.Config mbPath _ mbAuthor) -> do
-            set entPath $ fromMaybe "" mbPath
+            case mbPath of
+                Nothing -> return ()
+                Just path -> do
+                                set entPath $ path
+                                availableVCS <- discoverVCS path
+                                set comboBoxVCSType $ map (\vcs -> show vcs) availableVCS
             case mbAuthor of
                 Nothing -> return ()
                 Just (Wrapper.Author author email) -> do
-                    set entAuthor author
-                    set entEmail $ fromMaybe "" email
+                                set entAuthor author
+                                set entEmail $ fromMaybe "" email
             return ()
     return $ SetupRepoGUI win actOk actCancel actSelRepo entPath entAuthor entEmail comboBoxVCSType
 

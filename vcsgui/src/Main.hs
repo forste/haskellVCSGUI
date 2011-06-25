@@ -113,9 +113,11 @@ main = do
 --
 -- common
 --
+cwd = "/home/forste/leksahWorkspace/leksah"
 main = do
     initGUI
-    Svn.showSetupConfigGUI Nothing $ \(Just(x,y)) -> putStrLn $ "Config:" ++ show y ++ ", Chosen vcs:" ++ show x
+    Svn.showSetupConfigGUI config $ \(Just(x,y)) -> putStrLn $ "Config:" ++ show y ++ ", Chosen vcs:" ++ show x
     mainGUI
-
+    where
+        config = Just $ makeConfig (Just cwd) Nothing Nothing
 
