@@ -18,7 +18,7 @@ module Main (
 
 import VCSGui.Common.Types
 import qualified VCSGui.Svn as Svn
-import VCSWrapper.Common
+import qualified VCSWrapper.Common as Wrapper
 
 import qualified VCSGui.Git.Log as GitLog
 import qualified VCSGui.Git.Commit as GitCommit
@@ -119,5 +119,6 @@ main = do
     Svn.showSetupConfigGUI config $ \(Just(x,y)) -> putStrLn $ "Config:" ++ show y ++ ", Chosen vcs:" ++ show x
     mainGUI
     where
-        config = Just $ makeConfig (Just cwd) Nothing Nothing
+        config = Just (Wrapper.GIT, Wrapper.makeConfig Nothing Nothing Nothing)
+--        config = Just (Wrapper.GIT, Wrapper.makeConfig (Just cwd) Nothing Nothing)
 

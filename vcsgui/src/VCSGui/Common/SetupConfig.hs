@@ -18,15 +18,16 @@ module VCSGui.Common.SetupConfig (
 import Graphics.UI.Gtk hiding (set, get)
 import Control.Monad.Trans(liftIO)
 import Data.Maybe
-
 import Monad
 import Directory
+import Data.List.Utils
+import Paths_vcsgui(getDataFileName)
 
 import VCSGui.Common.Error
 import VCSGui.Common.GtkHelper
 import qualified VCSWrapper.Common as Wrapper
 
-import Paths_vcsgui(getDataFileName)
+
 getGladepath = getDataFileName "guiCommonSetupRepo.glade"
 
 
@@ -50,17 +51,18 @@ data SetupRepoGUI = SetupRepoGUI {
 -- TODO check if repo exists and what kind
 --      fill combobox/liststore with discovered types
 --      get type on okAction and pass it to callback (along with config)
-showSetupConfigGUI :: Maybe Wrapper.Config -- ^ maybe a config
+showSetupConfigGUI :: Maybe (Wrapper.VCSType, Wrapper.Config) -- ^ maybe a tuple (vcstype,config)
                     -> (Maybe (Wrapper.VCSType, Wrapper.Config)  -- ^ Just (VCSType,Config) if everything is set correctly
                         -> IO ())           -- ^ called when dialog is closed
                     -> IO ()
 showSetupConfigGUI mbConfig callback = loadAndOpenWindow
                                                             (loadSetupRepoGui mbConfig)
-                                                            (connectSetupRepoGui mbConfig callback)
+                                                            (connectSetupRepoGui callback)
                                                             setupRepoWin
 
 
-loadSetupRepoGui :: Maybe Wrapper.Config -> IO SetupRepoGUI
+loadSetupRepoGui :: Maybe (Wrapper.VCSType, Wrapper.Config)
+                 -> IO SetupRepoGUI
 loadSetupRepoGui mbConfig = loadGuiTemplate $ \builder -> do
     win <- getWindowFromGlade builder "setupRepoWindow"
     actOk <- getActionFromGlade builder "actOk"
@@ -73,13 +75,22 @@ loadSetupRepoGui mbConfig = loadGuiTemplate $ \builder -> do
     -- init gui with existing repo
     case mbConfig of
         Nothing -> return ()
-        Just (Wrapper.Config mbPath _ mbAuthor) -> do
+        Just (vcsType, Wrapper.Config mbPath _ mbAuthor) -> do
             case mbPath of
                 Nothing -> return ()
                 Just path -> do
                                 set entPath $ path
                                 availableVCS <- discoverVCS path
                                 set comboBoxVCSType $ map (\vcs -> show vcs) availableVCS
+                                if contains [vcsType] availableVCS
+                                    then do
+                                    --get position (hopefully always index in liststore = index in list)
+                                    let index = elemRIndex vcsType availableVCS
+
+                                    --set active
+                                    comboBoxSetActive (getItem comboBoxVCSType) $ fromMaybe (-1) index
+                                    else do
+                                    return ()
             case mbAuthor of
                 Nothing -> return ()
                 Just (Wrapper.Author author email) -> do
@@ -88,11 +99,10 @@ loadSetupRepoGui mbConfig = loadGuiTemplate $ \builder -> do
             return ()
     return $ SetupRepoGUI win actOk actCancel actSelRepo entPath entAuthor entEmail comboBoxVCSType
 
-connectSetupRepoGui :: Maybe Wrapper.Config
-                    -> (Maybe (Wrapper.VCSType, Wrapper.Config)
+connectSetupRepoGui :: (Maybe (Wrapper.VCSType, Wrapper.Config)
                         -> IO ())
                     -> SetupRepoGUI -> IO ()
-connectSetupRepoGui mbConfig callback gui = do
+connectSetupRepoGui callback gui = do
         registerClose $ setupRepoWin gui
         liftIO $ registerCloseAction (actCancel gui) (setupRepoWin gui)
 
