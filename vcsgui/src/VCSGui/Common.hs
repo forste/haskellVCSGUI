@@ -16,7 +16,8 @@
 module VCSGui.Common (
     VCSGui.Common.Error.showErrorGUI
     , VCSGui.Common.SetupConfig.showSetupConfigGUI
+    , VCSGui.Common.ExceptionHandler.defaultVCSExceptionHandler
 ) where
 import qualified VCSGui.Common.SetupConfig
 import qualified VCSGui.Common.Error
-
+import qualified VCSGui.Common.ExceptionHandler
