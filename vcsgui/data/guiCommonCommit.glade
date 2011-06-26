@@ -21,10 +21,18 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
-          <object class="GtkTextView" id="txtViewMsg">
+          <object class="GtkScrolledWindow" id="scrolledwindow2">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="buffer">bufferMsg</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <object class="GtkTextView" id="txtViewMsg">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="buffer">bufferMsg</property>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="expand">True</property>

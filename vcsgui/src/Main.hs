@@ -33,14 +33,14 @@ import Graphics.UI.Gtk
 --
 
 {-
-cwd = "/home/n0s/project1_work3"
+cwd = "/home/forste/project1_work"
 main = do
     initGUI
     runWithConfig $ Svn.showCommitGUI
     mainGUI
     mainQuit
     where
-        runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
+        runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwd) Nothing Nothing
 -}
 
 --
@@ -62,8 +62,8 @@ main = do
 --log
 --
 
-{-
-cwd = "/home/n0s/project1_work3"
+--{-
+cwd = "/home/forste/project1_work"
 main = do
         initGUI
         runWithConfig $
@@ -71,7 +71,7 @@ main = do
         mainGUI
         mainQuit
     where
-        runWithConfig = runVcs $ makeConfig (Just cwd) Nothing Nothing
+        runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwd) Nothing Nothing
 ---}
 
 --
@@ -82,7 +82,7 @@ main = do
 --log
 --
 
-
+cwdGit = "/home/forste/leksahWorkspace/leksah"
 --cwdGit = "/home/n0s-ubuntu/testrepo"
 {-
 main = do
@@ -91,13 +91,14 @@ main = do
             GitLog.showLogGUI
         mainGUI
     where
-        runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
+        runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwdGit) Nothing Nothing
 -}
 
 
 --
 -- commit
 --
+
 {-
 main = do
     initGUI
@@ -105,14 +106,14 @@ main = do
         GitCommit.showCommitGUI
     mainGUI
     where
-        runWithConfig = runVcs $ makeConfig (Just cwdGit) Nothing Nothing
-
+        runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwdGit) Nothing Nothing
 -}
 
 
 --
 -- common
 --
+{-
 cwd = "/home/forste/leksahWorkspace/leksah"
 main = do
     initGUI
@@ -121,4 +122,4 @@ main = do
     where
         config = Just (Wrapper.GIT, Wrapper.makeConfig Nothing Nothing Nothing)
 --        config = Just (Wrapper.GIT, Wrapper.makeConfig (Just cwd) Nothing Nothing)
-
+-}

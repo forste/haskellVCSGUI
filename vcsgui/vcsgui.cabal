@@ -17,7 +17,7 @@ description: .
 category:
 author:
 tested-with:
-data-files: guiGit.glade guiCommonCommit.glade guiSvnCheckout.glade guiCommonSetupRepo.glade
+data-files: guiCommonLog.glade guiCommonCommit.glade guiSvnCheckout.glade guiCommonSetupRepo.glade
 data-dir: data
 extra-source-files:
 extra-tmp-files:
