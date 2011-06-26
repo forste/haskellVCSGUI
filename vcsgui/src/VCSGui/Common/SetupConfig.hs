@@ -75,7 +75,7 @@ loadSetupRepoGui mbConfig = loadGuiTemplate $ \builder -> do
     -- init gui with existing repo
     case mbConfig of
         Nothing -> return ()
-        Just (vcsType, Wrapper.Config mbPath _ mbAuthor) -> do
+        Just (vcsType, Wrapper.Config mbPath _ mbAuthor _) -> do
             case mbPath of
                 Nothing -> return ()
                 Just path -> do

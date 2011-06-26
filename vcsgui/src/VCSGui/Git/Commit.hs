@@ -31,7 +31,7 @@ import qualified VCSWrapper.Common as Wrapper
 doCommit :: String -> [FilePath] -> [Commit.Option] -> Wrapper.Ctx ()
 doCommit commitMsg files _ = do
     Git.add files
-    (Wrapper.Config _ _ mbAuthor) <- ask
+    (Wrapper.Config _ _ mbAuthor _) <- ask
     case mbAuthor of
         Nothing -> Git.commit files Nothing commitMsg []
         Just (Wrapper.Author author mbEmail) -> do
