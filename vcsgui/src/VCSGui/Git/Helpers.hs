@@ -18,10 +18,13 @@ module VCSGui.Git.Helpers (
 
 import VCSWrapper.Git
 import Control.Monad.Reader.Class (asks, MonadReader(..))
+import System.Environment (getEnvironment)
+import Control.Monad.Reader (liftIO)
 
 askPassWrapper :: Ctx () -> Ctx ()
 askPassWrapper fn = do
-    env <- asks configEnvironment
+    cfgEnv <- asks configEnvironment
+    inheritEnv <- liftIO $ getEnvironment
     -- TODO better solution for DISPLAY? TODO will this work on windows?
-    local (\cfg -> cfg {configEnvironment = ("GIT_ASKPASS", "/home/n0s-ubuntu/.cabal/bin/vcsgui-askpass"):("DISPLAY", ":0.0"):env}) fn
+    local (\cfg -> cfg {configEnvironment = ("GIT_ASKPASS", "vcsgui-askpass"):("DISPLAY", ":0.0"):inheritEnv ++ cfgEnv}) fn
 
