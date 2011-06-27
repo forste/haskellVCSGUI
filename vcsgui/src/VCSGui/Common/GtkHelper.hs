@@ -35,6 +35,8 @@ module VCSGui.Common.GtkHelper (
     , closeWin
     , registerClose
     , registerCloseAction
+    , registerQuit
+    , registerQuitAction
 
     , WindowItem
     , ActionItem
@@ -49,6 +51,7 @@ import qualified Graphics.UI.Gtk as Gtk
 
 import System.Directory
 import Control.Monad.Trans(liftIO)
+import System.IO (hPutStrLn, stderr)
 
 -- Typesynonyms
 type WindowItem = (String, Gtk.Window, ())
@@ -225,6 +228,13 @@ registerClose win = Gtk.on (getItem win) Gtk.deleteEvent (liftIO (closeWin win) 
 registerCloseAction :: ActionItem -> WindowItem -> IO ()
 registerCloseAction act win = Gtk.on (getItem act) Gtk.actionActivated (liftIO (closeWin win)) >> return ()
 
+registerQuit :: WindowItem -> IO ()
+registerQuit win = Gtk.on (getItem win) Gtk.deleteEvent (liftIO $ Gtk.mainQuit >> return False) >> return ()
+
+registerQuitAction :: ActionItem -> IO ()
+registerQuitAction act = Gtk.on (getItem act) Gtk.actionActivated (liftIO (Gtk.mainQuit)) >> return ()
+
+
 -- | Add a column to given ListStore and TreeView using a mapping.
 -- The mapping consists of a CellRenderer, the title and a function, that maps each row to attributes of the column
 addColumnToTreeView :: Gtk.CellRendererClass r =>
@@ -279,7 +289,7 @@ wrapWidget :: Gtk.GObjectClass objClass =>
      -> (Gtk.GObject -> objClass)
      -> String -> IO (String, objClass)
 wrapWidget builder cast name = do
-    putStrLn $ " cast " ++ name
+    hPutStrLn stderr $ " cast " ++ name
     gobj <- Gtk.builderGetObject builder cast name
     return (name, gobj)
 

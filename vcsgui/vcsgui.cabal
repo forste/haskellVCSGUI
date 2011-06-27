@@ -6,13 +6,8 @@ license: AllRightsReserved
 license-file: ""
 copyright:
 maintainer:
-build-depends: base -any, directory -any, vcswrapper -any,
-               gtk -any, haskell98 -any, mtl -any, MissingH -any, MissingH -any,
-               mtl -any, haskell98 -any, gtk -any, vcswrapper -any,
-               directory -any, base -any, base -any, directory -any,
-               vcswrapper -any, gtk -any, haskell98 -any, mtl -any, MissingH -any,
-               MissingH -any, mtl -any, haskell98 -any, gtk -any, vcswrapper -any,
-               directory -any, base -any
+build-depends: MissingH -any, base -any, directory -any, gtk -any,
+               haskell98 -any, mtl -any, vcswrapper -any
 stability:
 homepage:
 package-url:
@@ -22,12 +17,13 @@ description: .
 category:
 author:
 tested-with:
-data-files: guiCommonLog.glade guiCommonCommit.glade
-            guiSvnCheckout.glade guiCommonSetupRepo.glade
+data-files: guiCommonCommit.glade guiCommonLog.glade
+            guiCommonSetupRepo.glade guiSvnCheckout.glade
+            guiCommonAskpass.glade
 data-dir: data
 extra-source-files:
 extra-tmp-files:
-exposed-modules: VCSGui.Svn VCSGui.Git VCSGui.Common
+exposed-modules: VCSGui.Common VCSGui.Git VCSGui.Svn
 exposed: True
 buildable: True
 build-tools:
@@ -48,11 +44,12 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src
-other-modules: VCSGui.Git.Helpers VCSGui.Common.ExceptionHandler
-               VCSGui.Git.Gui VCSGui.Git.Log VCSGui.Git.Commit VCSGui.Svn.Checkout
-               VCSGui.Svn.Log VCSGui.Svn.Commit VCSGui.Common.GtkHelper
-               VCSGui.Common.Log VCSGui.Common.SetupConfig VCSGui.Common.Error
-               VCSGui VCSGui.Common.Types VCSGui.Common.Commit Paths_vcsgui
+other-modules: VCSGui VCSGui.Svn.Log VCSGui.Svn.Checkout
+               VCSGui.Svn.Commit VCSGui.Git.Log VCSGui.Git.Helpers VCSGui.Git.Gui
+               VCSGui.Git.Commit VCSGui.Common.Types VCSGui.Common.Log
+               VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
+               VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
+               Paths_vcsgui
 ghc-prof-options:
 ghc-shared-options:
 ghc-options:
@@ -81,11 +78,41 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src
-other-modules: VCSGui.Git.Helpers VCSGui.Common.ExceptionHandler
-               VCSGui.Git.Gui VCSGui.Git.Log VCSGui.Git.Commit VCSGui.Svn.Checkout
-               VCSGui.Svn.Log VCSGui.Svn.Commit VCSGui.Common.GtkHelper
-               VCSGui.Common.Log VCSGui.Common.SetupConfig VCSGui.Common.Error
-               VCSGui VCSGui.Common.Types VCSGui.Common.Commit Paths_vcsgui
+other-modules: VCSGui VCSGui.Svn.Log VCSGui.Svn.Checkout
+               VCSGui.Svn.Commit VCSGui.Git.Log VCSGui.Git.Helpers VCSGui.Git.Gui
+               VCSGui.Git.Commit VCSGui.Common.Types VCSGui.Common.Log
+               VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
+               VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
+               Paths_vcsgui
+ghc-prof-options:
+ghc-shared-options:
+ghc-options:
+hugs-options:
+nhc98-options:
+jhc-options:
+ 
+executable: vcsgui-askpass
+main-is: Main.hs
+buildable: True
+build-tools:
+cpp-options:
+cc-options:
+ld-options:
+pkgconfig-depends:
+frameworks:
+c-sources:
+default-language:
+other-languages:
+default-extensions:
+other-extensions:
+extensions:
+extra-libraries:
+extra-lib-dirs:
+includes:
+install-includes:
+include-dirs:
+hs-source-dirs: src/exe/askpass src
+other-modules: Paths_vcsgui VCSGui.Common.GtkHelper
 ghc-prof-options:
 ghc-shared-options:
 ghc-options:

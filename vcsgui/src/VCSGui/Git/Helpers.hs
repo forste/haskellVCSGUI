@@ -23,5 +23,5 @@ askPassWrapper :: Ctx () -> Ctx ()
 askPassWrapper fn = do
     env <- asks configEnvironment
     -- TODO better solution for DISPLAY? TODO will this work on windows?
-    local (\cfg -> cfg {configEnvironment = ("GIT_ASKPASS", "ssh-askpass"):("DISPLAY", ":0.0"):env}) fn
+    local (\cfg -> cfg {configEnvironment = ("GIT_ASKPASS", "/home/n0s-ubuntu/.cabal/bin/vcsgui-askpass"):("DISPLAY", ":0.0"):env}) fn
 
