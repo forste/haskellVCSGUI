@@ -20,7 +20,7 @@ import Control.Monad.Trans(liftIO)
 import Data.Maybe
 import Monad
 import Directory
-import Data.List.Utils
+import Data.List.Utils(contains,elemRIndex)
 import Paths_vcsgui(getDataFileName)
 
 import VCSGui.Common.Error

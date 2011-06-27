@@ -62,7 +62,7 @@ main = do
 --log
 --
 
---{-
+{-
 cwd = "/home/forste/project1_work"
 main = do
         initGUI
@@ -72,7 +72,19 @@ main = do
         mainQuit
     where
         runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwd) Nothing Nothing
----}
+-}
+
+--
+--askpass
+--
+main = do
+        initGUI
+        Svn.showAskpassGUI (\x -> case x of
+                                        Nothing -> putStrLn "Called cancel"
+                                        Just Nothing -> putStrLn "Doesn't want to use password"
+                                        Just (Just result) -> putStrLn $ "Result "++ show result)
+        mainGUI
+        mainQuit
 
 --
 --git

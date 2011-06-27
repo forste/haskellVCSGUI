@@ -20,6 +20,7 @@ module VCSGui.Common.GtkHelper (
     , getTextEntryFromGlade
     , getTextViewFromGlade
     , getComboBoxFromGlade
+    , getCheckButtonFromGlade
     , getTreeViewFromGlade
     , getTreeViewFromGladeCustomStore
     , addColumnToTreeView
@@ -44,6 +45,7 @@ module VCSGui.Common.GtkHelper (
     , TextEntryItem
     , TextViewItem
     , ComboBoxItem
+    , CheckButtonItem
     , TreeViewItem
 ) where
 
@@ -61,7 +63,7 @@ type TextEntryItem = (String, Gtk.Entry, (IO (Maybe String), String -> IO ()))
 type ComboBoxItem = (String, Gtk.ComboBox, (IO (Maybe String), [String] -> IO ()))
 type TextViewItem = (String, Gtk.TextView, (IO (Maybe String), String -> IO ()))
 type TreeViewItem a = (String, (Gtk.ListStore a, Gtk.TreeView), (IO (Maybe [a]), [a] -> IO ()))
-
+type CheckButtonItem = (String, Gtk.CheckButton, (IO Bool, Bool -> IO()))
 -- Type accessors
 
 -- | return the name of this item (as in the gladefile)
@@ -161,6 +163,15 @@ getTextViewFromGlade builder name =  do
             return $ Just s
 
 
+getCheckButtonFromGlade :: Gtk.Builder
+    -> String
+    -> IO CheckButtonItem
+getCheckButtonFromGlade builder name = do
+        (_,bt) <- wrapWidget builder Gtk.castToCheckButton name
+        let getter = Gtk.toggleButtonGetActive bt
+            setter = (\bool -> Gtk.toggleButtonSetActive bt bool) :: Bool -> IO()
+        return (name,bt, (getter,setter))
+
 ---------------------------------
 -- TreeView
 ---------------------------------
@@ -234,6 +245,10 @@ registerQuit win = Gtk.on (getItem win) Gtk.deleteEvent (liftIO $ Gtk.mainQuit >
 registerQuitAction :: ActionItem -> IO ()
 registerQuitAction act = Gtk.on (getItem act) Gtk.actionActivated (liftIO (Gtk.mainQuit)) >> return ()
 
+registerQuitWithCustomFun :: WindowItem
+                -> IO () -- ^ custom fun
+                -> IO ()
+registerQuitWithCustomFun win fun = Gtk.on (getItem win) Gtk.deleteEvent (liftIO $ Gtk.mainQuit >> return False) >> return ()
 
 -- | Add a column to given ListStore and TreeView using a mapping.
 -- The mapping consists of a CellRenderer, the title and a function, that maps each row to attributes of the column
