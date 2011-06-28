@@ -95,9 +95,13 @@ showCommitGUI setUpTreeView okCallback = do
     liftIO $ on (H.getItem (actCommit gui)) actionActivated $ do
                                         let (store,_) = H.getItem (treeViewFiles gui)
                                         selectedFiles <- getSelectedFiles store
-
-                                        msg <- H.get (txtViewMsg gui)
-                                        Wrapper.runVcs config $ okCallback (fromMaybe "" msg) selectedFiles []
+                                        mbMsg <- H.get (txtViewMsg gui)
+                                        case selectedFiles of
+                                            [] -> return() -- TODO message
+                                            _  -> do
+                                                    case mbMsg of
+                                                        Nothing -> return() --TODO message
+                                                        Just msg -> Wrapper.runVcs config $ okCallback msg selectedFiles []
                                         H.closeWin (windowCommit gui)
 
     -- present window

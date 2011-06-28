@@ -36,7 +36,7 @@ import Control.Monad.Trans(liftIO)
 cwd = "/home/forste/project1_work"
 main = do
     initGUI
-    runWithConfig $ Svn.showCommitGUI (Just handler)
+    runWithConfig $ Svn.showCommitGUI (Left handler)
     mainGUI
     mainQuit
     where

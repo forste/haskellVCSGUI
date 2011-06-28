@@ -14,6 +14,7 @@
 
 module VCSGui.Svn.AskPassword (
     showAskpassGUI
+    ,Handler
 ) where
 
 import qualified VCSGui.Common.GtkHelper as H
@@ -38,6 +39,8 @@ accessorCheckbtUsePw = "checkbtUsePw"
 accessorCheckbtSaveForSession = "checkbtSaveForSession"
 accessorboxUsePwd = "boxUsePwd"
 
+type Handler = ((Maybe (Bool, Maybe String))
+                -> Wrapper.Ctx())
 
 data AskpassGUI = AskpassGUI {
     windowAskpass :: H.WindowItem
@@ -49,9 +52,7 @@ data AskpassGUI = AskpassGUI {
     ,boxUsePwd :: VBox
 }
 
-showAskpassGUI :: (Maybe (Maybe (Bool, String)) -- ^ args passed to handler, Nothing if operation is aborted (cancel,quit)
-                                                -- ^ else Just Nothing if use password = false, else Just (saveForSession, pw)
-                  -> Wrapper.Ctx ()) -- handler which
+showAskpassGUI :: Handler -- handler which
                   -> Wrapper.Ctx ()
 showAskpassGUI handler = do
     config <- ask
@@ -67,10 +68,8 @@ showAskpassGUI handler = do
                                             pw <- H.get (entryPw gui)
                                             saveForSession <- H.get $ checkbtSaveForSession gui
 
-                                            let args =  if not usePw then
-                                                                Just Nothing
-                                                            else
-                                                                Just $ Just (saveForSession, fromMaybe "" pw)
+                                            let args =  if usePw then Just (saveForSession, Just $ fromMaybe "" pw)
+                                                                 else Just (saveForSession, Nothing)
                                             Wrapper.runVcs config $ handler args
                                             H.closeWin (windowAskpass gui)
         on (H.getItem (checkbtUsePw gui)) toggled $ do
@@ -84,20 +83,20 @@ showAskpassGUI handler = do
         return ()
 
 registerClose :: H.WindowItem
-                -> (Maybe (Maybe (Bool, String)) -> Wrapper.Ctx())
+                -> Handler
                 -> Wrapper.Config
                 -> IO()
 registerClose win handler config = on (H.getItem win) deleteEvent (liftIO (close win handler config) >> return False) >> return ()
 
 registerCloseAction :: H.ActionItem
                     -> H.WindowItem
-                    -> (Maybe (Maybe (Bool, String))-> Wrapper.Ctx())
+                    -> Handler
                     -> Wrapper.Config
                     -> IO()
 registerCloseAction act win handler config = on (H.getItem act) actionActivated (liftIO (close win handler config)) >> return ()
 
 close :: H.WindowItem
-                -> (Maybe (Maybe (Bool, String)) -> Wrapper.Ctx())
+                -> Handler
                 -> Wrapper.Config
                 -> IO()
 close win handler config = do

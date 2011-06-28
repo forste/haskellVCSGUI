@@ -30,37 +30,36 @@ import Control.Monad.Trans(liftIO)
 {-  | Displays a window, showing status of subversion and actions to commit/cancel.
     | Give callback will be called on success with chosen password and boolean whether password should be saved for session.
 -}
-showCommitGUI :: Maybe (Maybe (Maybe (Bool, String))  -- ^ args passed to handler, Nothing if operation is aborted (cancel,quit)
-                                                -- ^ else Just Nothing if use password = false, else Just (saveForSession, pw)
-                    -> Svn.Ctx ())    -- ^ callback for password request
+showCommitGUI :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
                  -> Svn.Ctx()
-showCommitGUI passwordHandler = C.showCommitGUI setUpTreeView (okCallback passwordHandler)
+showCommitGUI eitherHandlerOrPw = C.showCommitGUI setUpTreeView (okCallback eitherHandlerOrPw)
 
-okCallback :: Maybe (Maybe (Maybe (Bool, String))
-
-                  -> Svn.Ctx ())    -- ^ password handler
+okCallback :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
             -> String               -- ^ commit message
             -> [FilePath]           -- ^ selected files
             -> [C.Option]           -- ^ TODO options
             -> Svn.Ctx ()
-okCallback Nothing  msg filesToCommit _ = do
-                                doCommit msg filesToCommit
-okCallback (Just passwordHandler) msg filesToCommit _ =  do
-                                showAskpassGUI (ownHandler passwordHandler)
-                                return ()
+okCallback eitherHandlerOrPw msg filesToCommit _ =  do
+                                case eitherHandlerOrPw of
+                                    Left handler -> do
+                                                        showAskpassGUI (ownHandler handler)
+                                                        return ()
+                                    Right pw     -> doCommit msg filesToCommit pw
+
         where
-            ownHandler :: (Maybe (Maybe (Bool, String)) -> Svn.Ctx ())
-                           -> (Maybe (Maybe (Bool, String)) -> Svn.Ctx ())
+            doCommit msg filesToCommit mbPw = do
+                                            Svn.add [] filesToCommit
+                                            Svn.commit filesToCommit msg [] mbPw
+                                            return()
+            ownHandler :: Handler
+                           -> Handler
             ownHandler handler = \result -> do
                                                 case result of
-                                                    Nothing -> handler result
-                                                    _       -> do
-                                                                doCommit msg filesToCommit
-                                                                handler result
-doCommit msg filesToCommit = do
-    Svn.add [] filesToCommit
-    Svn.commit filesToCommit msg []
-    return()
+                                                    Nothing       -> handler result
+                                                    Just (_,mbPw) -> do
+                                                                    doCommit msg filesToCommit mbPw
+                                                                    handler result
+
 
 
 setUpTreeView :: TreeView -> Svn.Ctx (ListStore C.SCFile)
