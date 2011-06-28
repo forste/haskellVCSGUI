@@ -20,26 +20,48 @@ module VCSGui.Svn.Commit (
 import qualified VCSGui.Common.Commit as C
 import qualified VCSGui.Common.GtkHelper as H
 
+import VCSGui.Svn.AskPassword
+
 import qualified VCSWrapper.Svn as Svn
 
 import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 
+{-  | Displays a window, showing status of subversion and actions to commit/cancel.
+    | Give callback will be called on success with chosen password and boolean whether password should be saved for session.
+-}
+showCommitGUI :: Maybe (Maybe (Maybe (Bool, String))  -- ^ args passed to handler, Nothing if operation is aborted (cancel,quit)
+                                                -- ^ else Just Nothing if use password = false, else Just (saveForSession, pw)
+                    -> Svn.Ctx ())    -- ^ callback for password request
+                 -> Svn.Ctx()
+showCommitGUI passwordHandler = C.showCommitGUI setUpTreeView (okCallback passwordHandler)
 
+okCallback :: Maybe (Maybe (Maybe (Bool, String))
 
-showCommitGUI :: Svn.Ctx()
-showCommitGUI = C.showCommitGUI setUpTreeView okCallback
-
-okCallback :: String        -- ^ commit message
-            -> [FilePath]   -- ^ selected files
-            -> [C.Option]   -- ^ TODO options
+                  -> Svn.Ctx ())    -- ^ password handler
+            -> String               -- ^ commit message
+            -> [FilePath]           -- ^ selected files
+            -> [C.Option]           -- ^ TODO options
             -> Svn.Ctx ()
-okCallback msg filesToCommit _ =  do
-                                liftIO $ putStrLn $ "Files to commit (adding them also): "++show filesToCommit
-                                liftIO $ putStrLn $ "Commit message: "++msg
-                                Svn.add [] filesToCommit
-                                Svn.commit filesToCommit msg []
+okCallback Nothing  msg filesToCommit _ = do
+                                doCommit msg filesToCommit
+okCallback (Just passwordHandler) msg filesToCommit _ =  do
+                                showAskpassGUI (ownHandler passwordHandler)
                                 return ()
+        where
+            ownHandler :: (Maybe (Maybe (Bool, String)) -> Svn.Ctx ())
+                           -> (Maybe (Maybe (Bool, String)) -> Svn.Ctx ())
+            ownHandler handler = \result -> do
+                                                case result of
+                                                    Nothing -> handler result
+                                                    _       -> do
+                                                                doCommit msg filesToCommit
+                                                                handler result
+doCommit msg filesToCommit = do
+    Svn.add [] filesToCommit
+    Svn.commit filesToCommit msg []
+    return()
+
 
 setUpTreeView :: TreeView -> Svn.Ctx (ListStore C.SCFile)
 setUpTreeView listView = do

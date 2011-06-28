@@ -16,12 +16,16 @@ module VCSGui.Svn.AskPassword (
     showAskpassGUI
 ) where
 
-import Graphics.UI.Gtk
 import qualified VCSGui.Common.GtkHelper as H
+
+import qualified VCSWrapper.Common as Wrapper
+
+import Graphics.UI.Gtk
+
 import Data.Maybe (fromMaybe)
 import Control.Monad.Trans(liftIO)
-
 import Paths_vcsgui(getDataFileName)
+import Control.Monad.Reader(ask)
 --
 -- glade path and object accessors
 --
@@ -47,52 +51,58 @@ data AskpassGUI = AskpassGUI {
 
 showAskpassGUI :: (Maybe (Maybe (Bool, String)) -- ^ args passed to handler, Nothing if operation is aborted (cancel,quit)
                                                 -- ^ else Just Nothing if use password = false, else Just (saveForSession, pw)
-                  -> IO ()) -- handler which
-                  -> IO ()
+                  -> Wrapper.Ctx ()) -- handler which
+                  -> Wrapper.Ctx ()
 showAskpassGUI handler = do
-    gui <- loadAskpassGUI
+    config <- ask
+    liftIO $ do
+        gui <- loadAskpassGUI
 
-    -- connect actions
-    registerClose (windowAskpass gui) handler
-    registerCloseAction (actCancel gui) (windowAskpass gui) handler
-    on (H.getItem (actOk gui)) actionActivated $ do
-                                        putStrLn "ok clicked"
-                                        usePw <- H.get $ checkbtUsePw gui
-                                        pw <- H.get (entryPw gui)
-                                        saveForSession <- H.get $ checkbtSaveForSession gui
+        -- connect actions
+        registerClose (windowAskpass gui) handler config
+        registerCloseAction (actCancel gui) (windowAskpass gui) handler config
+        on (H.getItem (actOk gui)) actionActivated $ do
+                                            putStrLn "ok clicked"
+                                            usePw <- H.get $ checkbtUsePw gui
+                                            pw <- H.get (entryPw gui)
+                                            saveForSession <- H.get $ checkbtSaveForSession gui
 
-                                        let args =  if not usePw then
-                                                            Just Nothing
-                                                        else
-                                                            Just $ Just (saveForSession, fromMaybe "" pw)
-                                        handler args
-                                        putStrLn $ show args
-                                        H.closeWin (windowAskpass gui)
-    on (H.getItem (checkbtUsePw gui)) toggled $ do
-                                        active <- get (H.getItem (checkbtUsePw gui)) toggleButtonActive
-                                        if active then
-                                                widgetShowAll (boxUsePwd gui)
-                                            else
-                                                widgetHideAll (boxUsePwd gui)
-    -- present window
-    widgetShowAll $ H.getItem $ windowAskpass gui
-    return ()
+                                            let args =  if not usePw then
+                                                                Just Nothing
+                                                            else
+                                                                Just $ Just (saveForSession, fromMaybe "" pw)
+                                            Wrapper.runVcs config $ handler args
+                                            H.closeWin (windowAskpass gui)
+        on (H.getItem (checkbtUsePw gui)) toggled $ do
+                                            active <- get (H.getItem (checkbtUsePw gui)) toggleButtonActive
+                                            if active then
+                                                    widgetShowAll (boxUsePwd gui)
+                                                else
+                                                    widgetHideAll (boxUsePwd gui)
+        -- present window
+        widgetShowAll $ H.getItem $ windowAskpass gui
+        return ()
 
 registerClose :: H.WindowItem
-                -> (Maybe (Maybe (Bool, String)) -> IO())
-                -> IO ()
-registerClose win handler = on (H.getItem win) deleteEvent (liftIO (close win handler) >> return False) >> return ()
+                -> (Maybe (Maybe (Bool, String)) -> Wrapper.Ctx())
+                -> Wrapper.Config
+                -> IO()
+registerClose win handler config = on (H.getItem win) deleteEvent (liftIO (close win handler config) >> return False) >> return ()
 
-registerCloseAction :: H.ActionItem -> H.WindowItem ->  (Maybe (Maybe (Bool, String)) -> IO()) -> IO ()
-registerCloseAction act win handler = on (H.getItem act) actionActivated (liftIO (close win handler)) >> return ()
+registerCloseAction :: H.ActionItem
+                    -> H.WindowItem
+                    -> (Maybe (Maybe (Bool, String))-> Wrapper.Ctx())
+                    -> Wrapper.Config
+                    -> IO()
+registerCloseAction act win handler config = on (H.getItem act) actionActivated (liftIO (close win handler config)) >> return ()
 
 close :: H.WindowItem
-                -> (Maybe (Maybe (Bool, String)) -> IO())
-                -> IO ()
-close win handler = do
-                        putStrLn "Close called"
-                        H.closeWin win
-                        handler Nothing
+                -> (Maybe (Maybe (Bool, String)) -> Wrapper.Ctx())
+                -> Wrapper.Config
+                -> IO()
+close win handler config = do
+                        liftIO $ H.closeWin win
+                        Wrapper.runVcs config $ handler Nothing
 
 loadAskpassGUI :: IO AskpassGUI
 loadAskpassGUI = do

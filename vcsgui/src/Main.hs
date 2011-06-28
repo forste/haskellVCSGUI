@@ -23,7 +23,7 @@ import qualified VCSWrapper.Common as Wrapper
 import qualified VCSGui.Git.Log as GitLog
 import qualified VCSGui.Git.Commit as GitCommit
 import Graphics.UI.Gtk
-
+import Control.Monad.Trans(liftIO)
 --
 --svn
 --
@@ -32,16 +32,17 @@ import Graphics.UI.Gtk
 -- commit
 --
 
-{-
+--{-
 cwd = "/home/forste/project1_work"
 main = do
     initGUI
-    runWithConfig $ Svn.showCommitGUI
+    runWithConfig $ Svn.showCommitGUI (Just handler)
     mainGUI
     mainQuit
     where
         runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwd) Nothing Nothing
--}
+        handler = (\result -> liftIO $ putStrLn $ show result)
+---}
 
 --
 -- checkout
@@ -77,14 +78,13 @@ main = do
 --
 --askpass
 --
-main = do
-        initGUI
-        Svn.showAskpassGUI (\x -> case x of
-                                        Nothing -> putStrLn "Called cancel"
-                                        Just Nothing -> putStrLn "Doesn't want to use password"
-                                        Just (Just result) -> putStrLn $ "Result "++ show result)
-        mainGUI
-        mainQuit
+--main = do
+--        initGUI
+--        runWithConfig $ Svn.showAskpassGUI (\result -> liftIO $ putStrLn $ "Result "++ show result)
+--        mainGUI
+--        mainQuit
+--      where
+--        runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig Nothing Nothing Nothing
 
 --
 --git
