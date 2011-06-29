@@ -22,7 +22,7 @@ import qualified VCSWrapper.Svn as Svn
 showLogGUI :: Svn.Ctx ()
 showLogGUI = do
         logEntries <- Svn.simpleLog
-        C.showLogGUI logEntries [] Nothing checkout
+        C.showLogGUI logEntries [] Nothing $ checkout
     where
-    checkout logEntry _ = Svn.revert $ revision logEntry
+    checkout logEntry _ = Svn.revert (revision logEntry) Nothing [] -- TODO password handler
     revision logEntry = read $ Svn.commitID logEntry :: Integer

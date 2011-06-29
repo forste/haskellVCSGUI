@@ -58,11 +58,10 @@ showCheckoutGUI = do
         H.registerCloseAction (actCancel gui) (windowCheckout gui)
         liftIO $ on (H.getItem (actCheckout gui)) actionActivated $ do
                                             url <- H.get (txtViewUrl gui)
-                                            revision <- H.get (txtViewRevision gui)
-                                            let realRevision = revision
-                                            filePath <- H.get (txtViewPath gui)
-                                            let realFilePath = filePath
-                                            Svn.runVcs config $ Svn.checkout [(fromMaybe "" url, realRevision)] realFilePath []
+                                            realRevision <- H.get (txtViewRevision gui)
+                                            realFilePath <- H.get (txtViewPath gui)
+                                            let mbPwd = Nothing
+                                            Svn.runVcs config $ Svn.checkout [(fromMaybe "" url, realRevision)] realFilePath mbPwd [] -- TODO pw handler
                                             H.closeWin $ windowCheckout gui
 
 

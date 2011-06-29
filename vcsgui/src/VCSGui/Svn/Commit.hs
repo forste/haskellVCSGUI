@@ -48,8 +48,8 @@ okCallback eitherHandlerOrPw msg filesToCommit _ =  do
 
         where
             doCommit msg filesToCommit mbPw = do
-                                            Svn.add [] filesToCommit
-                                            Svn.commit filesToCommit msg [] mbPw
+                                            Svn.add filesToCommit mbPw []
+                                            Svn.commit filesToCommit msg mbPw []
                                             return()
             ownHandler :: Handler
                            -> Handler
@@ -65,7 +65,7 @@ okCallback eitherHandlerOrPw msg filesToCommit _ =  do
 setUpTreeView :: TreeView -> Svn.Ctx (ListStore C.SCFile)
 setUpTreeView listView = do
     -- get status
-    repoStatus <- Svn.status []
+    repoStatus <- Svn.status
 
     liftIO $ do
         -- create model
