@@ -44,17 +44,13 @@ data SetupRepoGUI = SetupRepoGUI {
 }
 
 
--- example call:
--- do
---  getAvailableshowSetupConfig
-
--- TODO check if repo exists and what kind
---      fill combobox/liststore with discovered types
---      get type on okAction and pass it to callback (along with config)
-showSetupConfigGUI :: Maybe (Wrapper.VCSType, Wrapper.Config) -- ^ maybe a tuple (vcstype,config)
-                    -> (Maybe (Wrapper.VCSType, Wrapper.Config)  -- ^ Just (VCSType,Config) if everything is set correctly
-                        -> IO ())           -- ^ called when dialog is closed
-                    -> IO ()
+{-  | Displays a window to setup a repo. Window will be initially filled with content given config
+      if not Nothing. Given callback will be called on successful completition.
+-}
+showSetupConfigGUI :: Maybe (Wrapper.VCSType, Wrapper.Config)   -- ^ maybe a tuple (vcstype,config)
+                   -> (Maybe (Wrapper.VCSType, Wrapper.Config)      -- ^ Just (VCSType,Config) if everything is set correctly
+                        -> IO ())                               -- ^ callback, called when dialog is closed
+                   -> IO ()
 showSetupConfigGUI mbConfig callback = loadAndOpenWindow
                                                             (loadSetupRepoGui mbConfig)
                                                             (connectSetupRepoGui callback)

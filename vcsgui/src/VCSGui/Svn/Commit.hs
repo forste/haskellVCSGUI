@@ -13,8 +13,6 @@
 -----------------------------------------------------------------------------
 module VCSGui.Svn.Commit (
     showCommitGUI
-    ,Svn.Config
-    ,Svn.Ctx
 ) where
 
 import qualified VCSGui.Common.Commit as C
@@ -28,7 +26,7 @@ import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 
 {-  | Displays a window, showing status of subversion and actions to commit/cancel.
-    | Give callback will be called on success with chosen password and boolean whether password should be saved for session.
+    | Given callback will be called on success with chosen password and boolean whether password should be saved for session.
 -}
 showCommitGUI :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
                  -> Svn.Ctx()

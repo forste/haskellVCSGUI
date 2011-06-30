@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | TODO select all files checkbox + TODOs below
 --
 -----------------------------------------------------------------------------
 module VCSGui.Common.Commit (
@@ -97,10 +97,10 @@ showCommitGUI setUpTreeView okCallback = do
                                         selectedFiles <- getSelectedFiles store
                                         mbMsg <- H.get (txtViewMsg gui)
                                         case selectedFiles of
-                                            [] -> return() -- TODO message
+                                            [] -> return() -- TODO err-message, selected files are empty
                                             _  -> do
                                                     case mbMsg of
-                                                        Nothing -> return() --TODO message
+                                                        Nothing -> return() --TODO err-message, message is empty
                                                         Just msg -> Wrapper.runVcs config $ okCallback msg selectedFiles []
                                         H.closeWin (windowCommit gui)
 
