@@ -18,11 +18,13 @@ module VCSGui.Svn (
     , module VCSGui.Svn.Log
     , module VCSGui.Common
     , module VCSGui.Svn.AskPassword
+    , module VCSGui.Svn.Update
 ) where
 
 import VCSGui.Svn.AskPassword
 import VCSGui.Svn.Checkout
 import VCSGui.Svn.Commit
 import VCSGui.Svn.Log
+import VCSGui.Svn.Update
 import VCSGui.Common
 
