@@ -32,7 +32,7 @@ import Control.Monad.Trans(liftIO)
 -- commit
 --
 
---{-
+{-
 cwd = "/home/forste/project1_work"
 main = do
     initGUI
@@ -42,7 +42,7 @@ main = do
     where
         runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwd) Nothing Nothing
         handler = (\result -> liftIO $ putStrLn $ show result)
----}
+-}
 
 --
 -- checkout
@@ -125,7 +125,9 @@ main = do
 --
 -- common
 --
-{-
+
+-- setup repo
+--{-
 cwd = "/home/forste/leksahWorkspace/leksah"
 main = do
     initGUI
@@ -134,4 +136,4 @@ main = do
     where
         config = Just (Wrapper.GIT, Wrapper.makeConfig Nothing Nothing Nothing)
 --        config = Just (Wrapper.GIT, Wrapper.makeConfig (Just cwd) Nothing Nothing)
--}
+---}

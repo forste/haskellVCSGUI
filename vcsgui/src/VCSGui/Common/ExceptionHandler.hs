@@ -24,7 +24,11 @@ import VCSGui.Common.Error
 defaultVCSExceptionHandler :: IO t -> IO ()
 defaultVCSExceptionHandler vcsRunner = do
     o <- Exc.try vcsRunner
+    putStrLn $ "exception handler called"
     case o of
-        Left (VCSException exitCode out err repoLocation (cmd:opts)) ->
+        Left (VCSException exitCode out err repoLocation (cmd:opts)) -> do
+            putStrLn $ "exception caught"
             showErrorGUI $ unlines ["An error occured.", err, "Details:", "command: " ++ cmd, "options: " ++ unwords opts]
-        Right _ -> return ()
+        Right _ -> do
+            putStrLn $ "no exception"
+            return ()

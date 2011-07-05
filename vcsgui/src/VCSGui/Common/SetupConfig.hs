@@ -24,117 +24,170 @@ import Data.List.Utils(contains,elemRIndex)
 import Paths_vcsgui(getDataFileName)
 
 import VCSGui.Common.Error
-import VCSGui.Common.GtkHelper
+import qualified VCSGui.Common.GtkHelper as H
 import qualified VCSWrapper.Common as Wrapper
 
 
 getGladepath = getDataFileName "guiCommonSetupRepo.glade"
 
+accessorWindowSetupRepo = "windowSetupRepo"
+accessorActOk = "actOk"
+accessorActCancel = "actCancel"
+accessorActBrowseRepo = "actBrowseRepo"
+accessorActBrowseExec = "actBrowseExec"
+accessorEntRepo = "entRepo"
+accessorEntExec = "entExec"
+accessorEntAuthor = "entAuthor"
+accessorEntEmail = "entEmail"
+accessorEntComboBoxVCSType = "comboBoxVCSType"
+accessorCheckbtExec = "checkbtExec"
+accessorCheckbtAuthor = "checkbtAuthor"
+accessorLblExec = "lblExec"
+accessorBtnBrowseExec = "btnBrowseExec"
+accessorLblAuthor = "lblAuthor"
+accessorLblEmail = "lblEmail"
+
 
 data SetupRepoGUI = SetupRepoGUI {
-    setupRepoWin :: WindowItem
-    , actOk :: ActionItem
-    , actCancel :: ActionItem
-    , actSelectRepo :: ActionItem
---    , actInitRepo :: ActionItem
-    , entryPath :: TextEntryItem
-    , entryAuthor :: TextEntryItem
-    , entryEmail :: TextEntryItem
-    , comboBoxVCSType :: ComboBoxItem
+    winSetupRepo :: H.WindowItem
+    , actOk :: H.ActionItem
+    , actCancel :: H.ActionItem
+    , actBrowseRepo :: H.ActionItem
+    , actBrowseExec :: H.ActionItem
+    , entRepo :: H.TextEntryItem
+    , entExec :: H.TextEntryItem
+    , entAuthor :: H.TextEntryItem
+    , entEmail :: H.TextEntryItem
+    , comboBoxVCSType :: H.ComboBoxItem
+    , checkbtExec :: H.CheckButtonItem
+    , checkbtAuthor :: H.CheckButtonItem
+    , lblExec :: H.LabelItem
+    , btnBrowseExec :: H.ButtonItem
+    , lblAuthor :: H.LabelItem
+    , lblEmail :: H.LabelItem
 }
 
 
 {-  | Displays a window to setup a repo. Window will be initially filled with content given config
       if not Nothing. Given callback will be called on successful completition.
 -}
-showSetupConfigGUI :: Maybe (Wrapper.VCSType, Wrapper.Config)   -- ^ maybe a tuple (vcstype,config)
+showSetupConfigGUI :: Maybe (Wrapper.VCSType, Wrapper.Config)   -- ^ maybe a tuple (vcstype,config), which will be used to fill out the form
                    -> (Maybe (Wrapper.VCSType, Wrapper.Config)      -- ^ Just (VCSType,Config) if everything is set correctly
                         -> IO ())                               -- ^ callback, called when dialog is closed
                    -> IO ()
 showSetupConfigGUI mbConfig callback = loadAndOpenWindow
-                                                            (loadSetupRepoGui mbConfig)
+                                                            (loadSetupRepoGui)
                                                             (connectSetupRepoGui callback)
-                                                            setupRepoWin
+                                                            winSetupRepo
+                                                            (initSetupRepoGui mbConfig)
 
 
-loadSetupRepoGui :: Maybe (Wrapper.VCSType, Wrapper.Config)
-                 -> IO SetupRepoGUI
-loadSetupRepoGui mbConfig = loadGuiTemplate $ \builder -> do
-    win <- getWindowFromGlade builder "setupRepoWindow"
-    actOk <- getActionFromGlade builder "actOk"
-    actCancel <- getActionFromGlade builder "actCancel"
-    actSelRepo <- getActionFromGlade builder "actSelectRepo"
-    entPath <- getTextEntryFromGlade builder "entPath"
-    entAuthor <- getTextEntryFromGlade builder "entAuthor"
-    entEmail <- getTextEntryFromGlade builder "entEmail"
-    comboBoxVCSType <- getComboBoxFromGlade builder "comboBoxVCSType"
-    -- init gui with existing repo
-    case mbConfig of
-        Nothing -> return ()
-        Just (vcsType, Wrapper.Config mbPath _ mbAuthor _) -> do
-            case mbPath of
-                Nothing -> return ()
-                Just path -> do
-                                set entPath $ path
-                                availableVCS <- discoverVCS path
-                                set comboBoxVCSType $ map (\vcs -> show vcs) availableVCS
-                                if contains [vcsType] availableVCS
-                                    then do
-                                    --get position (hopefully always index in liststore = index in list)
-                                    let index = elemRIndex vcsType availableVCS
-
-                                    --set active
-                                    comboBoxSetActive (getItem comboBoxVCSType) $ fromMaybe (-1) index
-                                    else do
-                                    return ()
-            case mbAuthor of
-                Nothing -> return ()
-                Just (Wrapper.Author author email) -> do
-                                set entAuthor author
-                                set entEmail $ fromMaybe "" email
-            return ()
-    return $ SetupRepoGUI win actOk actCancel actSelRepo entPath entAuthor entEmail comboBoxVCSType
+loadSetupRepoGui :: IO SetupRepoGUI
+loadSetupRepoGui = loadGuiTemplate $ \builder -> do
+    winSetupRepo <- H.getWindowFromGlade builder accessorWindowSetupRepo
+    actOk <- H.getActionFromGlade builder accessorActOk
+    actCancel <- H.getActionFromGlade builder accessorActCancel
+    actBrowseRepo <- H.getActionFromGlade builder accessorActBrowseRepo
+    actBrowseExec <- H.getActionFromGlade builder accessorActBrowseExec
+    entRepo <- H.getTextEntryFromGlade builder accessorEntRepo
+    entExec <- H.getTextEntryFromGlade builder accessorEntExec
+    entAuthor <- H.getTextEntryFromGlade builder accessorEntAuthor
+    entEmail <- H.getTextEntryFromGlade builder accessorEntEmail
+    comboBoxVCSType <- H.getComboBoxFromGlade builder accessorEntComboBoxVCSType
+    checkbtExec <- H.getCheckButtonFromGlade builder accessorCheckbtExec
+    H.set checkbtExec True
+    checkbtAuthor <- H.getCheckButtonFromGlade builder accessorCheckbtAuthor
+    H.set checkbtAuthor True
+    lblExec <- H.getLabelFromGlade builder accessorLblExec
+    btnBrowseExec <- H.getButtonFromGlade builder accessorBtnBrowseExec
+    lblAuthor <- H.getLabelFromGlade builder accessorLblAuthor
+    lblEmail <- H.getLabelFromGlade builder accessorLblEmail
+    return $ SetupRepoGUI winSetupRepo actOk actCancel actBrowseRepo actBrowseExec entRepo entExec entAuthor entEmail comboBoxVCSType checkbtExec checkbtAuthor lblExec btnBrowseExec lblAuthor lblEmail
 
 connectSetupRepoGui :: (Maybe (Wrapper.VCSType, Wrapper.Config)
                         -> IO ())
-                    -> SetupRepoGUI -> IO ()
+                    -> SetupRepoGUI
+                    -> IO ()
 connectSetupRepoGui callback gui = do
-        registerClose $ setupRepoWin gui
-        liftIO $ registerCloseAction (actCancel gui) (setupRepoWin gui)
+        H.registerClose $ winSetupRepo gui
+        liftIO $ H.registerCloseAction (actCancel gui) (winSetupRepo gui)
 
-        on (getItem (actOk gui)) actionActivated $
+        on (H.getItem (actOk gui)) actionActivated $
                                 do mbConfig <- createVCSTypAndConfig gui
                                    case mbConfig of
                                     Left errorMsg ->  showErrorGUI errorMsg
                                     Right tuple   -> do
                                                        callback $ Just tuple
-                                                       closeWin $ setupRepoWin gui
+                                                       H.closeWin $ winSetupRepo gui
 
-        on (getItem (actSelectRepo gui)) actionActivated $ liftIO $ do
-            mbPath <- selectRepoWindow "Choose repository location" $ getItem $ setupRepoWin gui
+        on (H.getItem (actBrowseRepo gui)) actionActivated $ liftIO $ do
+            mbPath <- showFolderChooserDialog "Choose repository location" (H.getItem $ winSetupRepo gui) FileChooserActionSelectFolder
             case mbPath of
                 Nothing -> return ()
-                Just path -> updateGUI path
+                Just path -> do
+                    -- discover vcs
+                    availableVCS <- discoverVCS path
+                    H.set (comboBoxVCSType gui) $ map (\vcs -> show vcs) availableVCS
+                    -- update gui
+                    H.set (entRepo gui) path
+                    return ()
+        on (H.getItem (actBrowseExec gui)) actionActivated $ liftIO $ do
+            mbExec <- showFolderChooserDialog "Choose executable location" (H.getItem $ winSetupRepo gui) FileChooserActionOpen
+            case mbExec of
+                Nothing -> return ()
+                Just exec -> do
+                    H.set (entExec gui) exec
+                    H.set (checkbtExec gui) True
+                    return ()
+
+        on (H.getItem (checkbtExec gui)) toggled $ do
+                                            putStrLn "checkbtnexec toogled"
+                                            active <- H.get (checkbtExec gui)
+                                            if active then do
+                                                    widgetShowAll (H.getItem (lblExec gui))
+                                                    widgetShowAll (H.getItem (entExec gui))
+                                                    widgetShowAll (H.getItem (btnBrowseExec gui))
+                                                else do
+                                                    widgetHideAll (H.getItem (lblExec gui))
+                                                    widgetHideAll (H.getItem (entExec gui))
+                                                    widgetHideAll (H.getItem (btnBrowseExec gui))
+
+        on (H.getItem (checkbtAuthor gui)) toggled $ do
+                                            putStrLn "checkbtnauthor toogled"
+                                            active <- H.get (checkbtAuthor gui)
+                                            if active then do
+                                                    widgetShowAll (H.getItem (lblAuthor gui))
+                                                    widgetShowAll (H.getItem (entAuthor gui))
+                                                    widgetShowAll (H.getItem (lblEmail gui))
+                                                    widgetShowAll (H.getItem (entEmail gui))
+                                                else do
+                                                    widgetHideAll (H.getItem (lblAuthor gui))
+                                                    widgetHideAll (H.getItem (entAuthor gui))
+                                                    widgetHideAll (H.getItem (lblEmail gui))
+                                                    widgetHideAll (H.getItem (entEmail gui))
+                                            return ()
         return ()
+
     where
-    updateGUI path = do
-        -- discover vcs here
-        availableVCS <- discoverVCS path
-        set (comboBoxVCSType gui) $ map (\vcs -> show vcs) availableVCS
-
-        -- update gui
-        set (entryPath gui) path
-
-        return ()
     createVCSTypAndConfig :: SetupRepoGUI -> IO (Either String (Wrapper.VCSType, Wrapper.Config))
     createVCSTypAndConfig gui = do
---            let path = repoPath gui
-            path <- get (entryPath gui)
-            author <- get (entryAuthor gui)
-            mail <- get (entryEmail gui)
-            let executable = Nothing :: Maybe String
-            selectedVCSType <- get (comboBoxVCSType gui)
-            let tuple = createVCSTypAndConfig' path author mail executable selectedVCSType
+            path <- H.get (entRepo gui)
+
+
+            btExec <- H.get (checkbtExec gui)
+            exec <- if btExec then
+                        H.get (entExec gui)
+                             else
+                        return Nothing
+            btAuthor <- H.get (checkbtAuthor gui)
+            (author,mail) <- if btAuthor then do
+                                a <- H.get (entAuthor gui)
+                                m <- H.get (entEmail gui)
+                                return (a,m)
+                                         else
+                                return (Nothing,Nothing)
+            selectedVCSType <- H.get (comboBoxVCSType gui)
+            let tuple = createVCSTypAndConfig' path author mail exec selectedVCSType
             putStrLn $ "tuple"++show tuple
             return tuple
             where
@@ -150,6 +203,47 @@ connectSetupRepoGui callback gui = do
                             author (Just name) =  (Just (Wrapper.Author name email))
                             author Nothing     =  Nothing
 
+
+initSetupRepoGui :: Maybe (Wrapper.VCSType, Wrapper.Config)
+                 -> SetupRepoGUI
+                 -> IO ()
+initSetupRepoGui mbConfig gui = do
+        case mbConfig of
+            Nothing -> return ()
+            Just (vcsType, Wrapper.Config mbPath mbExec mbAuthor _) -> do
+                case mbPath of
+                    Nothing -> return ()
+                    Just path -> do
+                                    H.set (entRepo gui) $ path
+                                    availableVCS <- discoverVCS path
+                                    H.set (comboBoxVCSType gui) $ map (\vcs -> show vcs) availableVCS
+                                    if contains [vcsType] availableVCS
+                                        then do
+                                        --get position (hopefully always index in liststore = index in list)
+                                        let index = elemRIndex vcsType availableVCS
+
+                                        --set active
+                                        comboBoxSetActive (H.getItem (comboBoxVCSType gui)) $ fromMaybe (-1) index
+                                        else do
+                                        return ()
+                case mbExec of
+                    Nothing -> do
+                                    H.set (checkbtExec gui) False
+                                    return ()
+                    Just exec -> do
+                                    H.set (checkbtExec gui) True
+                                    H.set (entExec gui) $ exec
+
+                case mbAuthor of
+                    Nothing -> do
+                                    H.set (checkbtAuthor gui) False
+                                    return ()
+                    Just (Wrapper.Author author email) -> do
+                                    H.set (checkbtAuthor gui) True
+                                    H.set (entAuthor gui) author
+                                    H.set (entEmail gui) $ fromMaybe "" email
+
+                return ()
 
 discoverVCS :: FilePath -- ^ path to root
            -> IO [Wrapper.VCSType] -- ^ vcs discovered
@@ -170,11 +264,12 @@ discoverVCS path = do
                             _      -> Wrapper.SVN --TODO throw error on this, improve this code
 
 -- | shows a dialog to choose a folder, returns Just FilePath to folder if succesfull, Nothing if cancelled
-selectRepoWindow :: String -- ^ title of the window
+showFolderChooserDialog :: String -- ^ title of the window
     -> Window -- ^ parent window
+    -> FileChooserAction
     -> IO (Maybe FilePath)
-selectRepoWindow title parent = do
-    dialog <- fileChooserDialogNew (Just title) (Just parent) FileChooserActionSelectFolder [("Cancel", ResponseCancel), ("Select", ResponseAccept)]
+showFolderChooserDialog title parent fcAction = do
+    dialog <- fileChooserDialogNew (Just title) (Just parent) fcAction [("Cancel", ResponseCancel), ("Select", ResponseAccept)]
     response <- dialogRun dialog
     case response of
         ResponseCancel      -> widgetDestroy dialog >> return Nothing
@@ -186,19 +281,21 @@ selectRepoWindow title parent = do
 
 
 
-loadAndOpenWindow :: IO gui -- ^ load gui fn
-    -> (gui -> IO ()) -- ^ connect gui fn
-    -> (gui -> WindowItem) -- ^ get WindowItem from gui
+loadAndOpenWindow :: IO SetupRepoGUI -- ^ load gui fn
+    -> (SetupRepoGUI -> IO ()) -- ^ connect gui fn
+    -> (SetupRepoGUI -> H.WindowItem) -- ^ get WindowItem from gui
+    -> (SetupRepoGUI -> IO ()) -- ^ init gui
     -> IO ()
-loadAndOpenWindow loadGui connectGui getWindow = do
+loadAndOpenWindow loadGui connectGui getWindow initRepo = do
     gui <- loadGui
     connectGui gui
-    widgetShowAll $ getItem (getWindow gui)
+    widgetShowAll $ H.getItem (getWindow gui)
+    initRepo gui
     return ()
 
 
 loadGuiTemplate :: (Builder -> IO a) -> IO a
 loadGuiTemplate builderFn = do
     gladepath <- getGladepath
-    builder <- openGladeFile gladepath
+    builder <- H.openGladeFile gladepath
     builderFn builder

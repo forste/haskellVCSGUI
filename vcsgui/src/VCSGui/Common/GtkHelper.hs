@@ -21,12 +21,14 @@ module VCSGui.Common.GtkHelper (
     , getTextViewFromGlade
     , getComboBoxFromGlade
     , getCheckButtonFromGlade
+    , getButtonFromGlade
     , getTreeViewFromGlade
     , getTreeViewFromGladeCustomStore
     , addColumnToTreeView
     , addColumnToTreeView'
     , addTextColumnToTreeView
     , addTextColumnToTreeView'
+
 
     , getName
     , getItem
@@ -47,6 +49,7 @@ module VCSGui.Common.GtkHelper (
     , ComboBoxItem
     , CheckButtonItem
     , TreeViewItem
+    , ButtonItem
 ) where
 
 import qualified Graphics.UI.Gtk as Gtk
@@ -64,6 +67,7 @@ type ComboBoxItem = (String, Gtk.ComboBox, (IO (Maybe String), [String] -> IO ()
 type TextViewItem = (String, Gtk.TextView, (IO (Maybe String), String -> IO ()))
 type TreeViewItem a = (String, (Gtk.ListStore a, Gtk.TreeView), (IO (Maybe [a]), [a] -> IO ()))
 type CheckButtonItem = (String, Gtk.CheckButton, (IO Bool, Bool -> IO()))
+type ButtonItem = (String, Gtk.Button, (IO String, String -> IO()))
 -- Type accessors
 
 -- | return the name of this item (as in the gladefile)
@@ -118,6 +122,15 @@ getLabelFromGlade builder name = do
     let getter = error "don't call get on a gtk label!" :: IO (Maybe String)
         setter val = Gtk.labelSetText entry val :: IO ()
     return (name, entry, (getter, setter))
+
+getButtonFromGlade :: Gtk.Builder
+    -> String
+    -> IO ButtonItem
+getButtonFromGlade builder name = do
+    (_,btn) <- wrapWidget builder Gtk.castToButton name
+    let getter = Gtk.buttonGetLabel btn :: IO String
+        setter val = Gtk.buttonSetLabel btn val
+    return (name, btn, (getter,setter))
 
 getTextEntryFromGlade :: Gtk.Builder
     -> String
