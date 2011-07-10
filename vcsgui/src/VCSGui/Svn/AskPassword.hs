@@ -18,6 +18,7 @@ module VCSGui.Svn.AskPassword (
 ) where
 
 import qualified VCSGui.Common.GtkHelper as H
+import qualified VCSGui.Common as VCSGUI
 
 import qualified VCSWrapper.Common as Wrapper
 
@@ -70,7 +71,7 @@ showAskpassGUI handler = do
 
                                             let args =  if usePw then Just (saveForSession, Just $ fromMaybe "" pw)
                                                                  else Just (saveForSession, Nothing)
-                                            Wrapper.runVcs config $ handler args
+                                            VCSGUI.defaultVCSExceptionHandler $ Wrapper.runVcs config $ handler args
                                             H.closeWin (windowAskpass gui)
         on (H.getItem (checkbtUsePw gui)) toggled $ do
                                             active <- get (H.getItem (checkbtUsePw gui)) toggleButtonActive
@@ -101,7 +102,7 @@ close :: H.WindowItem
                 -> IO()
 close win handler config = do
                         liftIO $ H.closeWin win
-                        Wrapper.runVcs config $ handler Nothing
+                        VCSGUI.defaultVCSExceptionHandler $ Wrapper.runVcs config $ handler Nothing
 
 loadAskpassGUI :: IO AskpassGUI
 loadAskpassGUI = do
