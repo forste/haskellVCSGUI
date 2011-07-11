@@ -19,6 +19,7 @@ import qualified VCSGui.Common.Commit as C
 import qualified VCSGui.Common.GtkHelper as H
 
 import VCSGui.Svn.AskPassword
+import VCSGui.Common.ExceptionHandler
 
 import qualified VCSWrapper.Svn as Svn
 
