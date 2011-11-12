@@ -17,6 +17,7 @@ module VCSGui.Svn.Commit (
 
 import qualified VCSGui.Common.Commit as C
 import qualified VCSGui.Common.GtkHelper as H
+import qualified VCSGui.Common.FilesInConflict as FiC
 
 import VCSGui.Svn.AskPassword
 import VCSGui.Common.ExceptionHandler
@@ -31,7 +32,18 @@ import Control.Monad.Trans(liftIO)
 -}
 showCommitGUI :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
                  -> Svn.Ctx()
-showCommitGUI eitherHandlerOrPw = C.showCommitGUI setUpTreeView (okCallback eitherHandlerOrPw)
+showCommitGUI eitherHandlerOrPw = do
+    status <- Svn.status
+    let conflictingFiles = [ Svn.filePath s | s <- status, (Svn.modification s) == Svn.Conflicting];
+    case conflictingFiles of
+        [] -> commonCommit
+        _ -> FiC.showFilesInConflictGUI
+                        Nothing
+                        (conflictingFiles)
+                        $ commonCommit
+    where
+        commonCommit = C.showCommitGUI setUpTreeView (okCallback eitherHandlerOrPw)
+
 
 okCallback :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
             -> String               -- ^ commit message
@@ -65,6 +77,8 @@ setUpTreeView :: TreeView -> Svn.Ctx (ListStore C.SCFile)
 setUpTreeView listView = do
     -- get status
     repoStatus <- Svn.status
+
+    --check files for conflicts
 
     liftIO $ do
         -- create model

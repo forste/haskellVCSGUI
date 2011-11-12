@@ -12,7 +12,8 @@
 --
 -----------------------------------------------------------------------------
 module VCSGui.Common.Commit (
-    SCFile(..)
+    ShowCommitGUI
+    ,SCFile(..)
     ,Option
     ,showCommitGUI
     ,selected
@@ -46,6 +47,20 @@ accessorActTxtViewMsg = "txtViewMsg"
 -- types
 --
 
+-- header for main commit gui
+type ShowCommitGUI = Wrapper.Ctx()
+
+-- callback for ok action
+type OkCallBack = String                           -- ^ commit message
+            -> [FilePath]                       -- ^ selected files
+            -> [Option]                         -- ^ options TODO not implemented
+            -> Wrapper.Ctx ()
+
+-- fn to set listStore model for treeview
+type TreeViewSetter = TreeView
+                   -> Wrapper.Ctx (ListStore SCFile)
+
+
 data CommitGUI = LogGUI {
     windowCommit :: H.WindowItem
     , treeViewFiles :: H.TreeViewItem SCFile
@@ -78,11 +93,8 @@ type Option = String
 
 
 
-showCommitGUI :: (TreeView -> Wrapper.Ctx (ListStore SCFile))   -- ^ fn to set listStore model for treeview
-        -> (   String                           -- ^ commit message
-            -> [FilePath]                       -- ^ selected files
-            -> [Option]                         -- ^ options TODO not implemented
-            -> Wrapper.Ctx ())                                  -- ^ callback for ok action
+showCommitGUI :: TreeViewSetter
+        -> OkCallBack
         -> Wrapper.Ctx()
 showCommitGUI setUpTreeView okCallback = do
     liftIO $ putStrLn "Starting gui ..."
@@ -111,8 +123,7 @@ showCommitGUI setUpTreeView okCallback = do
 
 
 
-loadCommitGUI :: (TreeView
-                    -> Wrapper.Ctx (ListStore SCFile))   -- ^ fn to set listStore model for treeview
+loadCommitGUI :: TreeViewSetter   -- ^ fn to set listStore model for treeview
                 -> Wrapper.Ctx CommitGUI
 loadCommitGUI setUpTreeView = do
                 gladepath <- liftIO getGladepath
@@ -137,7 +148,7 @@ getSelectedFiles listStore = do
 
 getTreeViewFromGladeCustomStore :: Builder
                         -> String
-                        -> (TreeView -> Wrapper.Ctx (ListStore SCFile)) -- ^ fn defining how to setup the liststore
+                        -> TreeViewSetter
                         -> Wrapper.Ctx (H.TreeViewItem SCFile)
 getTreeViewFromGladeCustomStore builder name setupListStore = do
     (_, tView) <- liftIO $ wrapWidget builder castToTreeView name

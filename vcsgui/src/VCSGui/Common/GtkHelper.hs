@@ -68,6 +68,7 @@ type TextViewItem = (String, Gtk.TextView, (IO (Maybe String), String -> IO ()))
 type TreeViewItem a = (String, (Gtk.ListStore a, Gtk.TreeView), (IO (Maybe [a]), [a] -> IO ()))
 type CheckButtonItem = (String, Gtk.CheckButton, (IO Bool, Bool -> IO()))
 type ButtonItem = (String, Gtk.Button, (IO String, String -> IO()))
+
 -- Type accessors
 
 -- | return the name of this item (as in the gladefile)
