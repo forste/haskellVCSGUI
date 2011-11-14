@@ -21,12 +21,17 @@ import VCSGui.Common.Types
 import qualified VCSGui.Common.GtkHelper as H
 import qualified VCSGui.Common.Commit as Commit
 import qualified VCSGui.Common.MergeTool as Merge
+import qualified VCSGui.Common.MergeToolGUI as MergeGUI
 import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 import Control.Monad
 import Control.Monad.Reader
 import Maybe
 import Paths_vcsgui(getDataFileName)
+import Data.List.Utils(startswith)
+import Monad (filterM)
+import System.Directory(doesFileExist, getDirectoryContents)
+import System.FilePath
 
 --
 -- glade path and object accessors
@@ -47,8 +52,10 @@ accessorActTxtViewMsg = "txtViewMsg"
 type Handler = Commit.ShowCommitGUI
 
 -- fn to set listStore model for treeview
-type TreeViewSetter = [FilePath] -- ^conflicting files
-                   -> TreeView
+type TreeViewSetter = (Maybe FilePath) -- ^ Maybe cwd
+                   -> [FilePath] -- ^ conflicting files
+                   -> (Either Merge.MergeTool Merge.MergeToolSetter) -- ^ either a mergetool or fn to set one
+                   -> TreeView -- ^ the treeview to set the model to
                    -> Wrapper.Ctx (ListStore SCFile)
 
 data FilesInConflictGUI = LogGUI {
@@ -73,15 +80,18 @@ type Option = String
 
 
 
-showFilesInConflictGUI :: (Maybe TreeViewSetter)
-        -> [FilePath]                       -- ^ conflicting files
-        -> Handler                          -- ^ Handler for action resolved
+showFilesInConflictGUI :: (Maybe TreeViewSetter) -- ^ fn to set listStore model for treeview, Nothing for default
+        -> [FilePath]                            -- ^ conflicting files
+        -> (Either Merge.MergeTool Merge.MergeToolSetter)    -- ^ either a mergetool or fn to set one
+        -> Handler                               -- ^ handler for action resolved
         -> Wrapper.Ctx ()
-showFilesInConflictGUI Nothing filesInConflict actResolvedHandler =
-    showFilesInConflictGUI (Just defaultSetUpTreeView) filesInConflict actResolvedHandler
-showFilesInConflictGUI (Just setUpTreeView) filesInConflict actResolvedHandler = do
-    liftIO $ putStrLn "Starting gui ..."
-    gui <- loadFilesInConflictGUI (setUpTreeView filesInConflict)
+showFilesInConflictGUI Nothing f e a =
+    showFilesInConflictGUI (Just defaultSetUpTreeView) f e a
+showFilesInConflictGUI (Just setUpTreeView) filesInConflict eMergeToolSetter actResolvedHandler = do
+    liftIO $ putStrLn "Starting files in conflict gui ..."
+    config <- ask
+    let cwd = (Wrapper.configCwd config)
+    gui <- loadFilesInConflictGUI (setUpTreeView cwd filesInConflict eMergeToolSetter)
 
     -- connect actions
     liftIO $ H.registerClose $ windowFilesInConflict gui
@@ -162,7 +172,9 @@ setToListStore (store, view) newList = do
     return ()
 
 defaultSetUpTreeView :: TreeViewSetter
-defaultSetUpTreeView conflictingFiles listView = do
+defaultSetUpTreeView mbcwd conflictingFiles eMergeToolSetter listView = do
+    config <- ask
+    let cwd = Wrapper.configCwd config
     liftIO $ do
         -- create model
         listStore <- listStoreNew [
@@ -187,20 +199,44 @@ defaultSetUpTreeView conflictingFiles listView = do
 
         -- connect select action
         on renderer cellToggled $ \columnId -> do
-                                Just treeIter <- treeModelGetIterFromString listStore columnId
-                                value <- listStoreGetValue listStore $ listStoreIterToIndex treeIter
-                                let file = (\(SCFile fp _) -> fp) value
-                                --TODO set cwcd to repository root, use path for programm, store pathToCmd somewhere in the repo
-                                toolResolved <- Merge.exec "kdiff3" ["file1.min", "file1.r6", "file1.r8", "-o file1"]  --TODO start tool here and read exit status
-                                let resolved = case toolResolved of
-                                        False -> True -- TODO ask user if conflict has been resolved
-                                        True -> True
 
-
-                                let newValue = (\(SCFile fp b) -> SCFile fp resolved)
-                                                value
-                                listStoreSetValue listStore (listStoreIterToIndex treeIter) newValue
+                                mergeTool <- case eMergeToolSetter of
+                                    Left (Merge.MergeTool path) -> callTool path columnId listStore cwd
+                                    Right setter -> do
+                                        MergeGUI.showMergeToolGUI (\(Merge.MergeTool path) -> do
+                                                                                                setter (Merge.MergeTool path)
+                                                                                                callTool path columnId listStore cwd)
                                 return ()
 
+
         return listStore
+        where
+            callTool pathToTool columnId listStore cwd = do
+                        Just treeIter <- treeModelGetIterFromString listStore columnId
+                        value <- listStoreGetValue listStore $ listStoreIterToIndex treeIter
+                        let file = combine (fromMaybe "" cwd) $ (\(SCFile fp _) -> fp) value
+                        putStrLn $ "file" ++ file
+
+                        let (fileD,fileN) = splitFileName file
+                        putStrLn $ "(fileD, fileN) (" ++ fileD ++ ", " ++ fileN ++ ")"
+
+                        content <- getDirectoryContents fileD
+                        putStrLn $ "content" ++ (show content)
+                        let contentWithD = map (\cN -> combine fileD cN) content
+                        putStrLn $ "contentWithD" ++ (show contentWithD)
+                        files <- filterM doesFileExist contentWithD
+                        putStrLn $ "files" ++ (show files)
+                        let filesToResolve = [f | f <- files, (startswith (file++".r") f) || (f == (file++".mine"))]++[file]
+                        putStrLn $ "Files to Resolve " ++ (show filesToResolve)
+
+                        resolvedByTool <- Merge.exec mbcwd pathToTool filesToResolve
+                        let resolved = case resolvedByTool of
+                                False -> True -- TODO ask user if conflict has been resolved
+                                True -> True
+
+                        let newValue = (\(SCFile fp b) -> SCFile fp resolved)
+                                        value
+                        listStoreSetValue listStore (listStoreIterToIndex treeIter) newValue
+                        return ()
+
 

@@ -18,6 +18,7 @@ module VCSGui.Svn.Commit (
 import qualified VCSGui.Common.Commit as C
 import qualified VCSGui.Common.GtkHelper as H
 import qualified VCSGui.Common.FilesInConflict as FiC
+import qualified VCSGui.Common.MergeTool as M
 
 import VCSGui.Svn.AskPassword
 import VCSGui.Common.ExceptionHandler
@@ -31,8 +32,9 @@ import Control.Monad.Trans(liftIO)
     | Given callback will be called on success with chosen password and boolean whether password should be saved for session.
 -}
 showCommitGUI :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
+                 -> Either M.MergeTool M.MergeToolSetter -- ^ either a mergetool or a setter for it
                  -> Svn.Ctx()
-showCommitGUI eitherHandlerOrPw = do
+showCommitGUI eitherHandlerOrPw eMergeToolSetter = do
     status <- Svn.status
     let conflictingFiles = [ Svn.filePath s | s <- status, (Svn.modification s) == Svn.Conflicting];
     case conflictingFiles of
@@ -40,6 +42,7 @@ showCommitGUI eitherHandlerOrPw = do
         _ -> FiC.showFilesInConflictGUI
                         Nothing
                         (conflictingFiles)
+                        eMergeToolSetter
                         $ commonCommit
     where
         commonCommit = C.showCommitGUI setUpTreeView (okCallback eitherHandlerOrPw)

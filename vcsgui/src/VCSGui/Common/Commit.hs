@@ -61,7 +61,7 @@ type TreeViewSetter = TreeView
                    -> Wrapper.Ctx (ListStore SCFile)
 
 
-data CommitGUI = LogGUI {
+data CommitGUI = CommitGUI {
     windowCommit :: H.WindowItem
     , treeViewFiles :: H.TreeViewItem SCFile
     , actCommit :: H.ActionItem
@@ -134,7 +134,7 @@ loadCommitGUI setUpTreeView = do
                 actCommit <- liftIO $  H.getActionFromGlade builder accessorActCommit
                 actCancel <- liftIO $  H.getActionFromGlade builder accessorActCancel
                 txtViewMsg <- liftIO $  H.getTextViewFromGlade builder accessorActTxtViewMsg
-                return $ LogGUI win treeViewFiles actCommit actCancel txtViewMsg
+                return $ CommitGUI win treeViewFiles actCommit actCancel txtViewMsg
 ----
 ---- HELPERS
 ----

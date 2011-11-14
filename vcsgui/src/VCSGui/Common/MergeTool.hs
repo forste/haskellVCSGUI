@@ -14,6 +14,8 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 module VCSGui.Common.MergeTool (
     exec
+    , MergeTool (..)
+    , MergeToolSetter
 
 ) where
 
@@ -28,27 +30,35 @@ import Data.Typeable (Typeable)
 data MergeToolExceptions = MergeToolExceptions Int String String [String]
     deriving (Show, Typeable)
 
+data MergeTool = MergeTool {
+    fullPath :: FilePath
+    }
+
+type MergeToolSetter = MergeTool -> IO()
+
 
 -- | Internal function to execute a vcs command
-exec :: String -- ^ mergetool command, e.g. kdiff3.sh
+exec :: Maybe FilePath --working directory or Nothing if not set
+     -> String -- ^ mergetool command, e.g. kdiff3.sh
      -> [String] -- ^ files, last one is output
      -> IO Bool
-exec cmd opts = do
-    (ec, out, err) <- readProc cmd opts
+exec mcwd cmd opts = do
+    (ec, out, err) <- readProc mcwd cmd opts
     case ec of
         ExitSuccess   -> return $ True
         ExitFailure i -> return $ False -- Left $ MergeToolExceptions i out err (cmd : opts)
 
  -- same as readProcessWithExitCode but having a configurable cwd and env,
-readProc :: String  --command
+readProc :: Maybe FilePath --working directory or Nothing if not set
+            -> String  --command
             -> [String] -- ^ files, last one is output
             -> IO (ExitCode, String, String)
-readProc cmd files = do
-    putStrLn $ "Executing process, cmd: "++show cmd++",files: "++show files
+readProc mcwd cmd files = do
+    putStrLn $ "Executing process, mcwd: "++show mcwd++"cmd: "++show cmd++",files: "++show files
     (_, Just outh, Just errh, pid) <- createProcess (proc cmd files)
-                                            { std_in = CreatePipe,
-                                              std_out = CreatePipe,
-                                              std_err = CreatePipe
+                                            { std_out = CreatePipe,
+                                              std_err = CreatePipe,
+                                              cwd = mcwd
                                               }
 
     outMVar <- newEmptyMVar
