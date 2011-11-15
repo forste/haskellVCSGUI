@@ -42,6 +42,8 @@ showCommitGUI eitherHandlerOrPw eMergeToolSetter = do
         _ -> FiC.showFilesInConflictGUI
                         Nothing
                         (conflictingFiles)
+                        (Svn.getFilesInConflict)
+                        (\fileToResolve -> Svn.resolved [fileToResolve] Nothing [])
                         eMergeToolSetter
                         $ commonCommit
     where

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.24"/>
+  <object class="GtkAction" id="actBrowsePath"/>
   <object class="GtkAction" id="actCancel">
     <property name="label" translatable="yes">Cancel</property>
     <property name="stock_id">gtk-cancel</property>
@@ -14,7 +15,7 @@
   </object>
   <object class="GtkWindow" id="windowFilesInConflict">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Commit</property>
+    <property name="title" translatable="yes">Files in Conflict</property>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
@@ -59,62 +60,124 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="bottom">
+          <object class="GtkTable" id="table1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="n_columns">2</property>
             <child>
-              <placeholder/>
-            </child>
-            <child>
-              <object class="GtkAlignment" id="alignment1">
+              <object class="GtkTable" id="table2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
-                <property name="xscale">0</property>
+                <property name="n_columns">3</property>
                 <child>
-                  <object class="GtkHButtonBox" id="hbuttonbox1">
+                  <object class="GtkLabel" id="lblPath">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">MergeTool</property>
+                  </object>
+                  <packing>
+                    <property name="x_padding">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btnBrowsePath">
+                    <property name="label" translatable="yes">Browse</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="related_action">actBrowsePath</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0.52999997138977051</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="right_attach">3</property>
+                    <property name="x_options">GTK_FILL</property>
+                    <property name="y_options">GTK_FILL</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="entPath">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">●</property>
+                    <property name="invisible_char_set">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                    <property name="x_padding">5</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkHBox" id="bottom">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <object class="GtkAlignment" id="alignment1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xscale">0</property>
                     <child>
-                      <object class="GtkButton" id="btCancel">
+                      <object class="GtkHButtonBox" id="hbuttonbox1">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="related_action">actCancel</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkButton" id="btCancel">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="related_action"></property>
+                            <property name="use_underline">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="btResolved">
+                            <property name="label" translatable="yes">Conflicts resolved</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="related_action"></property>
+                            <property name="use_underline">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="btResolved">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="related_action">actResolved</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
                   </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="padding">10</property>
             <property name="position">2</property>
           </packing>
         </child>

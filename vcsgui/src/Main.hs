@@ -17,6 +17,7 @@ module Main (
 ) where
 
 import VCSGui.Common.Types
+import VCSGui.Common.MergeTool
 import qualified VCSGui.Svn as Svn
 import qualified VCSWrapper.Common as Wrapper
 
@@ -36,7 +37,7 @@ import Control.Monad.Trans(liftIO)
 cwd = "/home/forste/svnreps/project1_work1"
 main = do
     initGUI
-    runWithConfig $ Svn.showCommitGUI (Left handler) $ Right $ \tool -> return()
+    runWithConfig $ Svn.showCommitGUI (Left handler) $ Right (\tool -> putStrLn ("Setter called with " ++ fullPath tool))
     mainGUI
     mainQuit
     where

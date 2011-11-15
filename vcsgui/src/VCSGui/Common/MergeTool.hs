@@ -78,18 +78,3 @@ readProc mcwd cmd files = do
 
     ex <- waitForProcess pid
     return (ex, out, err)
-
----- just exec with stdin/stdout/stderr as pipes
---execProcWithPipes :: Maybe FilePath
---                    -> String
---                    -> [String]
---                     -> [(String, String)]
---                  -> IO (Handle, Handle, Handle, ProcessHandle)
---execProcWithPipes mcwd command args menv = do
---    (Just inh, Just outh, Just errh, pid) <- createProcess (proc command args)
---        { std_in = CreatePipe,
---          std_out = CreatePipe,
---          std_err = CreatePipe,
---          cwd = mcwd,
---          env = Just menv }
---    return (inh, outh, errh, pid)

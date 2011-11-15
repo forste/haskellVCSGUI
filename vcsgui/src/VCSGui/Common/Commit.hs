@@ -12,8 +12,7 @@
 --
 -----------------------------------------------------------------------------
 module VCSGui.Common.Commit (
-    ShowCommitGUI
-    ,SCFile(..)
+    SCFile(..)
     ,Option
     ,showCommitGUI
     ,selected
@@ -46,9 +45,6 @@ accessorActTxtViewMsg = "txtViewMsg"
 --
 -- types
 --
-
--- header for main commit gui
-type ShowCommitGUI = Wrapper.Ctx()
 
 -- callback for ok action
 type OkCallBack = String                           -- ^ commit message
