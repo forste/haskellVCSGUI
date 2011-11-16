@@ -23,6 +23,7 @@ import qualified VCSGui.Common.Commit as Commit
 import qualified VCSGui.Common.MergeTool as Merge
 import qualified VCSGui.Common.MergeToolGUI as MergeGUI
 import qualified VCSGui.Common.ConflictsResolved as ConflictsResolvedGUI
+import qualified VCSGui.Common.Error as Error
 import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 import Control.Monad
@@ -40,7 +41,6 @@ accessorActResolved = "actResolved"
 accessorActCancel = "actCancel"
 accessorActBrowsePath = "actBrowsePath"
 accessorEntPath = "entPath"
-accessorActTxtViewMsg = "txtViewMsg"
 
 --
 -- types
@@ -55,6 +55,7 @@ type TreeViewSetter = (Maybe FilePath) -- ^ Maybe cwd
                    -> (FilePath -> Wrapper.Ctx [FilePath]) -- ^ fn receiving a path to a conflicting file and returning all conflicting files involved in the conflict (max 4)
                    -> (FilePath -> Wrapper.Ctx ())       -- ^ fn to mark files as resolved in VCS
                    -> (Either Merge.MergeTool Merge.MergeToolSetter) -- ^ either a mergetool or fn to set one
+                   -> H.TextEntryItem   -- ^ the entry to get the path to the mergetool from
                    -> TreeView -- ^ the treeview to set the model to
                    -> Wrapper.Ctx (ListStore SCFile)
 
@@ -66,7 +67,6 @@ data GUI = GUI {
     , actCancel :: H.ActionItem
     , actBrowsePath :: H.ActionItem
     , entPath :: H.TextEntryItem
-    , txtViewMsg :: H.TextViewItem
 }
 
 --model for treestore
@@ -122,24 +122,24 @@ showFilesInConflictGUI (Just setUpTreeView) filesInConflict filesToResolveGetter
 
     return ()
 
-loadGUI :: (TreeView
-                    -> Wrapper.Ctx (ListStore SCFile))   -- ^ fn to set listStore model for treeview
+loadGUI :: (H.TextEntryItem   -- ^ the entry to get the path to the mergetool from
+            -> TreeView   -- ^ treeview to setup
+            -> Wrapper.Ctx (ListStore SCFile))   -- ^ fn to set listStore model for treeview
                 -> Wrapper.Ctx GUI
 loadGUI setUpTreeView = do
                 gladepath <- liftIO getGladepath
                 builder <- liftIO $ H.openGladeFile gladepath
 
                 win <- liftIO $ H.getWindowFromGlade builder accessorWindowFilesInConflict
-                treeViewFiles <- getTreeViewFromGladeCustomStore builder accessorTreeViewFiles setUpTreeView
+                entPath <-  liftIO $  H.getTextEntryFromGlade builder accessorEntPath
+                treeViewFiles <- getTreeViewFromGladeCustomStore builder accessorTreeViewFiles (setUpTreeView entPath)
                 actResolved <- liftIO $  H.getActionFromGlade builder accessorActResolved
                 actCancel <- liftIO $  H.getActionFromGlade builder accessorActCancel
                 actBrowsePath <- liftIO $   H.getActionFromGlade builder accessorActBrowsePath
-                entPath <-  liftIO $  H.getTextEntryFromGlade builder accessorEntPath
-                txtViewMsg <- liftIO $  H.getTextViewFromGlade builder accessorActTxtViewMsg
-                return $ GUI win treeViewFiles actResolved actCancel actBrowsePath entPath txtViewMsg
+                return $ GUI win treeViewFiles actResolved actCancel actBrowsePath entPath
 
 defaultSetUpTreeView :: TreeViewSetter
-defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker eMergeToolSetter listView = do
+defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker eMergeToolSetter entPath listView = do
     config <- ask
     liftIO $ do
         -- create model
@@ -165,10 +165,13 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
 
         -- connect select action
         on renderer cellToggled $ \columnId -> do
+                                putStrLn $ "Checkbutton clicked at column " ++ (show columnId)
                                 --TODO only call tool if button is not checked, move this code to being called if a click on row is received
                                 let callTool' = (\path -> Wrapper.runVcs config $ callTool columnId listStore path)
-
-
+                                mbPath <- H.get entPath
+                                case mbPath of
+                                    Nothing -> Error.showErrorGUI "MergeTool not set. Set MergeTool first."
+                                    Just path -> callTool' path
                                 return ()
 
 
