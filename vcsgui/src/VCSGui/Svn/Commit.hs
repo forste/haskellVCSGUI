@@ -31,10 +31,10 @@ import Control.Monad.Trans(liftIO)
 {-  | Displays a window, showing status of subversion and actions to commit/cancel.
     | Given callback will be called on success with chosen password and boolean whether password should be saved for session.
 -}
-showCommitGUI :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
-                 -> Either M.MergeTool M.MergeToolSetter -- ^ either a mergetool or a setter for it
+showCommitGUI :: Either M.MergeTool M.MergeToolSetter -- ^ either a mergetool or a setter for it
+                 -> Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
                  -> Svn.Ctx()
-showCommitGUI eitherHandlerOrPw eMergeToolSetter = do
+showCommitGUI eMergeToolSetter eitherHandlerOrPw = do
     status <- Svn.status
     let conflictingFiles = [ Svn.filePath s | s <- status, (Svn.modification s) == Svn.Conflicting];
     case conflictingFiles of

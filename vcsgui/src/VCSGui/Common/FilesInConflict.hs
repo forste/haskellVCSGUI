@@ -21,7 +21,7 @@ import VCSGui.Common.Types
 import qualified VCSGui.Common.GtkHelper as H
 import qualified VCSGui.Common.Commit as Commit
 import qualified VCSGui.Common.MergeTool as Merge
-import qualified VCSGui.Common.MergeToolGUI as MergeGUI
+import qualified VCSGui.Common.Process as Process
 import qualified VCSGui.Common.ConflictsResolved as ConflictsResolvedGUI
 import qualified VCSGui.Common.Error as Error
 import Graphics.UI.Gtk
@@ -182,7 +182,7 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
                         Just treeIter <- liftIO $ treeModelGetIterFromString listStore columnId
                         value <- liftIO $ listStoreGetValue listStore $ listStoreIterToIndex treeIter
                         filesToResolve <- filesToResolveGetter $ filePath value
-                        resolvedByTool <- liftIO $ Merge.exec mbcwd pathToTool filesToResolve
+                        resolvedByTool <- liftIO $ Process.exec mbcwd pathToTool filesToResolve
                         let setResolved' = setResolved listStore treeIter value
                         case resolvedByTool of
                                     False -> ConflictsResolvedGUI.showConflictsResolvedGUI

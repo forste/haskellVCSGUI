@@ -20,13 +20,19 @@ import Control.Monad.Trans(liftIO)
 import Data.Maybe
 import Monad
 import Directory
+import System.Directory(doesDirectoryExist)
 import Data.List.Utils(contains,elemRIndex)
 import Paths_vcsgui(getDataFileName)
 
 import VCSGui.Common.Error
 import qualified VCSGui.Common.GtkHelper as H
+import qualified VCSGui.Common.MergeTool as MergeTool
 import qualified VCSWrapper.Common as Wrapper
 
+type Config = Maybe (Wrapper.VCSType, Wrapper.Config, Maybe MergeTool.MergeTool)
+            --config for setting up vcs
+
+type Callback = (Config -> IO ())
 
 getGladepath = getDataFileName "guiCommonSetupRepo.glade"
 
@@ -46,6 +52,8 @@ accessorLblExec = "lblExec"
 accessorBtnBrowseExec = "btnBrowseExec"
 accessorLblAuthor = "lblAuthor"
 accessorLblEmail = "lblEmail"
+accessorActBrowsePathToTool = "actBrowsePathToTool"
+accessorentPathToTool= "entPathToTool"
 
 
 data SetupRepoGUI = SetupRepoGUI {
@@ -65,15 +73,17 @@ data SetupRepoGUI = SetupRepoGUI {
     , btnBrowseExec :: H.ButtonItem
     , lblAuthor :: H.LabelItem
     , lblEmail :: H.LabelItem
+    , entPathToTool :: H.TextEntryItem
+    , actBrowsePathToTool :: H.ActionItem
 }
 
 
 {-  | Displays a window to setup a repo. Window will be initially filled with content given config
       if not Nothing. Given callback will be called on successful completition.
 -}
-showSetupConfigGUI :: Maybe (Wrapper.VCSType, Wrapper.Config)   -- ^ maybe a tuple (vcstype,config), which will be used to fill out the form
-                   -> (Maybe (Wrapper.VCSType, Wrapper.Config)      -- ^ Just (VCSType,Config) if everything is set correctly
-                        -> IO ())                               -- ^ callback, called when dialog is closed
+showSetupConfigGUI :: Config
+        -- ^ maybe a tuple (vcstype,config, mbmergetool), which will be used to fill out the form
+                   -> Callback                               -- ^ callback, called when dialog is closed
                    -> IO ()
 showSetupConfigGUI mbConfig callback = loadAndOpenWindow
                                                             (loadSetupRepoGui)
@@ -102,10 +112,11 @@ loadSetupRepoGui = loadGuiTemplate $ \builder -> do
     btnBrowseExec <- H.getButtonFromGlade builder accessorBtnBrowseExec
     lblAuthor <- H.getLabelFromGlade builder accessorLblAuthor
     lblEmail <- H.getLabelFromGlade builder accessorLblEmail
-    return $ SetupRepoGUI winSetupRepo actOk actCancel actBrowseRepo actBrowseExec entRepo entExec entAuthor entEmail comboBoxVCSType checkbtExec checkbtAuthor lblExec btnBrowseExec lblAuthor lblEmail
+    entPathToTool <- H.getTextEntryFromGlade builder accessorentPathToTool
+    actBrowsePathToTool <- liftIO $ H.getActionFromGlade builder accessorActBrowsePathToTool
+    return $ SetupRepoGUI winSetupRepo actOk actCancel actBrowseRepo actBrowseExec entRepo entExec entAuthor entEmail comboBoxVCSType checkbtExec checkbtAuthor lblExec btnBrowseExec lblAuthor lblEmail entPathToTool actBrowsePathToTool
 
-connectSetupRepoGui :: (Maybe (Wrapper.VCSType, Wrapper.Config)
-                        -> IO ())
+connectSetupRepoGui :: Callback
                     -> SetupRepoGUI
                     -> IO ()
 connectSetupRepoGui callback gui = do
@@ -166,10 +177,18 @@ connectSetupRepoGui callback gui = do
                                                     widgetHideAll (H.getItem (lblEmail gui))
                                                     widgetHideAll (H.getItem (entEmail gui))
                                             return ()
+        liftIO $ on (H.getItem (actBrowsePathToTool gui)) actionActivated $ do
+            mbPath <- showFolderChooserDialog "Select executable" (H.getItem $ winSetupRepo gui) FileChooserActionOpen
+            case mbPath of
+                Nothing -> return ()
+                Just path -> do
+                    -- update gui
+                    H.set (entPathToTool gui) path
+                    return ()
         return ()
 
     where
-    createVCSTypAndConfig :: SetupRepoGUI -> IO (Either String (Wrapper.VCSType, Wrapper.Config))
+    createVCSTypAndConfig :: SetupRepoGUI -> IO (Either String (Wrapper.VCSType, Wrapper.Config, Maybe MergeTool.MergeTool))
     createVCSTypAndConfig gui = do
             path <- H.get (entRepo gui)
 
@@ -187,30 +206,34 @@ connectSetupRepoGui callback gui = do
                                          else
                                 return (Nothing,Nothing)
             selectedVCSType <- H.get (comboBoxVCSType gui)
-            let tuple = createVCSTypAndConfig' path author mail exec selectedVCSType
+            mbPathToTool <- H.get (entPathToTool gui)
+            let tuple = createVCSTypAndConfig' path author mail exec selectedVCSType mbPathToTool
             putStrLn $ "tuple"++show tuple
             return tuple
             where
-                createVCSTypAndConfig' Nothing _ _ _ _ = Left "You have to set path and type of VCS. Missing path."
-                createVCSTypAndConfig' _ _ _ _ Nothing = Left "You have to set path and type of VCS. Missing vcs type."
-                createVCSTypAndConfig' _ Nothing (Just _) _ _ = Left "If you provide an email you have to provide author as well"
-                createVCSTypAndConfig' mbPath@(Just path) authorName email executable (Just vcsType) = Right $
+                createVCSTypAndConfig' Nothing _ _ _ _ _ = Left "You have to set path and type of VCS. Missing path."
+                createVCSTypAndConfig' _ _ _ _ Nothing _ = Left "You have to set path and type of VCS. Missing vcs type."
+                createVCSTypAndConfig' _ Nothing (Just _) _ _ _ = Left "If you provide an email you have to provide author as well"
+                createVCSTypAndConfig' mbPath@(Just path) authorName email executable (Just vcsType) mbPathToTool= Right $
                                                                             (read vcsType,
                                                                             Wrapper.makeConfig mbPath
                                                                                                executable
-                                                                                               $ author authorName)
+                                                                                               $ author authorName,
+                                                                            mergeTool mbPathToTool)
                         where
                             author (Just name) =  (Just (Wrapper.Author name email))
                             author Nothing     =  Nothing
+                            mergeTool (Just path) = Just $ MergeTool.MergeTool path
+                            mergeTool Nothing = Nothing
 
 
-initSetupRepoGui :: Maybe (Wrapper.VCSType, Wrapper.Config)
+initSetupRepoGui :: Config
                  -> SetupRepoGUI
                  -> IO ()
 initSetupRepoGui mbConfig gui = do
         case mbConfig of
             Nothing -> return ()
-            Just (vcsType, Wrapper.Config mbPath mbExec mbAuthor _) -> do
+            Just (vcsType, Wrapper.Config mbPath mbExec mbAuthor _, mbMergeTool) -> do
                 case mbPath of
                     Nothing -> return ()
                     Just path -> do
@@ -242,15 +265,25 @@ initSetupRepoGui mbConfig gui = do
                                     H.set (checkbtAuthor gui) True
                                     H.set (entAuthor gui) author
                                     H.set (entEmail gui) $ fromMaybe "" email
+                case mbMergeTool of
+                    Nothing -> return()
+                    Just mergeTool -> H.set (entPathToTool gui) (MergeTool.fullPath mergeTool)
 
                 return ()
 
 discoverVCS :: FilePath -- ^ path to root
            -> IO [Wrapper.VCSType] -- ^ vcs discovered
 discoverVCS path = do
-    content <- getDirectoryContents path
-    let vcsFiles = map vcsMapping $ filter vcsFilter content
-    return vcsFiles
+    exists <- doesDirectoryExist path
+    putStrLn $ "Path "++ show exists ++ " Starting discovery."
+    case exists of
+        True -> do
+            content <- getDirectoryContents path
+            let vcsFiles = map vcsMapping $ filter vcsFilter content
+            putStrLn $ "Available vcs: "++ show vcsFiles
+            return vcsFiles
+        False -> do
+            return []
     where
         vcsFilter :: FilePath -> Bool
         vcsFilter path = case path of

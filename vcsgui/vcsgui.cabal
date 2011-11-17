@@ -8,15 +8,9 @@ copyright:
 maintainer:
 build-depends: filepath -any, MissingH -any, base -any,
                directory -any, gtk -any, haskell98 -any, mtl -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, haskell98 -any,
-               gtk -any, directory -any, base -any, process -any, process -any,
-               base -any, directory -any, gtk -any, haskell98 -any, mtl -any,
-               vcswrapper -any, vcswrapper -any, mtl -any, haskell98 -any,
-               gtk -any, directory -any, base -any, MissingH -any, filepath -any,
-               process -any, base -any, directory -any, gtk -any, haskell98 -any,
-               mtl -any, vcswrapper -any, vcswrapper -any, mtl -any,
-               haskell98 -any, gtk -any, directory -any, base -any, MissingH -any,
-               filepath -any
+               vcswrapper -any, 
+               gtk -any, process -any
+
 stability:
 homepage:
 package-url:
@@ -55,15 +49,15 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src
-other-modules: VCSGui.Common.ConflictsResolved
-               VCSGui.Common.ConflictsResolved VCSGui.Common.MergeToolGUI
-               VCSGui.Common.MergeTool VCSGui.Common.FilesInConflict
-               VCSGui.Git.Pull VCSGui.Svn.Update VCSGui.Svn.AskPassword VCSGui
-               VCSGui.Svn.Log VCSGui.Svn.Checkout VCSGui.Svn.Commit VCSGui.Git.Log
-               VCSGui.Git.Helpers VCSGui.Git.Gui VCSGui.Git.Commit
-               VCSGui.Common.Types VCSGui.Common.Log VCSGui.Common.GtkHelper
-               VCSGui.Common.ExceptionHandler VCSGui.Common.SetupConfig
-               VCSGui.Common.Error VCSGui.Common.Commit Paths_vcsgui
+other-modules: VCSGui.Common.Process
+               VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
+               VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
+               VCSGui.Svn.AskPassword VCSGui VCSGui.Svn.Log VCSGui.Svn.Checkout
+               VCSGui.Svn.Commit VCSGui.Git.Log VCSGui.Git.Helpers VCSGui.Git.Gui
+               VCSGui.Git.Commit VCSGui.Common.Types VCSGui.Common.Log
+               VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
+               VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
+               Paths_vcsgui
 ghc-prof-options:
 ghc-shared-options:
 ghc-options:
@@ -92,15 +86,15 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src
-other-modules: VCSGui.Common.ConflictsResolved
-               VCSGui.Common.ConflictsResolved VCSGui.Common.MergeToolGUI
-               VCSGui.Common.MergeTool VCSGui.Common.FilesInConflict
-               VCSGui.Git.Pull VCSGui.Svn.Update VCSGui.Svn.AskPassword VCSGui
-               VCSGui.Svn.Log VCSGui.Svn.Checkout VCSGui.Svn.Commit VCSGui.Git.Log
-               VCSGui.Git.Helpers VCSGui.Git.Gui VCSGui.Git.Commit
-               VCSGui.Common.Types VCSGui.Common.Log VCSGui.Common.GtkHelper
-               VCSGui.Common.ExceptionHandler VCSGui.Common.SetupConfig
-               VCSGui.Common.Error VCSGui.Common.Commit Paths_vcsgui
+other-modules: VCSGui.Common.Process
+               VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
+               VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
+               VCSGui.Svn.AskPassword VCSGui VCSGui.Svn.Log VCSGui.Svn.Checkout
+               VCSGui.Svn.Commit VCSGui.Git.Log VCSGui.Git.Helpers VCSGui.Git.Gui
+               VCSGui.Git.Commit VCSGui.Common.Types VCSGui.Common.Log
+               VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
+               VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
+               Paths_vcsgui
 ghc-prof-options:
 ghc-shared-options:
 ghc-options:
@@ -129,11 +123,10 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src/exe/askpass src
-other-modules: VCSGui.Common.ConflictsResolved
-               VCSGui.Common.ConflictsResolved VCSGui.Common.MergeToolGUI
-               VCSGui.Common.MergeTool VCSGui.Common.FilesInConflict
-               VCSGui.Git.Pull VCSGui.Svn.Update VCSGui.Svn.AskPassword
-               Paths_vcsgui VCSGui.Common.GtkHelper
+other-modules: VCSGui.Common.Process
+               VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
+               VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
+               VCSGui.Svn.AskPassword Paths_vcsgui VCSGui.Common.GtkHelper
 ghc-prof-options:
 ghc-shared-options:
 ghc-options:

@@ -33,17 +33,19 @@ import Control.Monad.Trans(liftIO)
 -- commit
 --
 
---{-
+{-
 cwd = "/home/forste/svnreps/project1_work1"
 main = do
     initGUI
-    runWithConfig $ Svn.showCommitGUI (Left handler) $ Right (\tool -> putStrLn ("Setter called with " ++ fullPath tool))
+    runWithConfig $ Svn.showCommitGUI eMergeToolSetter $ Left handler
     mainGUI
     mainQuit
     where
+        eMergeToolSetter = Right (\tool -> putStrLn ("Setter called with " ++ fullPath tool))
         runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwd) Nothing Nothing
         handler = (\result -> liftIO $ putStrLn $ show result)
----}
+
+-}
 
 --
 -- checkout
@@ -128,13 +130,18 @@ main = do
 --
 
 -- setup repo
-{-
-cwd = "/home/forste/leksahWorkspace/leksah"
+--{-
+cwd = "/home/forste/svnreps/project1_work1"
 main = do
     initGUI
-    Svn.showSetupConfigGUI config $ \(Just(x,y)) -> putStrLn $ "Config:" ++ show y ++ ", Chosen vcs:" ++ show x
+    Svn.showSetupConfigGUI config $ handler
     mainGUI
     where
-        config = Just (Wrapper.GIT, Wrapper.makeConfig Nothing Nothing Nothing)
+        handler (Just (x, y, z)) = putStrLn $
+                                    "Config:" ++ show y
+                                    ++ ", Chosen vcs:" ++ show x
+                                    ++ ", MergeTool:" ++ show z
+        handler Nothing = putStrLn "Handler got Nothing"
+        config = Just (Wrapper.GIT, Wrapper.makeConfig Nothing Nothing Nothing, Nothing)
 --        config = Just (Wrapper.GIT, Wrapper.makeConfig (Just cwd) Nothing Nothing)
--}
+---}
