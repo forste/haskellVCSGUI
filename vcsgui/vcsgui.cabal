@@ -8,9 +8,11 @@ copyright:
 maintainer:
 build-depends: filepath -any, MissingH -any, base -any,
                directory -any, gtk -any, haskell98 -any, mtl -any,
-               vcswrapper -any, 
-               gtk -any, process -any
-
+               vcswrapper -any, gtk -any, process -any, process -any, gtk -any,
+               vcswrapper -any, mtl -any, haskell98 -any, gtk -any,
+               directory -any, base -any, MissingH -any, filepath -any,
+               process -any, gtk -any, vcswrapper -any, mtl -any, haskell98 -any,
+               gtk -any, directory -any, base -any, MissingH -any, filepath -any
 stability:
 homepage:
 package-url:
@@ -49,7 +51,7 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src
-other-modules: VCSGui.Common.Process
+other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
                VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
                VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
                VCSGui.Svn.AskPassword VCSGui VCSGui.Svn.Log VCSGui.Svn.Checkout
@@ -86,7 +88,7 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src
-other-modules: VCSGui.Common.Process
+other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
                VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
                VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
                VCSGui.Svn.AskPassword VCSGui VCSGui.Svn.Log VCSGui.Svn.Checkout
@@ -123,7 +125,7 @@ includes:
 install-includes:
 include-dirs:
 hs-source-dirs: src/exe/askpass src
-other-modules: VCSGui.Common.Process
+other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
                VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
                VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
                VCSGui.Svn.AskPassword Paths_vcsgui VCSGui.Common.GtkHelper

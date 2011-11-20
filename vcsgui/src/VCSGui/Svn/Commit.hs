@@ -19,6 +19,7 @@ import qualified VCSGui.Common.Commit as C
 import qualified VCSGui.Common.GtkHelper as H
 import qualified VCSGui.Common.FilesInConflict as FiC
 import qualified VCSGui.Common.MergeTool as M
+import qualified VCSGui.Svn.Helper as SvnH
 
 import VCSGui.Svn.AskPassword
 import VCSGui.Common.ExceptionHandler
@@ -35,8 +36,7 @@ showCommitGUI :: Either M.MergeTool M.MergeToolSetter -- ^ either a mergetool or
                  -> Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
                  -> Svn.Ctx()
 showCommitGUI eMergeToolSetter eitherHandlerOrPw = do
-    status <- Svn.status
-    let conflictingFiles = [ Svn.filePath s | s <- status, (Svn.modification s) == Svn.Conflicting];
+    conflictingFiles <- SvnH.getConflictingFiles
     case conflictingFiles of
         [] -> commonCommit
         _ -> FiC.showFilesInConflictGUI
