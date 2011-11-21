@@ -14,6 +14,7 @@
 
 module VCSGui.Common.FilesInConflict (
     showFilesInConflictGUI
+    , showFilesInConflictGUIinternalMergeTool
 ) where
 
 import qualified VCSWrapper.Common as Wrapper
@@ -50,14 +51,16 @@ accessorEntPath = "entPath"
 type Handler = Wrapper.Ctx()
 
 -- fn to set listStore model for treeview
-type TreeViewSetter = (Maybe FilePath) -- ^ Maybe cwd
-                   -> [FilePath] -- ^ conflicting files
-                   -> (FilePath -> Wrapper.Ctx [FilePath]) -- ^ fn receiving a path to a conflicting file and returning all conflicting files involved in the conflict (max 4)
+type TreeViewSetter = [FilePath] -- ^ conflicting files
+                   -> ((Maybe FilePath) -- ^ path to tool
+                        -> FilePath -- ^ path to conflicting file
+                        -> Wrapper.Ctx Bool -- ^ True, if conflict was resolved successfully, False otherwise.
+                        ) -- ^ fn to call the mergetool.
                    -> (FilePath -> Wrapper.Ctx ())       -- ^ fn to mark files as resolved in VCS
-                   -> (Either Merge.MergeTool Merge.MergeToolSetter) -- ^ either a mergetool or fn to set one
-                   -> H.TextEntryItem   -- ^ the entry to get the path to the mergetool from
+                   -> H.TextEntryItem -- ^ text entry maybe containing the path to the mergetool to be executed
                    -> TreeView -- ^ the treeview to set the model to
                    -> Wrapper.Ctx (ListStore SCFile)
+
 
 -- GUI storing accessible elements
 data GUI = GUI {
@@ -77,6 +80,33 @@ data SCFile = SCFile {
     deriving (Show)
 
 
+-- | Show a GUI for resolving merge conflicts. Use a (FilePath -> Ctx Bool) as mergetool.
+showFilesInConflictGUIinternalMergeTool :: (Maybe TreeViewSetter) -- ^ fn to set listStore model for treeview, Nothing for default
+        -> [FilePath]                            -- ^ conflicting files
+        -> (FilePath -> Wrapper.Ctx Bool)    -- ^ Mergetool handling the actual merging. Receives the conflicting file to be merged.
+        -> (FilePath -> Wrapper.Ctx ())       -- ^ fn to mark files as resolved in VCS
+        -> Handler                               -- ^ handler for action resolved
+        -> Wrapper.Ctx ()
+showFilesInConflictGUIinternalMergeTool Nothing files mergeTool resolver action =
+    showFilesInConflictGUIinternalMergeTool (Just defaultSetUpTreeView) files mergeTool resolver action
+showFilesInConflictGUIinternalMergeTool (Just setUpTreeView) filesInConflict mergeTool resolveMarker actResolvedHandler = do
+    liftIO $ putStrLn "Starting files in conflict gui (internalMergeTool) ..."
+    config <- ask
+    let cwd = (Wrapper.configCwd config)
+
+    gui <- loadGUI $ setUpTreeView filesInConflict (\_ -> mergeTool) resolveMarker
+
+    liftIO $ connectDefaultActions gui $ Wrapper.runVcs config $ actResolvedHandler
+
+    -- present window
+    liftIO $ widgetShowAll $ H.getItem $ windowFilesInConflict gui
+    -- hide merge tool path selection
+    liftIO $ widgetHideAll $ H.getItem $ entPath gui
+    liftIO $ actionSetVisible (H.getItem $ actBrowsePath gui) False
+
+    return ()
+
+
 showFilesInConflictGUI :: (Maybe TreeViewSetter) -- ^ fn to set listStore model for treeview, Nothing for default
         -> [FilePath]                            -- ^ conflicting files
         -> (FilePath -> Wrapper.Ctx [FilePath]) -- ^ fn receiving a path to a conflicting file and returning all conflicting files involved in the conflict (max 4)
@@ -90,21 +120,25 @@ showFilesInConflictGUI (Just setUpTreeView) filesInConflict filesToResolveGetter
     liftIO $ putStrLn "Starting files in conflict gui ..."
     config <- ask
     let cwd = (Wrapper.configCwd config)
-    gui <- loadGUI $ setUpTreeView cwd filesInConflict filesToResolveGetter resolveMarker eMergeToolSetter
+
+    let mergeToolCall mbPathToTool fileToResolve = do
+        case mbPathToTool of
+            Nothing -> liftIO $ Error.showErrorGUI "MergeTool not set. Set MergeTool first." >> return False
+            Just path -> do
+                filesToResolve <- filesToResolveGetter fileToResolve
+                resolvedByTool <- liftIO $ Process.exec cwd path filesToResolve
+                return resolvedByTool
+
+    gui <- loadGUI $ setUpTreeView filesInConflict mergeToolCall resolveMarker
     mbMergeToolSetter <- case eMergeToolSetter of
                             Left (Merge.MergeTool path) -> do
                                 liftIO $ H.set (entPath gui) path
                                 return Nothing
                             Right setter -> return $ Just setter
 
-    -- connect actions
-    liftIO $ H.registerClose $ windowFilesInConflict gui
-    liftIO $ H.registerCloseAction (actCancel gui) (windowFilesInConflict gui)
-    config <- ask
-    liftIO $ on (H.getItem (actResolved gui)) actionActivated $ do
-                                        --TODO check if all files have been resolved
-                                        Wrapper.runVcs config $ actResolvedHandler
-                                        H.closeWin (windowFilesInConflict gui)
+    config <- ask -- TODO is this second ask nescessary? (maybe the mergeToolSetter can change config?)
+    liftIO $ connectDefaultActions gui $ Wrapper.runVcs config $ actResolvedHandler
+
     liftIO $ on (H.getItem (actBrowsePath gui)) actionActivated $ do
             mbPath <- showFolderChooserDialog "Select executable" (H.getItem $ windowFilesInConflict gui) FileChooserActionOpen
             case mbPath of
@@ -121,6 +155,18 @@ showFilesInConflictGUI (Just setUpTreeView) filesInConflict filesToResolveGetter
     liftIO $ widgetShowAll $ H.getItem $ windowFilesInConflict gui
 
     return ()
+
+
+connectDefaultActions :: GUI -> IO () -> IO ()
+connectDefaultActions gui actResolvedHandler = do
+    H.registerClose $ windowFilesInConflict gui
+    H.registerCloseAction (actCancel gui) (windowFilesInConflict gui)
+    on (H.getItem (actResolved gui)) actionActivated $ do
+                                        --TODO check if all files have been resolved
+                                        actResolvedHandler
+                                        H.closeWin (windowFilesInConflict gui)
+    return ()
+
 
 loadGUI :: (H.TextEntryItem   -- ^ the entry to get the path to the mergetool from
             -> TreeView   -- ^ treeview to setup
@@ -139,7 +185,7 @@ loadGUI setUpTreeView = do
                 return $ GUI win treeViewFiles actResolved actCancel actBrowsePath entPath
 
 defaultSetUpTreeView :: TreeViewSetter
-defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker eMergeToolSetter entPath listView = do
+defaultSetUpTreeView conflictingFiles mergeToolCall resolveMarker entPath listView = do
     config <- ask
     liftIO $ do
         -- create model
@@ -164,31 +210,25 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
                                $ \scf -> [cellToggleActive := isResolved scf]
 
         -- connect select action
-        on renderer cellToggled $ \columnId -> do
-                                putStrLn $ "Checkbutton clicked at column " ++ (show columnId)
+        on renderer cellToggled $ \columnId -> Wrapper.runVcs config $  do
+                                liftIO $ putStrLn $ "Checkbutton clicked at column " ++ (show columnId)
                                 --TODO only call tool if button is not checked, move this code to being called if a click on row is received
-                                let callTool' = (\path -> Wrapper.runVcs config $ callTool columnId listStore path)
-                                mbPath <- H.get entPath
-                                case mbPath of
-                                    Nothing -> Error.showErrorGUI "MergeTool not set. Set MergeTool first."
-                                    Just path -> callTool' path
-                                return ()
 
+                                Just treeIter <- liftIO $ treeModelGetIterFromString listStore columnId
+                                value <- liftIO $ listStoreGetValue listStore $ listStoreIterToIndex treeIter
+
+                                mbPathToTool <- liftIO $ H.get entPath
+                                resolvedByTool <- mergeToolCall mbPathToTool $ filePath value
+
+                                let setResolved' = setResolved listStore treeIter value
+                                case resolvedByTool of
+                                            False -> ConflictsResolvedGUI.showConflictsResolvedGUI
+                                                        (\resolved -> setResolved' resolved)
+                                            True -> setResolved' True
+                                return()
 
         return listStore
         where
-            callTool columnId listStore pathToTool = do
-                        config <- ask
-                        Just treeIter <- liftIO $ treeModelGetIterFromString listStore columnId
-                        value <- liftIO $ listStoreGetValue listStore $ listStoreIterToIndex treeIter
-                        filesToResolve <- filesToResolveGetter $ filePath value
-                        resolvedByTool <- liftIO $ Process.exec mbcwd pathToTool filesToResolve
-                        let setResolved' = setResolved listStore treeIter value
-                        case resolvedByTool of
-                                    False -> ConflictsResolvedGUI.showConflictsResolvedGUI
-                                                (\resolved -> setResolved' resolved)
-                                    True -> setResolved listStore treeIter value True
-                        return()
             setResolved listStore treeIter oldValue isResolved = do
                         let fp = filePath oldValue
                         case isResolved of
