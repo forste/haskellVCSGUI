@@ -25,7 +25,7 @@ import qualified Control.Exception as Exc
 --import Data.Typeable (Typeable)
 
 -- | Internal function to execute a vcs command
-exec :: Maybe FilePath --working directory or Nothing if not set
+exec :: Maybe FilePath -- ^ working directory or Nothing if not set
      -> String -- ^ mergetool command, e.g. kdiff3.sh
      -> [String] -- ^ files, last one is output
      -> IO Bool

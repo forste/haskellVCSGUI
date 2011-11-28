@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Functions to show a log window. This mostly hides the window-building tasks from the specific VCS implementation.
 --
 -----------------------------------------------------------------------------
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -49,14 +49,20 @@ data LogGUI = LogGUI {
     , lblBranch :: LabelItem
 }
 
-
-showLogGUI :: [Common.LogEntry] -- ^ logEntries to be displayed initially
-            -> [String] -- ^ options will be displayed in a menu as checkboxes TODO implement
-            -> Maybe ((String, [String]), -- ^ list of branchnames to display
-                (String -> Common.Ctx [Common.LogEntry])) -- ^ called when a different branch is selected. called with the new branchname
-            -> (Common.LogEntry -- ^ selected line
-                -> (Maybe String) -- ^ name of the branch to checkout from
-                -> Common.Ctx ()) -- ^ called on checkout action. will close window afterwards
+-- | Show the history of a repository.
+showLogGUI :: [Common.LogEntry]
+            -- ^ logEntries to be displayed initially
+            -> [String]
+            -- ^ options will be displayed in a menu as checkboxes (TODO this is currently not implemented)
+            -> Maybe ((String, [String]), (String -> Common.Ctx [Common.LogEntry]))
+            -- ^ (list of branchnames to display, Function called when a different branch is selected)
+            --
+            -- The function will be called with the selected branchname to repopulate the displayed LogEntries.
+            -- If 'Nothing', no branch selection will be displayed.
+            -> (Common.LogEntry -> Maybe String -> Common.Ctx ())
+            -- ^ (selected line, name of the branch to checkout from)
+            --
+            -- This function is called on checkout action. The window will be closed afterwards.
             -> Common.Ctx ()
 showLogGUI logEntries options Nothing doCheckoutFn = guiWithoutBranches logEntries options doCheckoutFn >> return ()
 showLogGUI logEntries options (Just (branches, changeBranchFn)) doCheckoutFn = do

@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Exports all modules needed to build the Git GUI component.
 --
 -----------------------------------------------------------------------------
 

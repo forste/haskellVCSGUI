@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Module for displaying configuration dialogs.
 --
 -----------------------------------------------------------------------------
 
@@ -80,12 +80,12 @@ data SetupRepoGUI = SetupRepoGUI {
 
 
 {-  | Displays a window to setup a repo. Window will be initially filled with content given config
-      if not Nothing. Given callback will be called on successful completition.
+      is not Nothing. Given callback will be called on successful completition.
 -}
 showSetupConfigGUI :: Config
         -- ^ maybe a tuple (vcstype,config, mbmergetool), which will be used to fill out the form
-                   -> Callback                               -- ^ callback, called when dialog is closed
-                   -> IO ()
+        -> Callback  -- ^ callback, called when dialog is closed
+        -> IO ()
 showSetupConfigGUI mbConfig callback = loadAndOpenWindow
                                                             (loadSetupRepoGui)
                                                             (connectSetupRepoGui callback)

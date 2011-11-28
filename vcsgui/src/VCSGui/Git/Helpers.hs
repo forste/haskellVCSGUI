@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Misc helper functions.
 --
 -----------------------------------------------------------------------------
 
@@ -21,6 +21,11 @@ import Control.Monad.Reader.Class (asks, MonadReader(..))
 import System.Environment (getEnvironment)
 import Control.Monad.Reader (liftIO)
 
+
+{- | Adds a wrapper to the 'Ctx' so git can ask for a password using a GUI window.
+    This is acomplished by setting the GIT_ASKPASS environment variable.
+    This is only tested on linux and may not work on MS Windows.
+-}
 askPassWrapper :: Ctx () -> Ctx ()
 askPassWrapper fn = do
     cfgEnv <- asks configEnvironment

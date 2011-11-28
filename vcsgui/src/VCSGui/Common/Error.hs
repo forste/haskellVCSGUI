@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Functions to handle errors are found in this module.
 --
 -----------------------------------------------------------------------------
 
@@ -17,7 +17,10 @@ module VCSGui.Common.Error (
 ) where
 import Graphics.UI.Gtk
 
-showErrorGUI :: String -> IO ()
+
+-- | Displays a simple window displaying given 'String' as an error message.
+showErrorGUI :: String -- ^ Message to display.
+    -> IO ()
 showErrorGUI msg = do
     dialog <- messageDialogNew Nothing [] MessageError ButtonsOk msg
     _ <- dialogRun dialog

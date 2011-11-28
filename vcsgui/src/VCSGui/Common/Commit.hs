@@ -8,8 +8,9 @@
 -- Stability   :
 -- Portability :
 --
--- | TODO select all files checkbox + TODOs below
+-- TODO select all files checkbox + TODOs below
 --
+-- | Functions to show a commit window. This mostly hides the window-building tasks from the specific VCS implementation.
 -----------------------------------------------------------------------------
 module VCSGui.Common.Commit (
     SCFile(..)
@@ -46,10 +47,10 @@ accessorActTxtViewMsg = "txtViewMsg"
 -- types
 --
 
--- callback for ok action
-type OkCallBack = String                           -- ^ commit message
-            -> [FilePath]                       -- ^ selected files
-            -> [Option]                         -- ^ options TODO not implemented
+-- | This function will be called after the ok action is called.
+type OkCallBack = String    -- ^ Commit message as specified in the GUI.
+            -> [FilePath]   -- ^ List of 'FilePath's of the files that were selected.
+            -> [Option]     -- ^ options (this is currently not implemented i.e. '[]' is passed)
             -> Wrapper.Ctx ()
 
 -- fn to set listStore model for treeview
@@ -65,30 +66,37 @@ data CommitGUI = CommitGUI {
     , txtViewMsg :: H.TextViewItem
 }
 
+-- | Represents a file which can be selected for commiting.
 data SCFile = GITSCFile Bool FilePath String |
               SVNSCFile Bool FilePath String Bool
     deriving (Show)
 
+-- | Return 'True' if the 'SCFile' is flagged as selected.
 selected :: SCFile -> Bool
 selected (GITSCFile s _ _) = s
 selected (SVNSCFile s _ _ _) = s
 
+-- | Return the 'FilePath' of this file.
 filePath :: SCFile -> FilePath
 filePath (GITSCFile _ fp _ ) = fp
 filePath (SVNSCFile _ fp _ _) = fp
 
+-- | Return the status of this file.
 status :: SCFile -> String
 status (GITSCFile _ _ s) = s
 status (SVNSCFile _ _ s _) = s
 
+-- | Return 'True' if this file is locked. For Git, this returns always 'False'.
 isLocked :: SCFile -> Bool
 isLocked (SVNSCFile _ _ _ l) = l
 isLocked _                   = False
 
+
+-- | Options to the 'OkCallBack'.
 type Option = String
 
 
-
+-- | Display a window to enter a commit message and select files to be commited.
 showCommitGUI :: TreeViewSetter
         -> OkCallBack
         -> Wrapper.Ctx()
@@ -109,7 +117,7 @@ showCommitGUI setUpTreeView okCallback = do
                                             _  -> do
                                                     case mbMsg of
                                                         Nothing -> return() --TODO err-message, message is empty
-                                                        Just msg -> Wrapper.runVcs config $ okCallback msg selectedFiles []
+                                                        Just msg -> Wrapper.runVcs config $ okCallback msg selectedFiles [] -- TODO implement Options
                                         H.closeWin (windowCommit gui)
 
     -- present window

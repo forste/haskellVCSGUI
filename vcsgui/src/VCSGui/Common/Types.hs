@@ -17,7 +17,7 @@ module VCSGui.Common.Types (
     VCSType (..)
 ) where
 
-data VCSType = SVN | GIT
+data VCSType = SVN | GIT -- TODO is this the same as in VCSWrapper? why?
 
 data GTKObjectAccessors = SVNGTKObjectAccessors
     {
