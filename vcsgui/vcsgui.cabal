@@ -1,57 +1,49 @@
 name: vcsgui
 version: 0.0.1
-cabal-version: -any
+cabal-version: >= 1.8
 build-type: Simple
-license: AllRightsReserved
-license-file: ""
-copyright:
-maintainer:
-build-depends: filepath -any, MissingH -any, base -any,
-               directory -any, gtk -any, haskell98 -any, mtl -any,
-               vcswrapper -any, gtk -any, process -any, process -any, gtk -any,
-               vcswrapper -any, mtl -any, haskell98 -any, gtk -any,
-               directory -any, base -any, MissingH -any, filepath -any,
-               process -any, gtk -any, vcswrapper -any, mtl -any, haskell98 -any,
-               gtk -any, directory -any, base -any, MissingH -any, filepath -any
-stability:
-homepage:
-package-url:
-bug-reports:
-synopsis:
-description: .
-category:
-author:
-tested-with:
-data-files: guiCommonCommit.glade guiCommonLog.glade
-            guiCommonSetupRepo.glade guiSvnCheckout.glade
-            guiCommonAskpass.glade guiSvnAskpass.glade
-            guiCommonFilesInConflict.glade guiCommonMergeTool.glade
-            guiCommonConflictsResolved.glade
-data-dir: data
-extra-source-files:
-extra-tmp-files:
-exposed-modules: VCSGui.Common VCSGui.Git VCSGui.Svn
-exposed: True
-buildable: True
-build-tools:
-cpp-options:
-cc-options:
-ld-options:
-pkgconfig-depends:
-frameworks:
-c-sources:
-default-language:
-other-languages:
-default-extensions:
-other-extensions:
-extensions:
-extra-libraries:
-extra-lib-dirs:
-includes:
-install-includes:
-include-dirs:
-hs-source-dirs: src
-other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
+license: GPL
+license-file: LICENSE
+copyright: 2011 Stephan Fortelny, Harald Jagenteufel
+maintainer: stephanfortelny at gmail.com, h.jagenteufel at gmail.com
+homepage: https://github.com/forste/haskellVCSGUI
+bug-reports: https://github.com/forste/haskellVCSGUI/issues
+synopsis: GUI library for source code management systems
+description:
+    Provides library functions to expose some commonly needed scm tasks to the user.
+    Uses GTK+ and GTKBuilder to organize and display windows.
+    Uses vcswrapper to acces the scm functions.
+    Currently git and SVN are supported.
+category: Development
+author: Stephan Fortelny, Harald Jagenteufel
+tested-with: GHC == 7.0
+data-files: LICENSE
+            data/guiCommonCommit.glade
+            data/guiCommonLog.glade
+            data/guiCommonSetupRepo.glade
+            data/guiSvnCheckout.glade
+            data/guiCommonAskpass.glade
+            data/guiSvnAskpass.glade
+            data/guiCommonFilesInConflict.glade
+            data/guiCommonMergeTool.glade
+            data/guiCommonConflictsResolved.glade
+data-dir: ""
+
+library
+    build-depends: MissingH >=1.1.1.0 && <1.2,
+               filepath >=1.2.0.0 && < 1.3,
+               base >=4.0.0.0 && <4.4,
+               directory >=1.1.0.0 && <1.2,
+               haskell98 >=1.1.0.1 && <1.2,
+               mtl >=2.0.1.0 && <2.1,
+               vcswrapper ==0.0.1,
+               process >=1.0.1.5 && <1.1,
+               gtk >=0.12.1 && <0.13
+    exposed-modules: VCSGui.Common VCSGui.Git VCSGui.Svn
+    exposed: True
+    buildable: True
+    hs-source-dirs: src
+    other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
                VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
                VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
                VCSGui.Svn.AskPassword VCSGui VCSGui.Svn.Log VCSGui.Svn.Checkout
@@ -60,35 +52,21 @@ other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
                VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
                VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
                Paths_vcsgui
-ghc-prof-options:
-ghc-shared-options:
-ghc-options:
-hugs-options:
-nhc98-options:
-jhc-options:
- 
-executable: vcsgui
-main-is: Main.hs
-buildable: True
-build-tools:
-cpp-options:
-cc-options:
-ld-options:
-pkgconfig-depends:
-frameworks:
-c-sources:
-default-language:
-other-languages:
-default-extensions:
-other-extensions:
-extensions:
-extra-libraries:
-extra-lib-dirs:
-includes:
-install-includes:
-include-dirs:
-hs-source-dirs: src
-other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
+
+executable vcsgui
+    main-is: Main.hs
+    build-depends: MissingH >=1.1.1.0 && <1.2,
+               filepath >=1.2.0.0 && < 1.3,
+               base >=4.0.0.0 && <4.4,
+               directory >=1.1.0.0 && <1.2,
+               haskell98 >=1.1.0.1 && <1.2,
+               mtl >=2.0.1.0 && <2.1,
+               vcswrapper ==0.0.1,
+               process >=1.0.1.5 && <1.1,
+               gtk >=0.12.1 && <0.13
+    buildable: True
+    hs-source-dirs: src
+    other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
                VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
                VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
                VCSGui.Svn.AskPassword VCSGui VCSGui.Svn.Log VCSGui.Svn.Checkout
@@ -97,41 +75,21 @@ other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
                VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
                VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
                Paths_vcsgui
-ghc-prof-options:
-ghc-shared-options:
-ghc-options:
-hugs-options:
-nhc98-options:
-jhc-options:
- 
-executable: vcsgui-askpass
-main-is: Main.hs
-buildable: True
-build-tools:
-cpp-options:
-cc-options:
-ld-options:
-pkgconfig-depends:
-frameworks:
-c-sources:
-default-language:
-other-languages:
-default-extensions:
-other-extensions:
-extensions:
-extra-libraries:
-extra-lib-dirs:
-includes:
-install-includes:
-include-dirs:
-hs-source-dirs: src/exe/askpass src
-other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
+
+executable vcsgui-askpass
+    main-is: Main.hs
+    build-depends: MissingH >=1.1.1.0 && <1.2,
+               filepath >=1.2.0.0 && < 1.3,
+               base >=4.0.0.0 && <4.4,
+               directory >=1.1.0.0 && <1.2,
+               haskell98 >=1.1.0.1 && <1.2,
+               mtl >=2.0.1.0 && <2.1,
+               vcswrapper ==0.0.1,
+               process >=1.0.1.5 && <1.1,
+               gtk >=0.12.1 && <0.13
+    buildable: True
+    hs-source-dirs: src/exe/askpass src
+    other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
                VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
                VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
                VCSGui.Svn.AskPassword Paths_vcsgui VCSGui.Common.GtkHelper
-ghc-prof-options:
-ghc-shared-options:
-ghc-options:
-hugs-options:
-nhc98-options:
-jhc-options:
