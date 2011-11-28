@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Every function related to commiting changes to the Git repository is found in this module.
 --
 -----------------------------------------------------------------------------
 
@@ -39,6 +39,9 @@ doCommit commitMsg files _ = do
                 Nothing -> Git.commit files (Just (author, "noEmailSet@noEmailSet")) commitMsg []
                 Just m -> Git.commit files (Just (author, m)) commitMsg []
 
+{- | Calls 'Commit.showCommitGUI' with a 'Graphics.UI.Gtk.ListStore' and 'OkCallBack' setup for Git.
+    This will display a window to enter a commit message and select the files to be commited by this commit.
+-}
 showCommitGUI :: Git.Ctx ()
 showCommitGUI = do
     Commit.showCommitGUI setupListStore doCommit

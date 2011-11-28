@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Exception handling functions can be found in this module.
 --
 -----------------------------------------------------------------------------
 
@@ -21,6 +21,8 @@ import qualified Control.Exception as Exc
 import VCSWrapper.Common
 import VCSGui.Common.Error
 
+
+-- | Wraps an IO computation to display an error message if a 'VCSException' occurs.
 defaultVCSExceptionHandler :: IO t -> IO ()
 defaultVCSExceptionHandler vcsRunner = do
     o <- Exc.try vcsRunner

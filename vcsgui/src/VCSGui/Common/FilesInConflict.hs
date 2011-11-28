@@ -122,10 +122,9 @@ showFilesInConflictGUI (Just setUpTreeView) filesInConflict filesToResolveGetter
 
     return ()
 
-loadGUI :: (H.TextEntryItem   -- ^ the entry to get the path to the mergetool from
-            -> TreeView   -- ^ treeview to setup
-            -> Wrapper.Ctx (ListStore SCFile))   -- ^ fn to set listStore model for treeview
-                -> Wrapper.Ctx GUI
+loadGUI :: (H.TextEntryItem -> TreeView -> Wrapper.Ctx (ListStore SCFile))
+        -- ^ (The entry to get the path to the mergetool from. , treeview to setup, fn to set listStore model for treeview
+        -> Wrapper.Ctx GUI
 loadGUI setUpTreeView = do
                 gladepath <- liftIO getGladepath
                 builder <- liftIO $ H.openGladeFile gladepath

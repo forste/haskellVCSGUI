@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Every function related to pulling changes from another Git repository is found in this module.
 --
 -----------------------------------------------------------------------------
 
@@ -23,6 +23,8 @@ import qualified VCSWrapper.Common as Wrapper
 
 import VCSGui.Common.Error
 
+
+-- | Call 'Git.pull'. If the pull fails or a merge conflict is detected an error message is shown.
 pull :: Git.Ctx ()
 pull = do
     o <- Git.pull

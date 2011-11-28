@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Every function related to displaying the history of a Git repository is found in this module.
 --
 -----------------------------------------------------------------------------
 
@@ -22,6 +22,10 @@ import qualified VCSWrapper.Git as Git
 import Control.Monad.Reader (liftIO)
 import Data.Maybe (fromMaybe)
 
+
+{- | Calls 'Common.showLogGUI' using Git. This will display all log entries. The branch to be displayed can be selected.
+    Any commit can be checked out, creating a new branch if the commit is not already the HEAD of any branch.
+    -}
 showLogGUI :: Git.Ctx ()
 showLogGUI = do
         log <- Git.simpleLog Nothing
