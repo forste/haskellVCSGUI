@@ -53,7 +53,7 @@ okCallback eitherHandlerOrPw logEntry _ = do
                                                             doRevert logEntry mbPw
                                                             handler result
     doRevert logEntry mbPw = do
-                            Svn.revert (revision logEntry) mbPw []
+                            Svn.mergeHeadToRevision (revision logEntry) mbPw []
                             return()
     revision logEntry = read $ Svn.commitID logEntry :: Integer
 
