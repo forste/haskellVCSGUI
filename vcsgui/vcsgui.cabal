@@ -47,7 +47,7 @@ library
                VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
                VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
                VCSGui.Svn.AskPassword VCSGui VCSGui.Svn.Log VCSGui.Svn.Checkout
-               VCSGui.Svn.Commit VCSGui.Git.Log VCSGui.Git.Helpers VCSGui.Git.Gui
+               VCSGui.Svn.Commit VCSGui.Git.Log VCSGui.Git.Helpers
                VCSGui.Git.Commit VCSGui.Common.Types VCSGui.Common.Log
                VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
                VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
@@ -70,7 +70,7 @@ executable vcsgui
                VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
                VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
                VCSGui.Svn.AskPassword VCSGui VCSGui.Svn.Log VCSGui.Svn.Checkout
-               VCSGui.Svn.Commit VCSGui.Git.Log VCSGui.Git.Helpers VCSGui.Git.Gui
+               VCSGui.Svn.Commit VCSGui.Git.Log VCSGui.Git.Helpers
                VCSGui.Git.Commit VCSGui.Common.Types VCSGui.Common.Log
                VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
                VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
