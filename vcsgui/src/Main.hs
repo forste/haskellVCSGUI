@@ -16,7 +16,6 @@ module Main (
     main
 ) where
 
-import VCSGui.Common.Types
 import VCSGui.Common.MergeTool
 import qualified VCSGui.Svn as Svn
 import qualified VCSWrapper.Common as Wrapper

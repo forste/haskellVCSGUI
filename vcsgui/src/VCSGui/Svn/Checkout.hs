@@ -8,8 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- | TODO this module needs refactoring. showGUI should use GtkHelper to avoid code redundance
--- | TODO helpers (end of file) should be moved to GtkHelper
+-- | Provides a GUI for checking out a working copy of a SVN repository.
 --
 -----------------------------------------------------------------------------
 
@@ -46,6 +45,7 @@ data CheckoutGUI = CheckoutGUI {
     ,txtViewPath :: H.TextViewItem
     }
 
+-- | Shows a GUI asking user for data to checkout a working copy of a SVN repository.
 showCheckoutGUI :: Svn.Ctx()
 showCheckoutGUI = do
     config <- ask

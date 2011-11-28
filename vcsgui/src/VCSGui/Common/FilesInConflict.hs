@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Provides a GUI to show and resolve conflicts in a VCS.
 --
 -----------------------------------------------------------------------------
 
@@ -17,7 +17,6 @@ module VCSGui.Common.FilesInConflict (
 ) where
 
 import qualified VCSWrapper.Common as Wrapper
-import VCSGui.Common.Types
 import qualified VCSGui.Common.GtkHelper as H
 import qualified VCSGui.Common.Commit as Commit
 import qualified VCSGui.Common.MergeTool as Merge
@@ -46,7 +45,7 @@ accessorEntPath = "entPath"
 -- types
 --
 
--- handler being called after all files have been resolved and resolved button is pressed
+-- | Handler being called after all files have been resolved and resolved button is pressed
 type Handler = Wrapper.Ctx()
 
 -- fn to set listStore model for treeview
@@ -77,12 +76,13 @@ data SCFile = SCFile {
     deriving (Show)
 
 
+-- | Shows a GUI showing conflicting files and providing means to resolve the conflicts.
 showFilesInConflictGUI :: (Maybe TreeViewSetter) -- ^ fn to set listStore model for treeview, Nothing for default
         -> [FilePath]                            -- ^ conflicting files
         -> (FilePath -> Wrapper.Ctx [FilePath]) -- ^ fn receiving a path to a conflicting file and returning all conflicting files involved in the conflict (max 4)
         -> (FilePath -> Wrapper.Ctx ())       -- ^ fn to mark files as resolved in VCS
-        -> (Either Merge.MergeTool Merge.MergeToolSetter)    -- ^ either a mergetool or fn to set one
-        -> Handler                               -- ^ handler for action resolved
+        -> (Either Merge.MergeTool Merge.MergeToolSetter)    -- ^ 'MergeTool' is used for any possible conflicts. If not present user will be asked to provide 'MergeTool' on conflicts. 'MergeToolSetter' will be called for response.
+        -> Handler                               -- ^ 'Handler' for action resolved
         -> Wrapper.Ctx ()
 showFilesInConflictGUI Nothing f g m e a =
     showFilesInConflictGUI (Just defaultSetUpTreeView) f g m e a

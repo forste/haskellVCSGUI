@@ -7,8 +7,8 @@
 -- Maintainer  :  stephanfortelny at gmail.com, h.jagenteufel at gmail.com
 -- Stability   :
 -- Portability :
---
--- | TODO this should be moved into Common Package
+-- TODO this should be moved into Common Package
+-- | Provides a GUI asking a user for a password.
 --
 -----------------------------------------------------------------------------
 
@@ -40,6 +40,16 @@ accessorCheckbtUsePw = "checkbtUsePw"
 accessorCheckbtSaveForSession = "checkbtSaveForSession"
 accessorboxUsePwd = "boxUsePwd"
 
+{- |
+    'Handler' is a function used as an argument to the 'showAskpassGUI'. It represents a VCS
+    command running in a 'Wrapper.Ctx' expecting password data which can be the followingAxis
+        * Nothing, if GUI is closed or cancel button is pressed
+        * Just (savePasswordSettingForSession, Maybe password)
+    where savePasswordSettingForSession indicates if password-settings should be saved for current
+    session. Maybe password is either:
+        * Nothing, no password given
+        * Just password, password has been provided
+-}
 type Handler = ((Maybe (Bool, Maybe String))
                 -> Wrapper.Ctx())
 
@@ -53,7 +63,8 @@ data AskpassGUI = AskpassGUI {
     ,boxUsePwd :: VBox
 }
 
-showAskpassGUI :: Handler -- handler which
+-- | Shows a GUI asking the user for a password. 'Handler' will be called with result.
+showAskpassGUI :: Handler -- ^ 'Handler' to be called when GUI is closed passing the result.
                   -> Wrapper.Ctx ()
 showAskpassGUI handler = do
     config <- ask

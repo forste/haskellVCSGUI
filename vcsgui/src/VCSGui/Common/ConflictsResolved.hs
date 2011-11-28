@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Provides a VCS-independent GUI to ask a user if conflicts have been resolved.
 --
 -----------------------------------------------------------------------------
 
@@ -39,7 +39,8 @@ data ConflictsResolvedGUI = ConflictsResolvedGUI {
     , actConflictsNotResolved :: H.ActionItem
 }
 
-showConflictsResolvedGUI :: (Bool -> Wrapper.Ctx())
+-- | Shows a GUI asking user if conflicts have been resolved.
+showConflictsResolvedGUI :: (Bool -> Wrapper.Ctx()) -- ^ Handler for user response. Argument is: True if conflicts have been resolved, False if not.
                             -> Wrapper.Ctx ()
 showConflictsResolvedGUI handler = do
     liftIO $ putStrLn "Starting conflictsResolvedGUI ..."

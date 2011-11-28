@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Provides a GUI to commit to a SVN working copy.
 --
 -----------------------------------------------------------------------------
 module VCSGui.Svn.Commit (
@@ -29,11 +29,11 @@ import qualified VCSWrapper.Svn as Svn
 import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 
-{-  | Displays a window, showing status of subversion and actions to commit/cancel.
-    | Given callback will be called on success with chosen password and boolean whether password should be saved for session.
+{-  |
+    Shows a GUI showing status of subversion and possibilites to commit/cancel.
 -}
-showCommitGUI :: Either M.MergeTool M.MergeToolSetter -- ^ either a mergetool or a setter for it
-                 -> Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
+showCommitGUI :: Either M.MergeTool M.MergeToolSetter -- ^ 'MergeTool' is used for any possible conflicts. If not present user will be asked to provide 'MergeTool' on conflicts. 'MergeToolSetter' will be called for response.
+                 -> Either Handler (Maybe String) -- ^ Either 'Handler' for password request or password (nothing for no password)
                  -> Svn.Ctx()
 showCommitGUI eMergeToolSetter eitherHandlerOrPw = do
     conflictingFiles <- SvnH.getConflictingFiles

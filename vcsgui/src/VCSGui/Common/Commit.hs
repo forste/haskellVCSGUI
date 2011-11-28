@@ -23,7 +23,6 @@ module VCSGui.Common.Commit (
 ) where
 
 import qualified VCSWrapper.Common as Wrapper
-import VCSGui.Common.Types
 import qualified VCSGui.Common.GtkHelper as H
 import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)

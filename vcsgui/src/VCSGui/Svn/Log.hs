@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Provides a GUI to show log for current working copy.
 --
 -----------------------------------------------------------------------------
 
@@ -22,14 +22,12 @@ import VCSGui.Svn.AskPassword
 import qualified VCSWrapper.Svn as Svn
 import qualified VCSWrapper.Common as WC
 
-showLogGUI :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing if password is not required)
+-- | Shows a GUI showing log for current working copy.
+showLogGUI :: Either Handler (Maybe String) -- ^ Either 'Handler' for password request or password (nothing for no password)
            -> Svn.Ctx ()
 showLogGUI eitherHandlerOrPw = do
         logEntries <- Svn.simpleLog
         C.showLogGUI logEntries [] Nothing $ okCallback eitherHandlerOrPw
---    where
---    checkout logEntry _ = Svn.revert (revision logEntry) Nothing [] -- TODO password handler
---    revision logEntry = read $ Svn.commitID logEntry :: Integer
 
 okCallback :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
            -> WC.LogEntry                   -- ^ chosen logentry

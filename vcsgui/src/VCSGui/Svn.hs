@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Exports all available SVN GUIs such as @checkout@, @log@ and others.
 --
 -----------------------------------------------------------------------------
 

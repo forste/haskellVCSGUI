@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Provides facilites to execute an external program.
 --
 -----------------------------------------------------------------------------
 
@@ -22,7 +22,6 @@ import System.IO (Handle, hFlush, hClose, hGetContents, hPutStr)
 import Control.Concurrent
 import Control.Monad.Reader
 import qualified Control.Exception as Exc
---import Data.Typeable (Typeable)
 
 -- | Internal function to execute a vcs command
 exec :: Maybe FilePath -- ^ working directory or Nothing if not set
@@ -35,7 +34,7 @@ exec mcwd cmd opts = do
         ExitSuccess   -> return $ True
         ExitFailure i -> return $ False -- Left $ Exception i out err (cmd : opts)
 
- -- same as readProcessWithExitCode but having a configurable cwd and env,
+ -- | same as readProcessWithExitCode but having a configurable cwd and env,
 readProc :: Maybe FilePath --working directory or Nothing if not set
             -> String  --command
             -> [String] -- ^ files, last one is output

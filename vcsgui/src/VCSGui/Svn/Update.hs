@@ -8,7 +8,7 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- | Provides facilities to update a SVN working copy.
 --
 -----------------------------------------------------------------------------
 
@@ -27,8 +27,9 @@ import qualified VCSWrapper.Common as Wrapper
 
 import Control.Monad.Trans(liftIO)
 
-showUpdateGUI :: Either M.MergeTool M.MergeToolSetter -- ^ either a mergetool or a setter for it
-          -> Either AskPassword.Handler (Maybe String) -- maybe a password or a handler
+-- | Initiates an update for current SVN working copy.
+showUpdateGUI :: Either M.MergeTool M.MergeToolSetter -- ^ 'MergeTool' is used for any possible conflicts. If not present user will be asked to provide 'MergeTool' on conflicts after updating. 'MergeToolSetter' will be called for response.
+          -> Either AskPassword.Handler (Maybe String) -- ^ If a password is provided it will be used, if not a GUI will be shown to ask for password and given @Handler@ will be called.
           -> Wrapper.Ctx()
 showUpdateGUI eMergeToolSetter (Left handler) = do
                                 AskPassword.showAskpassGUI $ ownHandler eMergeToolSetter handler
