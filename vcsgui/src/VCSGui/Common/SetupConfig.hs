@@ -21,7 +21,8 @@ import Data.Maybe
 import Monad
 import Directory
 import System.Directory(doesDirectoryExist)
-import Data.List.Utils(contains,elemRIndex)
+import Data.List.Utils(elemRIndex)
+import Data.List(isInfixOf)
 import Paths_vcsgui(getDataFileName)
 
 import VCSGui.Common.Error
@@ -240,7 +241,7 @@ initSetupRepoGui mbConfig gui = do
                                     H.set (entRepo gui) $ path
                                     availableVCS <- discoverVCS path
                                     H.set (comboBoxVCSType gui) $ map (\vcs -> show vcs) availableVCS
-                                    if contains [vcsType] availableVCS
+                                    if isInfixOf [vcsType] availableVCS
                                         then do
                                         --get position (hopefully always index in liststore = index in list)
                                         let index = elemRIndex vcsType availableVCS
