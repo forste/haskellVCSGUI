@@ -1,10 +1,10 @@
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.Error
--- Copyright   :
--- License     :  AllRightsReserved
+-- Copyright   :  2011 Stephan Fortelny, Harald Jagenteufel
+-- License     :  GPL
 --
--- Maintainer  :
+-- Maintainer  :  stephanfortelny at gmail.com, h.jagenteufel at gmail.com
 -- Stability   :
 -- Portability :
 --
