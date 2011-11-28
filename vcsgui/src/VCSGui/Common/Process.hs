@@ -34,7 +34,7 @@ exec mcwd cmd opts = do
         ExitSuccess   -> return $ True
         ExitFailure i -> return $ False -- Left $ Exception i out err (cmd : opts)
 
- -- | same as readProcessWithExitCode but having a configurable cwd and env,
+-- | same as readProcessWithExitCode but having a configurable cwd and env,
 readProc :: Maybe FilePath --working directory or Nothing if not set
             -> String  --command
             -> [String] -- ^ files, last one is output

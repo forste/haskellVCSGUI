@@ -52,7 +52,7 @@ type OkCallBack = String    -- ^ Commit message as specified in the GUI.
             -> [Option]     -- ^ options (this is currently not implemented i.e. '[]' is passed)
             -> Wrapper.Ctx ()
 
--- fn to set listStore model for treeview
+-- | fn to set listStore model for treeview
 type TreeViewSetter = TreeView
                    -> Wrapper.Ctx (ListStore SCFile)
 
