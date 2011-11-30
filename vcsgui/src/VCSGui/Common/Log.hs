@@ -27,7 +27,7 @@ import qualified VCSWrapper.Common as Common
 import Data.Maybe (fromMaybe)
 import Paths_vcsgui(getDataFileName)
 
-getGladepath = getDataFileName "guiCommonLog.glade"
+getGladepath = getDataFileName "data/guiCommonLog.glade"
 
 data LogConfig a = LogConfig {
     options :: [String]

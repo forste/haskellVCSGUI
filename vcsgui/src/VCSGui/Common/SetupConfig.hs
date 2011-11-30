@@ -35,7 +35,7 @@ type Config = Maybe (Wrapper.VCSType, Wrapper.Config, Maybe MergeTool.MergeTool)
 
 type Callback = (Config -> IO ())
 
-getGladepath = getDataFileName "guiCommonSetupRepo.glade"
+getGladepath = getDataFileName "data/guiCommonSetupRepo.glade"
 
 accessorWindowSetupRepo = "windowSetupRepo"
 accessorActOk = "actOk"

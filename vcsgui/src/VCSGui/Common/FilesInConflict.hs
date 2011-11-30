@@ -33,7 +33,7 @@ import Paths_vcsgui(getDataFileName)
 -- glade path and object accessors
 --
 
-getGladepath = getDataFileName "guiCommonFilesInConflict.glade"
+getGladepath = getDataFileName "data/guiCommonFilesInConflict.glade"
 accessorWindowFilesInConflict = "windowFilesInConflict"
 accessorTreeViewFiles = "treeViewFiles"
 accessorActResolved = "actResolved"

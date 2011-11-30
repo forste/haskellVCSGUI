@@ -27,7 +27,7 @@ import Control.Monad.Reader(ask)
 -- glade path and object accessors
 --
 
-getGladepath = getDataFileName "guiCommonConflictsResolved.glade"
+getGladepath = getDataFileName "data/guiCommonConflictsResolved.glade"
 accessorWindowConflictsResolved = "windowConflictsResolved"
 accessorActConflictsResolved = "actConflictsResolved"
 accessorActConflictsNotResolved = "actConflictsNotResolved"

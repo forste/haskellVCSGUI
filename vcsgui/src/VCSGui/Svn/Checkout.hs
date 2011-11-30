@@ -28,7 +28,7 @@ import Maybe
 -- glade path and object accessors
 --
 
-getGladepath = getDataFileName "guiSvnCheckout.glade"
+getGladepath = getDataFileName "data/guiSvnCheckout.glade"
 accessorWindowCheckout = "windowCheckout"
 accessorActCheckout = "actCheckout"
 accessorActCancel = "actCancel"

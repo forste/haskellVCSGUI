@@ -25,7 +25,7 @@ import Paths_vcsgui(getDataFileName)
 --
 -- glade path and object accessors
 --
-getGladepath = getDataFileName "guiCommonAskpass.glade"
+getGladepath = getDataFileName "data/guiCommonAskpass.glade"
 accessorWindow = "windowAskpass"
 accessorActOk = "actOk"
 accessorActCancel = "actCancel"
