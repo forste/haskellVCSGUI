@@ -21,6 +21,7 @@ import qualified VCSGui.Common.Log as Common
 import qualified VCSWrapper.Git as Git
 import Control.Monad.Reader (liftIO)
 import Data.Maybe (fromMaybe)
+import VCSGui.Common.Helpers (emptyListToNothing)
 
 
 {- | Calls 'Common.showLogGUI' using Git. This will display all log entries. The branch to be displayed can be selected.
@@ -41,17 +42,17 @@ showLogGUI = do
                 Git.checkout (Just selBranch) Nothing
             False -> do
                 liftIO $ putStrLn $ "checking out Commit " ++ (Git.commitID log) ++ ", asking for new branchname"
-                branchname <- liftIO $ askForNewBranchname
-                Git.checkout (Just $ Git.commitID log) (Just branchname)
+                mbBranchname <- liftIO $ askForNewBranchname
+                Git.checkout (Just $ Git.commitID log) (mbBranchname)
 
-    askForNewBranchname :: IO String
+    askForNewBranchname :: IO (Maybe String)
     askForNewBranchname = do
         dialog <- Gtk.dialogNew
         Gtk.dialogAddButton dialog "gtk-ok" Gtk.ResponseOk
         upper <- Gtk.dialogGetUpper dialog
 
         inputBranch <- Gtk.entryNew
-        lblBranch <- Gtk.labelNew $ Just "Enter a new branchname:"
+        lblBranch <- Gtk.labelNew $ Just "Enter a new branchname (empty for anonym branch):"
         box <- Gtk.hBoxNew False 2
         Gtk.containerAdd upper box
         Gtk.containerAdd box lblBranch
@@ -61,7 +62,7 @@ showLogGUI = do
         _ <- Gtk.dialogRun dialog
         branchname <- Gtk.entryGetText inputBranch
         Gtk.widgetDestroy dialog
-        return branchname
+        return $ emptyListToNothing branchname
 
 
 

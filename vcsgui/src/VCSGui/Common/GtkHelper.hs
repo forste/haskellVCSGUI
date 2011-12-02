@@ -65,6 +65,7 @@ import qualified Graphics.UI.Gtk as Gtk
 import System.Directory
 import Control.Monad.Trans(liftIO)
 import System.IO (hPutStrLn, stderr)
+import VCSGui.Common.Helpers (emptyListToNothing)
 
 -- Typesynonyms
 type WindowItem = (String, Gtk.Window, ())
@@ -150,7 +151,7 @@ getTextEntryFromGlade :: Gtk.Builder
     -> IO TextEntryItem
 getTextEntryFromGlade builder name = do
     (_, entry) <- wrapWidget builder Gtk.castToEntry name
-    let getter = fmap testBlank $ Gtk.entryGetText entry :: IO (Maybe String)
+    let getter = fmap emptyListToNothing $ Gtk.entryGetText entry :: IO (Maybe String)
         setter val = Gtk.entrySetText entry val :: IO ()
     return (name, entry, (getter, setter))
 
@@ -345,8 +346,3 @@ wrapWidget builder cast name = do
     hPutStrLn stderr $ " cast " ++ name
     gobj <- Gtk.builderGetObject builder cast name
     return (name, gobj)
-
-
-testBlank :: String -> Maybe String
-testBlank "" = Nothing
-testBlank s = Just s
