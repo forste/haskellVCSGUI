@@ -22,6 +22,7 @@ import qualified VCSWrapper.Common as Wrapper
 
 import qualified VCSGui.Git.Log as GitLog
 import qualified VCSGui.Git.Commit as GitCommit
+import qualified VCSGui.Mercurial.Commit as MercurialCommit
 import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 --
@@ -129,7 +130,7 @@ main = do
 --
 
 -- setup repo
---{-
+{-
 cwd = "/home/forste/svnreps/project1_work1"
 main = do
     initGUI
@@ -143,4 +144,21 @@ main = do
         handler Nothing = putStrLn "Handler got Nothing"
         config = Just (Wrapper.GIT, Wrapper.makeConfig Nothing Nothing Nothing, Nothing)
 --        config = Just (Wrapper.GIT, Wrapper.makeConfig (Just cwd) Nothing Nothing)
+-}
+
+
+--
+-- git
+--
+
+cwdMercurial = "/home/forste/tmp/testvcs/hgreps/fprog"
+--{-
+main = do
+        initGUI
+        runWithConfig $
+            MercurialCommit.showCommitGUI
+        mainGUI
+    where
+        runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwdMercurial) Nothing Nothing
 ---}
+
