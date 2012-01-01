@@ -63,10 +63,11 @@ showLogGUI :: [Common.LogEntry]
             -- ^ (selected line, name of the branch to checkout from)
             --
             -- This function is called on checkout action. The window will be closed afterwards.
+            -> Bool -- ^ Add column to display branch name
             -> Common.Ctx ()
-showLogGUI logEntries options Nothing doCheckoutFn = guiWithoutBranches logEntries options doCheckoutFn >> return ()
-showLogGUI logEntries options (Just (branches, changeBranchFn)) doCheckoutFn = do
-        gui <- guiWithoutBranches logEntries options doCheckoutFn
+showLogGUI logEntries options Nothing doCheckoutFn displayBranchNames = guiWithoutBranches logEntries options doCheckoutFn displayBranchNames >> return ()
+showLogGUI logEntries options (Just (branches, changeBranchFn)) doCheckoutFn displayBranchNames = do
+        gui <- guiWithoutBranches logEntries options doCheckoutFn displayBranchNames
         guiAddBranches gui branches changeBranchFn
         return ()
 
@@ -75,10 +76,11 @@ guiWithoutBranches :: [Common.LogEntry]
                     -> (Common.LogEntry
                         -> (Maybe String)
                         -> Common.Ctx ())
+                    -> Bool -- ^ Add column to display branch name
                     -> Common.Ctx LogGUI
-guiWithoutBranches logEntries options doCheckoutFn = do
+guiWithoutBranches logEntries options doCheckoutFn displayBranchNames = do
         gui <- loadLogGui logEntries
-        liftIO $ setupLogColumns gui
+        liftIO $ setupLogColumns gui displayBranchNames
 
         -- connect gui elements
         liftIO $ registerClose $ logWin gui
@@ -101,12 +103,15 @@ guiWithoutBranches logEntries options doCheckoutFn = do
         selectedBranch <- get combo
         Common.runVcs cfg $ doCheckoutFn selectedLog selectedBranch
 
-    setupLogColumns :: LogGUI -> IO ()
-    setupLogColumns gui = do
+    setupLogColumns :: LogGUI -> Bool -> IO ()
+    setupLogColumns gui displayBranchNames = do
         let item = (logTreeView gui)
         addTextColumnToTreeView item "Subject" (\Common.LogEntry { Common.subject = t } -> [Gtk.cellText Gtk.:= t])
         addTextColumnToTreeView item "Author" (\Common.LogEntry { Common.author = t, Common.email = mail } -> [Gtk.cellText Gtk.:= (t ++ " <" ++ mail ++ ">")])
         addTextColumnToTreeView item "Date" (\Common.LogEntry { Common.date = t } -> [Gtk.cellText Gtk.:= t])
+        case displayBranchNames of
+            True -> addTextColumnToTreeView item "Branch" (\Common.LogEntry { Common.mbBranch = t } -> [Gtk.cellText Gtk.:= (fromMaybe "" t)])
+            False -> return()
         return ()
 
 guiAddBranches :: LogGUI -> (String, [String]) -> (String -> Common.Ctx [Common.LogEntry]) -> Common.Ctx ()

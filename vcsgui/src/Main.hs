@@ -23,6 +23,7 @@ import qualified VCSWrapper.Common as Wrapper
 import qualified VCSGui.Git.Log as GitLog
 import qualified VCSGui.Git.Commit as GitCommit
 import qualified VCSGui.Mercurial.Commit as MercurialCommit
+import qualified VCSGui.Mercurial.Log as MercurialLog
 import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 --
@@ -148,11 +149,11 @@ main = do
 
 
 --
--- git
+-- mercurial
 --
 
-cwdMercurial = "/home/forste/tmp/testvcs/hgreps/fprog"
---{-
+cwdMercurial = "/home/forste/tmp/testvcs/hgreps/repo1"
+{-
 main = do
         initGUI
         runWithConfig $
@@ -160,5 +161,14 @@ main = do
         mainGUI
     where
         runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwdMercurial) Nothing Nothing
----}
+-}
 
+--{-
+main = do
+        initGUI
+        runWithConfig $
+            MercurialLog.showLogGUI
+        mainGUI
+    where
+        runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwdMercurial) Nothing Nothing
+---}

@@ -30,7 +30,7 @@ showLogGUI :: Git.Ctx ()
 showLogGUI = do
         log <- Git.simpleLog Nothing
         branches <- Git.localBranches
-        Common.showLogGUI log [] (Just (branches, \branch -> Git.simpleLog (Just branch))) checkout
+        Common.showLogGUI log [] (Just (branches, \branch -> Git.simpleLog (Just branch))) checkout False
     where
     checkout log Nothing = Git.checkout (Just $ Git.commitID log) Nothing
     checkout log (Just selBranch) = do

@@ -27,7 +27,7 @@ showLogGUI :: Either Handler (Maybe String) -- ^ Either 'Handler' for password r
            -> Svn.Ctx ()
 showLogGUI eitherHandlerOrPw = do
         logEntries <- Svn.simpleLog
-        C.showLogGUI logEntries [] Nothing $ okCallback eitherHandlerOrPw
+        C.showLogGUI logEntries [] Nothing (okCallback eitherHandlerOrPw) False
 
 okCallback :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
            -> WC.LogEntry                   -- ^ chosen logentry
