@@ -51,6 +51,7 @@ library
                VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
                VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
                VCSGui.Mercurial.Commit VCSGui.Mercurial.Log
+               VCSGui.Common.Helpers
                Paths_vcsgui
 
 executable vcsgui
@@ -74,6 +75,7 @@ executable vcsgui
                VCSGui.Git.Commit VCSGui.Common.Log
                VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
                VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
+               VCSGui.Common.Helpers
                Paths_vcsgui
 
 executable vcsgui-askpass
@@ -93,3 +95,4 @@ executable vcsgui-askpass
                VCSGui.Common.ConflictsResolved VCSGui.Common.MergeTool
                VCSGui.Common.FilesInConflict VCSGui.Git.Pull VCSGui.Svn.Update
                VCSGui.Svn.AskPassword Paths_vcsgui VCSGui.Common.GtkHelper
+               VCSGui.Common.Helpers

@@ -35,7 +35,7 @@ import Paths_vcsgui(getDataFileName)
 -- glade path and object accessors
 --
 
-getGladepath = getDataFileName "guiCommonCommit.glade"
+getGladepath = getDataFileName "data/guiCommonCommit.glade"
 accessorWindowCommit = "windowCommit"
 accessorTreeViewFiles = "treeViewFiles"
 accessorActCommit = "actCommit"

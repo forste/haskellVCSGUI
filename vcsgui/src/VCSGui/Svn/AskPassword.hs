@@ -31,7 +31,7 @@ import Control.Monad.Reader(ask)
 --
 -- glade path and object accessors
 --
-getGladepath = getDataFileName "guiSvnAskpass.glade"
+getGladepath = getDataFileName "data/guiSvnAskpass.glade"
 accessorWindow = "windowAskpass"
 accessorActOk = "actOk"
 accessorActCancel = "actCancel"
