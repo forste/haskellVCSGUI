@@ -290,11 +290,13 @@ discoverVCS path = do
         vcsFilter path = case path of
                             ".git" -> True
                             ".svn" -> True
+                            ".hg"  -> True
                             _      -> False
         vcsMapping :: FilePath -> Wrapper.VCSType
         vcsMapping path = case path of
                             ".git" -> Wrapper.GIT
                             ".svn" -> Wrapper.SVN
+                            ".hg"  -> Wrapper.Mercurial
                             _      -> Wrapper.SVN --TODO throw error on this, improve this code
 
 -- | shows a dialog to choose a folder, returns Just FilePath to folder if succesfull, Nothing if cancelled

@@ -38,7 +38,7 @@ library
                vcswrapper ==0.0.1,
                process >=1.0.1.5 && <1.1,
                gtk >=0.12.0 && <0.13
-    exposed-modules: VCSGui.Common VCSGui.Git VCSGui.Svn
+    exposed-modules: VCSGui.Common VCSGui.Git VCSGui.Svn VCSGui.Mercurial
     exposed: True
     buildable: True
     hs-source-dirs: src
@@ -50,7 +50,7 @@ library
                VCSGui.Git.Commit VCSGui.Common.Log
                VCSGui.Common.GtkHelper VCSGui.Common.ExceptionHandler
                VCSGui.Common.SetupConfig VCSGui.Common.Error VCSGui.Common.Commit
-               VCSGui.Mercurial VCSGui.Mercurial.Commit VCSGui.Mercurial.Log
+               VCSGui.Mercurial.Commit VCSGui.Mercurial.Log
                Paths_vcsgui
 
 executable vcsgui
