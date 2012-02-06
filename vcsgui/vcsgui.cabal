@@ -13,7 +13,7 @@ description:
     Provides library functions to expose some commonly needed scm tasks to the user.
     Uses GTK+ and GTKBuilder to organize and display windows.
     Uses vcswrapper to acces the scm functions.
-    Currently git and SVN are supported.
+    Currently git, SVN and mercurial (hg) are supported.
 category: Development
 author: Stephan Fortelny, Harald Jagenteufel
 tested-with: GHC == 7.0
