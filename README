@@ -1,1 +1,13 @@
-This is a gui for the vcswrapper packages.
+This repository contains GUI elements for the vcswrapper package (https://github.com/forste/haskellVCSWrapper).
+systems. Currently git, mercurial and svn are implemented.
+
+Installing:
+
+Currently you will need ghc 7.0.4 to install this package.
+Additionally to install the related gtk packages you will need native gtk packages.
+
+Hackage:
+
+The package can be found on hackage: http://hackage.haskell.org/package/vcsgui.
+
+
