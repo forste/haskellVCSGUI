@@ -18,8 +18,8 @@ module VCSGui.Common.SetupConfig (
 import Graphics.UI.Gtk hiding (set, get)
 import Control.Monad.Trans(liftIO)
 import Data.Maybe
-import Monad
-import Directory
+import Control.Monad
+import System.Directory
 import System.Directory(doesDirectoryExist)
 import Data.List.Utils(elemRIndex)
 import Data.List(isInfixOf)
@@ -160,9 +160,9 @@ connectSetupRepoGui callback gui = do
                                                     widgetShowAll (H.getItem (entExec gui))
                                                     widgetShowAll (H.getItem (btnBrowseExec gui))
                                                 else do
-                                                    widgetHideAll (H.getItem (lblExec gui))
-                                                    widgetHideAll (H.getItem (entExec gui))
-                                                    widgetHideAll (H.getItem (btnBrowseExec gui))
+                                                    widgetHide (H.getItem (lblExec gui))
+                                                    widgetHide (H.getItem (entExec gui))
+                                                    widgetHide (H.getItem (btnBrowseExec gui))
 
         on (H.getItem (checkbtAuthor gui)) toggled $ do
                                             putStrLn "checkbtnauthor toogled"
@@ -173,10 +173,10 @@ connectSetupRepoGui callback gui = do
                                                     widgetShowAll (H.getItem (lblEmail gui))
                                                     widgetShowAll (H.getItem (entEmail gui))
                                                 else do
-                                                    widgetHideAll (H.getItem (lblAuthor gui))
-                                                    widgetHideAll (H.getItem (entAuthor gui))
-                                                    widgetHideAll (H.getItem (lblEmail gui))
-                                                    widgetHideAll (H.getItem (entEmail gui))
+                                                    widgetHide (H.getItem (lblAuthor gui))
+                                                    widgetHide (H.getItem (entAuthor gui))
+                                                    widgetHide (H.getItem (lblEmail gui))
+                                                    widgetHide (H.getItem (entEmail gui))
                                             return ()
         liftIO $ on (H.getItem (actBrowsePathToTool gui)) actionActivated $ do
             mbPath <- showFolderChooserDialog "Select executable" (H.getItem $ winSetupRepo gui) FileChooserActionOpen
