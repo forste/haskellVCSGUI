@@ -89,7 +89,7 @@ showAskpassGUI handler = do
                                             if active then
                                                     widgetShowAll (boxUsePwd gui)
                                                 else
-                                                    widgetHideAll (boxUsePwd gui)
+                                                    widgetHide (boxUsePwd gui)
         -- present window
         widgetShowAll $ H.getItem $ windowAskpass gui
         return ()

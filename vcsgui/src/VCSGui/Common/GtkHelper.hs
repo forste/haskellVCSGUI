@@ -261,7 +261,7 @@ setToListStore (store, view) newList = do
 
 -- | Close a window.
 closeWin :: WindowItem -> IO ()
-closeWin win = (Gtk.widgetHideAll (getItem win))
+closeWin win = (Gtk.widgetHide (getItem win))
 
 -- | Close a window if 'Gtk.deleteEvent' occurs on this 'WindowItem'.
 registerClose :: WindowItem -> IO ()

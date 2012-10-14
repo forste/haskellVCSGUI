@@ -23,7 +23,7 @@ import Control.Monad.Reader
 import qualified VCSWrapper.Svn as Svn
 import qualified VCSGui.Common.GtkHelper as H
 import Paths_vcsgui(getDataFileName)
-import Maybe
+import Data.Maybe
 --
 -- glade path and object accessors
 --

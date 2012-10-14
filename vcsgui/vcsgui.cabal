@@ -29,14 +29,13 @@ data-files: LICENSE
             data/guiCommonConflictsResolved.glade
 data-dir: ""
 library
-    build-depends: MissingH >=1.1.0.3 && <1.2,
-               filepath >=1.2.0.0 && < 1.3,
-               base >=4.0.0.0 && <4.4,
-               directory >=1.1.0.0 && <1.2,
-               haskell98 >=1.1.0.1 && <1.2,
-               mtl >=2.0.1.0 && <2.1,
-               vcswrapper ==0.0.1,
-               process >=1.0.1.5 && <1.1,
+    build-depends: MissingH >=1.1.0.3 && <1.3,
+               filepath >=1.2.0.0 && < 1.4,
+               base >=4.0.0.0 && <4.7,
+               directory >=1.1.0.0 && <1.3,
+               mtl >=2.0.1.0 && <2.2,
+               vcswrapper ==0.0.2,
+               process >=1.0.1.5 && <1.2,
                gtk >=0.12.0 && <0.13
     exposed-modules: VCSGui.Common VCSGui.Git VCSGui.Svn VCSGui.Mercurial
     exposed: True
@@ -56,14 +55,13 @@ library
 
 executable vcsgui
     main-is: Main.hs
-    build-depends: MissingH >=1.1.0.3 && <1.2,
-               filepath >=1.2.0.0 && < 1.3,
-               base >=4.0.0.0 && <4.4,
-               directory >=1.1.0.0 && <1.2,
-               haskell98 >=1.1.0.1 && <1.2,
-               mtl >=2.0.1.0 && <2.1,
-               vcswrapper ==0.0.1,
-               process >=1.0.1.5 && <1.1,
+    build-depends: MissingH >=1.1.0.3 && <1.3,
+               filepath >=1.2.0.0 && < 1.4,
+               base >=4.0.0.0 && <4.7,
+               directory >=1.1.0.0 && <1.3,
+               mtl >=2.0.1.0 && <2.2,
+               vcswrapper ==0.0.2,
+               process >=1.0.1.5 && <1.2,
                gtk >=0.12.0 && <0.13
     buildable: True
     hs-source-dirs: src
@@ -80,14 +78,13 @@ executable vcsgui
 
 executable vcsgui-askpass
     main-is: Main.hs
-    build-depends: MissingH >=1.1.0.3 && <1.2,
-               filepath >=1.2.0.0 && < 1.3,
-               base >=4.0.0.0 && <4.4,
-               directory >=1.1.0.0 && <1.2,
-               haskell98 >=1.1.0.1 && <1.2,
-               mtl >=2.0.1.0 && <2.1,
-               vcswrapper ==0.0.1,
-               process >=1.0.1.5 && <1.1,
+    build-depends: MissingH >=1.1.0.3 && <1.3,
+               filepath >=1.2.0.0 && < 1.4,
+               base >=4.0.0.0 && <4.7,
+               directory >=1.1.0.0 && <1.3,
+               mtl >=2.0.1.0 && <2.2,
+               vcswrapper ==0.0.2,
+               process >=1.0.1.5 && <1.2,
                gtk >=0.12.0 && <0.13
     buildable: True
     hs-source-dirs: src/exe/askpass src
