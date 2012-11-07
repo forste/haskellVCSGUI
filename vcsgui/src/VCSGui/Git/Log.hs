@@ -49,12 +49,12 @@ showLogGUI = do
     askForNewBranchname = do
         dialog <- Gtk.dialogNew
         Gtk.dialogAddButton dialog "gtk-ok" Gtk.ResponseOk
-        upper <- Gtk.dialogGetUpper dialog
+        upper <- Gtk.dialogGetContentArea dialog
 
         inputBranch <- Gtk.entryNew
         lblBranch <- Gtk.labelNew $ Just "Enter a new branchname (empty for anonym branch):"
         box <- Gtk.hBoxNew False 2
-        Gtk.containerAdd upper box
+        Gtk.containerAdd (Gtk.castToBox upper) box
         Gtk.containerAdd box lblBranch
         Gtk.containerAdd box inputBranch
 

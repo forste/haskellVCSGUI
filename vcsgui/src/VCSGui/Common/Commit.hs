@@ -28,7 +28,7 @@ import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 import Control.Monad
 import Control.Monad.Reader
-import Maybe
+import Data.Maybe
 import Paths_vcsgui(getDataFileName)
 
 --
