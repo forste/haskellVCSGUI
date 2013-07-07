@@ -36,7 +36,7 @@ library
                mtl >=2.0.1.0 && <2.2,
                vcswrapper ==0.0.2,
                process >=1.0.1.5 && <1.3,
-               gtk >=0.12.0 && <0.13
+               gtk (>=0.12.4.1 && <0.13) || (>=3.12.4.1 && <3.13)
     exposed-modules: VCSGui.Common VCSGui.Git VCSGui.Svn VCSGui.Mercurial
     exposed: True
     buildable: True
@@ -62,7 +62,7 @@ executable vcsgui
                mtl >=2.0.1.0 && <2.2,
                vcswrapper ==0.0.2,
                process >=1.0.1.5 && <1.3,
-               gtk >=0.12.0 && <0.13
+               gtk (>=0.12.4.1 && <0.13) || (>=3.12.4.1 && <3.13)
     buildable: True
     hs-source-dirs: src
     other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
@@ -85,7 +85,7 @@ executable vcsgui-askpass
                mtl >=2.0.1.0 && <2.2,
                vcswrapper ==0.0.2,
                process >=1.0.1.5 && <1.3,
-               gtk >=0.12.0 && <0.13
+               gtk (>=0.12.4.1 && <0.13) || (>=3.12.4.1 && <3.13)
     buildable: True
     hs-source-dirs: src/exe/askpass src
     other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
