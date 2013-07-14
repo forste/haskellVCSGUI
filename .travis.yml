@@ -10,7 +10,7 @@ before_install:
 install:
   - cabal install cabal-meta cabal-src
 script:
-  - cabal-meta install
+  - cabal-meta install --force-reinstalls
 notifications:
   irc:
     channels: "irc.freenode.net#leksah"
