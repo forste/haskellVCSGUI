@@ -28,6 +28,11 @@ data-files: LICENSE
             data/guiCommonMergeTool.glade
             data/guiCommonConflictsResolved.glade
 data-dir: ""
+
+flag gtk3
+    description: Use Gtk3
+    default: True
+
 library
     build-depends: MissingH >=1.1.0.3 && <1.3,
                filepath >=1.2.0.0 && < 1.4,
@@ -35,8 +40,11 @@ library
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.2,
                vcswrapper ==0.0.2,
-               process >=1.0.1.5 && <1.3,
-               gtk (>=0.12.4.1 && <0.13) || (>=3.12.4.1 && <3.13)
+               process >=1.0.1.5 && <1.3
+    if flag(gtk3)
+      build-depends: gtk3 >=0.12.4.1 && <0.13
+    else
+      build-depends: gtk >=0.12.4.1 && <0.13
     exposed-modules: VCSGui.Common VCSGui.Git VCSGui.Svn VCSGui.Mercurial
     exposed: True
     buildable: True
@@ -61,8 +69,11 @@ executable vcsgui
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.2,
                vcswrapper ==0.0.2,
-               process >=1.0.1.5 && <1.3,
-               gtk (>=0.12.4.1 && <0.13) || (>=3.12.4.1 && <3.13)
+               process >=1.0.1.5 && <1.3
+    if flag(gtk3)
+      build-depends: gtk3 >=0.12.4.1 && <0.13
+    else
+      build-depends: gtk >=0.12.4.1 && <0.13
     buildable: True
     hs-source-dirs: src
     other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
@@ -84,8 +95,11 @@ executable vcsgui-askpass
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.2,
                vcswrapper ==0.0.2,
-               process >=1.0.1.5 && <1.3,
-               gtk (>=0.12.4.1 && <0.13) || (>=3.12.4.1 && <3.13)
+               process >=1.0.1.5 && <1.3
+    if flag(gtk3)
+      build-depends: gtk3 >=0.12.4.1 && <0.13
+    else
+      build-depends: gtk >=0.12.4.1 && <0.13
     buildable: True
     hs-source-dirs: src/exe/askpass src
     other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
