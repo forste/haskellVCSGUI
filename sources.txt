@@ -1,3 +1,2 @@
-https://github.com/gtk2hs/gtk2hs
 https://github.com/leksah/haskellVCSWrapper.git
 ./vcsgui
