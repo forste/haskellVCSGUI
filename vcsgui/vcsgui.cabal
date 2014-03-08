@@ -74,6 +74,8 @@ executable vcsgui
       build-depends: gtk3 >=0.12.4.1 && <0.13
     else
       build-depends: gtk >=0.12.4.1 && <0.13
+    if os(osx)
+        ghc-options: -optl-headerpad_max_install_names
     buildable: True
     hs-source-dirs: src
     other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
@@ -100,6 +102,8 @@ executable vcsgui-askpass
       build-depends: gtk3 >=0.12.4.1 && <0.13
     else
       build-depends: gtk >=0.12.4.1 && <0.13
+    if os(osx)
+        ghc-options: -optl-headerpad_max_install_names
     buildable: True
     hs-source-dirs: src/exe/askpass src
     other-modules: VCSGui.Svn.Helper VCSGui.Common.Process
