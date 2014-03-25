@@ -21,8 +21,7 @@ import Data.Maybe
 import Control.Monad
 import System.Directory
 import System.Directory(doesDirectoryExist)
-import Data.List.Utils(elemRIndex)
-import Data.List(isInfixOf)
+import Data.List(findIndex)
 import Paths_vcsgui(getDataFileName)
 
 import VCSGui.Common.Error
@@ -241,15 +240,12 @@ initSetupRepoGui mbConfig gui = do
                                     H.set (entRepo gui) $ path
                                     availableVCS <- discoverVCS path
                                     H.set (comboBoxVCSType gui) $ map (\vcs -> show vcs) availableVCS
-                                    if isInfixOf [vcsType] availableVCS
-                                        then do
-                                        --get position (hopefully always index in liststore = index in list)
-                                        let index = elemRIndex vcsType availableVCS
-
-                                        --set active
-                                        comboBoxSetActive (H.getItem (comboBoxVCSType gui)) $ fromMaybe (-1) index
-                                        else do
-                                        return ()
+                                    --get position (hopefully always index in liststore = index in list)
+                                    case findIndex (== vcsType) availableVCS of
+                                        Just index ->
+                                            --set active
+                                            comboBoxSetActive (H.getItem (comboBoxVCSType gui)) index
+                                        _ -> return ()
                 case mbExec of
                     Nothing -> do
                                     H.set (checkbtExec gui) False
