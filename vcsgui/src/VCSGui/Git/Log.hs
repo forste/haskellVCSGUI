@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Git.Log
@@ -49,7 +50,11 @@ showLogGUI = do
     askForNewBranchname = do
         dialog <- Gtk.dialogNew
         Gtk.dialogAddButton dialog "gtk-ok" Gtk.ResponseOk
+#if MIN_VERSION_gtk(0,13,0) || defined(MIN_VERSION_gtk3)
         upper <- Gtk.dialogGetContentArea dialog
+#else
+        upper <- Gtk.dialogGetUpper dialog
+#endif
 
         inputBranch <- Gtk.entryNew
         lblBranch <- Gtk.labelNew $ Just "Enter a new branchname (empty for anonym branch):"
