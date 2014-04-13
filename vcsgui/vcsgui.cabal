@@ -5,7 +5,7 @@ build-type: Simple
 license: GPL
 license-file: LICENSE
 copyright: 2011 Stephan Fortelny, Harald Jagenteufel
-maintainer: stephanfortelny at gmail.com, h.jagenteufel at gmail.com
+maintainer: stephanfortelny at gmail.com, h.jagenteufel at gmail.com, hamish.k.mackenzie at gmail.com
 homepage: https://github.com/forste/haskellVCSGUI
 bug-reports: https://github.com/forste/haskellVCSGUI/issues
 synopsis: GUI library for source code management systems
@@ -15,7 +15,7 @@ description:
     Uses vcswrapper to acces the scm functions.
     Currently git, SVN and mercurial (hg) are supported.
 category: Development
-author: Stephan Fortelny, Harald Jagenteufel
+author: Stephan Fortelny, Harald Jagenteufel, Hamish Mackenzie
 tested-with: GHC == 7.0
 data-files: LICENSE
             data/guiCommonCommit.glade
