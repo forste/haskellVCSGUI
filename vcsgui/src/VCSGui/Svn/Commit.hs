@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  Main
@@ -104,7 +105,7 @@ setUpTreeView listView = do
                                $ \scf -> [cellToggleActive := C.selected scf]
 
         -- connect select action
-        on renderer cellToggled $ \columnId -> do
+        on renderer cellToggled $ \(columnId::String) -> do
                                 Just treeIter <- treeModelGetIterFromString listStore columnId
                                 value <- listStoreGetValue listStore $ listStoreIterToIndex treeIter
                                 let newValue = (\(C.SVNSCFile bool fp s l) -> C.SVNSCFile (not bool) fp s l)

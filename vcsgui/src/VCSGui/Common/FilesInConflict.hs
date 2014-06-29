@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.FilesInConflict
@@ -163,7 +164,7 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
                                $ \scf -> [cellToggleActive := isResolved scf]
 
         -- connect select action
-        on renderer cellToggled $ \columnId -> do
+        on renderer cellToggled $ \(columnId::String) -> do
                                 putStrLn $ "Checkbutton clicked at column " ++ (show columnId)
                                 --TODO only call tool if button is not checked, move this code to being called if a click on row is received
                                 let callTool' = (\path -> Wrapper.runVcs config $ callTool columnId listStore path)
