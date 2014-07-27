@@ -1,4 +1,6 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Git.Log
@@ -22,7 +24,9 @@ import qualified VCSGui.Common.Log as Common
 import qualified VCSWrapper.Git as Git
 import Control.Monad.Reader (liftIO)
 import Data.Maybe (fromMaybe)
-import VCSGui.Common.Helpers (emptyListToNothing)
+import VCSGui.Common.Helpers (emptyTextToNothing)
+import qualified Data.Text as T (unpack, pack)
+import Data.Text (Text)
 
 
 {- | Calls 'Common.showLogGUI' using Git. This will display all log entries. The branch to be displayed can be selected.
@@ -42,22 +46,22 @@ showLogGUI = do
                 liftIO $ putStrLn "checking out selected Branch"
                 Git.checkout (Just selBranch) Nothing
             False -> do
-                liftIO $ putStrLn $ "checking out Commit " ++ (Git.commitID log) ++ ", asking for new branchname"
+                liftIO $ putStrLn $ "checking out Commit " ++ (T.unpack $ Git.commitID log) ++ ", asking for new branchname"
                 mbBranchname <- liftIO $ askForNewBranchname
                 Git.checkout (Just $ Git.commitID log) (mbBranchname)
 
-    askForNewBranchname :: IO (Maybe String)
+    askForNewBranchname :: IO (Maybe Text)
     askForNewBranchname = do
         dialog <- Gtk.dialogNew
-        Gtk.dialogAddButton dialog "gtk-ok" Gtk.ResponseOk
-#if MIN_VERSION_gtk(0,13,0) || defined(MIN_VERSION_gtk3)
+        Gtk.dialogAddButton dialog ("gtk-ok"::Text) Gtk.ResponseOk
+#if defined(MIN_VERSION_gtk3)
         upper <- Gtk.dialogGetContentArea dialog
 #else
         upper <- Gtk.dialogGetUpper dialog
 #endif
 
         inputBranch <- Gtk.entryNew
-        lblBranch <- Gtk.labelNew $ Just "Enter a new branchname (empty for anonym branch):"
+        lblBranch <- Gtk.labelNew $ Just ("Enter a new branchname (empty for anonym branch):" :: Text)
         box <- Gtk.hBoxNew False 2
         Gtk.containerAdd (Gtk.castToBox upper) box
         Gtk.containerAdd box lblBranch
@@ -67,7 +71,7 @@ showLogGUI = do
         _ <- Gtk.dialogRun dialog
         branchname <- Gtk.entryGetText inputBranch
         Gtk.widgetDestroy dialog
-        return $ emptyListToNothing branchname
+        return $ emptyTextToNothing branchname
 
 
 

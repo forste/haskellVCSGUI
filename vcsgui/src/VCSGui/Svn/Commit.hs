@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  Main
@@ -29,12 +30,14 @@ import qualified VCSWrapper.Svn as Svn
 
 import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
+import Data.Text (Text)
+import qualified Data.Text as T (pack)
 
 {-  |
     Shows a GUI showing status of subversion and possibilites to commit/cancel.
 -}
 showCommitGUI :: Either M.MergeTool M.MergeToolSetter -- ^ 'MergeTool' is used for any possible conflicts. If not present user will be asked to provide 'MergeTool' on conflicts. 'MergeToolSetter' will be called for response.
-                 -> Either Handler (Maybe String) -- ^ Either 'Handler' for password request or password (nothing for no password)
+                 -> Either Handler (Maybe Text) -- ^ Either 'Handler' for password request or password (nothing for no password)
                  -> Svn.Ctx()
 showCommitGUI eMergeToolSetter eitherHandlerOrPw = do
     conflictingFiles <- SvnH.getConflictingFiles
@@ -51,8 +54,8 @@ showCommitGUI eMergeToolSetter eitherHandlerOrPw = do
         commonCommit = C.showCommitGUI setUpTreeView (okCallback eitherHandlerOrPw)
 
 
-okCallback :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
-            -> String               -- ^ commit message
+okCallback :: Either Handler (Maybe Text) -- ^ either callback for password request or password (nothing for no password)
+            -> Text               -- ^ commit message
             -> [FilePath]           -- ^ selected files
             -> [C.Option]           -- ^ TODO options
             -> Svn.Ctx ()
@@ -91,7 +94,7 @@ setUpTreeView listView = do
         listStore <- listStoreNew [
                 (C.SVNSCFile (ctxSelect (Svn.modification status))
                              (Svn.filePath status)
-                             (show (Svn.modification status))
+                             (T.pack . show $ Svn.modification status)
                              (Svn.isLocked status))
                 | status <- repoStatus]
         treeViewSetModel listView listStore
@@ -105,7 +108,7 @@ setUpTreeView listView = do
                                $ \scf -> [cellToggleActive := C.selected scf]
 
         -- connect select action
-        on renderer cellToggled $ \(columnId::String) -> do
+        on renderer cellToggled $ \(columnId :: Text) -> do
                                 Just treeIter <- treeModelGetIterFromString listStore columnId
                                 value <- listStoreGetValue listStore $ listStoreIterToIndex treeIter
                                 let newValue = (\(C.SVNSCFile bool fp s l) -> C.SVNSCFile (not bool) fp s l)
@@ -117,7 +120,7 @@ setUpTreeView listView = do
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "Files to commit"
-                               $ \scf -> [cellText := C.filePath scf]
+                               $ \scf -> [cellText := T.pack $ C.filePath scf]
 
         renderer <- cellRendererTextNew
         H.addColumnToTreeView' treeViewItem

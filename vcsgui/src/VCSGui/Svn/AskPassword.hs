@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Svn.AskPassword
@@ -28,6 +29,7 @@ import Data.Maybe (fromMaybe)
 import Control.Monad.Trans(liftIO)
 import Paths_vcsgui(getDataFileName)
 import Control.Monad.Reader(ask)
+import Data.Text (Text)
 --
 -- glade path and object accessors
 --
@@ -38,7 +40,7 @@ accessorActCancel = "actCancel"
 accessorEntryPw = "entryPw"
 accessorCheckbtUsePw = "checkbtUsePw"
 accessorCheckbtSaveForSession = "checkbtSaveForSession"
-accessorboxUsePwd = "boxUsePwd"
+accessorboxUsePwd = ("boxUsePwd" :: Text)
 
 {- |
     'Handler' is a function used as an argument to the 'showAskpassGUI'. It represents a VCS
@@ -50,7 +52,7 @@ accessorboxUsePwd = "boxUsePwd"
         * Nothing, no password given
         * Just password, password has been provided
 -}
-type Handler = ((Maybe (Bool, Maybe String))
+type Handler = ((Maybe (Bool, Maybe Text))
                 -> Wrapper.Ctx())
 
 data AskpassGUI = AskpassGUI {

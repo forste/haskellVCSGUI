@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Svn.Checkout
@@ -24,6 +25,8 @@ import qualified VCSWrapper.Svn as Svn
 import qualified VCSGui.Common.GtkHelper as H
 import Paths_vcsgui(getDataFileName)
 import Data.Maybe
+import qualified Data.Text as T (unpack, pack)
+import Control.Applicative ((<$>))
 --
 -- glade path and object accessors
 --

@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Git.Commit
@@ -26,9 +27,11 @@ import qualified VCSGui.Common.Commit as Commit
 
 import qualified VCSWrapper.Git as Git
 import qualified VCSWrapper.Common as Wrapper
+import Data.Text (Text)
+import qualified Data.Text as T (unpack, pack)
 
 
-doCommit :: String -> [FilePath] -> [Commit.Option] -> Wrapper.Ctx ()
+doCommit :: Text -> [FilePath] -> [Commit.Option] -> Wrapper.Ctx ()
 doCommit commitMsg files _ = do
     Git.add files
     (Wrapper.Config _ _ mbAuthor _) <- ask
@@ -49,9 +52,9 @@ showCommitGUI = do
 setupListStore :: TreeView -> Wrapper.Ctx (ListStore Commit.SCFile)
 setupListStore view = do
         repoStatus <- Git.status
-        --GITSCFile Bool FilePath String
-        let selectedF = [Commit.GITSCFile True fp (show mod) | (Wrapper.GITStatus fp mod) <- repoStatus, mod == Wrapper.Modified || mod == Wrapper.Added]
-            notSelectedF = [Commit.GITSCFile False fp (show mod) | (Wrapper.GITStatus fp mod) <- repoStatus, mod /= Wrapper.Modified && mod /= Wrapper.Added]
+        --GITSCFile Bool FilePath Text
+        let selectedF = [Commit.GITSCFile True fp (T.pack $ show mod) | (Wrapper.GITStatus fp mod) <- repoStatus, mod == Wrapper.Modified || mod == Wrapper.Added]
+            notSelectedF = [Commit.GITSCFile False fp (T.pack $ show mod) | (Wrapper.GITStatus fp mod) <- repoStatus, mod /= Wrapper.Modified && mod /= Wrapper.Added]
 
         liftIO $ do
             store <- listStoreNew (selectedF ++ notSelectedF)
@@ -60,12 +63,12 @@ setupListStore view = do
 
             toggleRenderer <- cellRendererToggleNew
             addColumnToTreeView' item toggleRenderer "Commit" (\(Commit.GITSCFile s _ _)-> [cellToggleActive := s])
-            addTextColumnToTreeView' item "File" (\(Commit.GITSCFile _ p _) -> [cellText := p])
+            addTextColumnToTreeView' item "File" (\(Commit.GITSCFile _ p _) -> [cellText := T.pack p])
             addTextColumnToTreeView' item "File status" (\(Commit.GITSCFile _ _ m) -> [cellText := m])
 
             -- register toggle renderer
             on toggleRenderer cellToggled $ \filepath -> do
-                putStrLn ("toggle called: " ++ filepath)
+                putStrLn ("toggle called: " ++ T.unpack filepath)
 
                 Just treeIter <- treeModelGetIterFromString store filepath
                 value <- listStoreGetValue store $ listStoreIterToIndex treeIter

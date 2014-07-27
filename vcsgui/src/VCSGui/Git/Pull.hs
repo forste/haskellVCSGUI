@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Git.Pull
@@ -22,6 +23,7 @@ import qualified VCSWrapper.Git as Git
 import qualified VCSWrapper.Common as Wrapper
 
 import VCSGui.Common.Error
+import Data.Monoid ((<>))
 
 
 -- | Call 'Git.pull'. If the pull fails or a merge conflict is detected an error message is shown.
@@ -30,4 +32,4 @@ pull = do
     o <- Git.pull
     case o of
         Right ()     -> return ()
-        Left msg    -> liftIO $ showErrorGUI $ "MERGE CONFLICT " ++ msg
+        Left msg    -> liftIO $ showErrorGUI $ "MERGE CONFLICT " <> msg

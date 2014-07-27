@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  Main
@@ -30,6 +31,8 @@ import Control.Monad
 import Control.Monad.Reader
 import Data.Maybe
 import Paths_vcsgui(getDataFileName)
+import qualified Data.Text as T (unpack, pack)
+import Data.Text (Text)
 
 --
 -- glade path and object accessors
@@ -47,7 +50,7 @@ accessorActTxtViewMsg = "txtViewMsg"
 --
 
 -- | This function will be called after the ok action is called.
-type OkCallBack = String    -- ^ Commit message as specified in the GUI.
+type OkCallBack = Text    -- ^ Commit message as specified in the GUI.
             -> [FilePath]   -- ^ List of 'FilePath's of the files that were selected.
             -> [Option]     -- ^ options (this is currently not implemented i.e. '[]' is passed)
             -> Wrapper.Ctx ()
@@ -66,8 +69,8 @@ data CommitGUI = CommitGUI {
 }
 
 -- | Represents a file which can be selected for commiting.
-data SCFile = GITSCFile Bool FilePath String |
-              SVNSCFile Bool FilePath String Bool
+data SCFile = GITSCFile Bool FilePath Text |
+              SVNSCFile Bool FilePath Text Bool
     deriving (Show)
 
 -- | Return 'True' if the 'SCFile' is flagged as selected.
@@ -81,7 +84,7 @@ filePath (GITSCFile _ fp _ ) = fp
 filePath (SVNSCFile _ fp _ _) = fp
 
 -- | Return the status of this file.
-status :: SCFile -> String
+status :: SCFile -> Text
 status (GITSCFile _ _ s) = s
 status (SVNSCFile _ _ s _) = s
 
@@ -92,7 +95,7 @@ isLocked _                   = False
 
 
 -- | Options to the 'OkCallBack'.
-type Option = String
+type Option = Text
 
 
 -- | Display a window to enter a commit message and select files to be commited.
@@ -150,7 +153,7 @@ getSelectedFiles listStore = do
             return (selectedFiles)
 
 getTreeViewFromGladeCustomStore :: Builder
-                        -> String
+                        -> Text
                         -> TreeViewSetter
                         -> Wrapper.Ctx (H.TreeViewItem SCFile)
 getTreeViewFromGladeCustomStore builder name setupListStore = do
@@ -166,9 +169,9 @@ getTreeViewFromGladeCustomStore builder name setupListStore = do
 wrapWidget :: GObjectClass objClass =>
      Builder
      -> (GObject -> objClass)
-     -> String -> IO (String, objClass)
+     -> Text -> IO (Text, objClass)
 wrapWidget builder cast name = do
-    putStrLn $ " cast " ++ name
+    putStrLn $ " cast " ++ T.unpack name
     gobj <- builderGetObject builder cast name
     return (name, gobj)
 

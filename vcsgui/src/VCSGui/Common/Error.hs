@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.Error
@@ -15,11 +16,12 @@
 module VCSGui.Common.Error (
     showErrorGUI
 ) where
-import Graphics.UI.Gtk
 
+import Graphics.UI.Gtk
+import Data.Text (Text)
 
 -- | Displays a simple window displaying given 'String' as an error message.
-showErrorGUI :: String -- ^ Message to display.
+showErrorGUI :: Text -- ^ Message to display.
     -> IO ()
 showErrorGUI msg = do
     dialog <- messageDialogNew Nothing [] MessageError ButtonsOk msg

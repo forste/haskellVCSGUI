@@ -1,5 +1,5 @@
 name: vcsgui
-version: 0.0.4.1
+version: 0.1.0.0
 cabal-version: >= 1.8
 build-type: Simple
 license: GPL
@@ -39,13 +39,14 @@ library
                base >=4.0.0.0 && <4.8,
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.3,
-               vcswrapper ==0.0.4,
-               process >=1.0.1.5 && <1.3
+               vcswrapper ==0.1.0,
+               process >=1.0.1.5 && <1.3,
+               text -any
     if flag(gtk3)
-      build-depends: gtk3 >=0.12.4 && <0.14
+      build-depends: gtk3 >=0.13.0.0 && <0.14
       cpp-options:   -DMIN_VERSION_gtk=MIN_VERSION_gtk3
     else
-      build-depends: gtk >=0.12.4 && <0.14
+      build-depends: gtk >=0.13.0.0 && <0.14
     exposed-modules: VCSGui.Common VCSGui.Git VCSGui.Svn VCSGui.Mercurial
     exposed: True
     buildable: True
@@ -69,8 +70,9 @@ executable vcsgui
                base >=4.0.0.0 && <4.8,
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.2,
-               vcswrapper ==0.0.4,
-               process >=1.0.1.5 && <1.3
+               vcswrapper ==0.1.0,
+               process >=1.0.1.5 && <1.3,
+               text -any
     if flag(gtk3)
       build-depends: gtk3 >=0.12.4 && <0.14
       cpp-options:   -DMIN_VERSION_gtk=MIN_VERSION_gtk3
@@ -98,8 +100,9 @@ executable vcsgui-askpass
                base >=4.0.0.0 && <4.8,
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.2,
-               vcswrapper ==0.0.4,
-               process >=1.0.1.5 && <1.3
+               vcswrapper ==0.1.0,
+               process >=1.0.1.5 && <1.3,
+               text -any
     if flag(gtk3)
       build-depends: gtk3 >=0.12.4 && <0.14
       cpp-options:   -DMIN_VERSION_gtk=MIN_VERSION_gtk3

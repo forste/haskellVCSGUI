@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.FilesInConflict
@@ -29,6 +30,8 @@ import Control.Monad.Trans(liftIO)
 import Control.Monad
 import Control.Monad.Reader
 import Paths_vcsgui(getDataFileName)
+import Data.Text (Text)
+import qualified Data.Text as T (unpack, pack)
 
 --
 -- glade path and object accessors
@@ -94,7 +97,7 @@ showFilesInConflictGUI (Just setUpTreeView) filesInConflict filesToResolveGetter
     gui <- loadGUI $ setUpTreeView cwd filesInConflict filesToResolveGetter resolveMarker eMergeToolSetter
     mbMergeToolSetter <- case eMergeToolSetter of
                             Left (Merge.MergeTool path) -> do
-                                liftIO $ H.set (entPath gui) path
+                                liftIO $ H.set (entPath gui) $ T.pack path
                                 return Nothing
                             Right setter -> return $ Just setter
 
@@ -112,7 +115,7 @@ showFilesInConflictGUI (Just setUpTreeView) filesInConflict filesToResolveGetter
                 Nothing -> return ()
                 Just path -> do
                     -- update gui
-                    H.set (entPath gui) path
+                    H.set (entPath gui) $ T.pack path
                     -- call setter
                     case mbMergeToolSetter of
                         Nothing -> return ()
@@ -155,7 +158,7 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "File"
-                               $ \scf -> [cellText := filePath scf]
+                               $ \scf -> [cellText := T.pack $ filePath scf]
 
         renderer <- cellRendererToggleNew
         H.addColumnToTreeView' treeViewItem
@@ -164,7 +167,7 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
                                $ \scf -> [cellToggleActive := isResolved scf]
 
         -- connect select action
-        on renderer cellToggled $ \(columnId::String) -> do
+        on renderer cellToggled $ \(columnId :: Text) -> do
                                 putStrLn $ "Checkbutton clicked at column " ++ (show columnId)
                                 --TODO only call tool if button is not checked, move this code to being called if a click on row is received
                                 let callTool' = (\path -> Wrapper.runVcs config $ callTool columnId listStore path)
@@ -182,7 +185,7 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
                         Just treeIter <- liftIO $ treeModelGetIterFromString listStore columnId
                         value <- liftIO $ listStoreGetValue listStore $ listStoreIterToIndex treeIter
                         filesToResolve <- filesToResolveGetter $ filePath value
-                        resolvedByTool <- liftIO $ Process.exec mbcwd pathToTool filesToResolve
+                        resolvedByTool <- liftIO $ Process.exec mbcwd pathToTool $ map T.pack filesToResolve
                         let setResolved' = setResolved listStore treeIter value
                         case resolvedByTool of
                                     False -> ConflictsResolvedGUI.showConflictsResolvedGUI
@@ -204,7 +207,7 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
 ----
 
 getTreeViewFromGladeCustomStore :: Builder
-                        -> String
+                        -> Text
                         -> (TreeView -> Wrapper.Ctx (ListStore SCFile)) -- ^ fn defining how to setup the liststore
                         -> Wrapper.Ctx (H.TreeViewItem SCFile)
 getTreeViewFromGladeCustomStore builder name setupListStore = do
@@ -220,9 +223,9 @@ getTreeViewFromGladeCustomStore builder name setupListStore = do
 wrapWidget :: GObjectClass objClass =>
      Builder
      -> (GObject -> objClass)
-     -> String -> IO (String, objClass)
+     -> Text -> IO (Text, objClass)
 wrapWidget builder cast name = do
-    putStrLn $ " cast " ++ name
+    putStrLn $ " cast " ++ T.unpack name
     gobj <- builderGetObject builder cast name
     return (name, gobj)
 
@@ -245,7 +248,7 @@ setToListStore (store, view) newList = do
 -- HELPER
 
 -- | shows a dialog to choose a folder, returns Just FilePath to folder if succesfull, Nothing if cancelled
-showFolderChooserDialog :: String -- ^ title of the window
+showFolderChooserDialog :: Text -- ^ title of the window
     -> Window -- ^ parent window
     -> FileChooserAction
     -> IO (Maybe FilePath)
