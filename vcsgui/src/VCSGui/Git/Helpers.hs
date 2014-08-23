@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Git.Helpers
@@ -20,6 +21,8 @@ import VCSWrapper.Git
 import Control.Monad.Reader.Class (asks, MonadReader(..))
 import System.Environment (getEnvironment)
 import Control.Monad.Reader (liftIO)
+import Control.Applicative ((<$>))
+import qualified Data.Text as T (pack)
 
 
 {- | Adds a wrapper to the 'Ctx' so git can ask for a password using a GUI window.
@@ -29,7 +32,8 @@ import Control.Monad.Reader (liftIO)
 askPassWrapper :: Ctx () -> Ctx ()
 askPassWrapper fn = do
     cfgEnv <- asks configEnvironment
-    inheritEnv <- liftIO $ getEnvironment
+    inheritEnv <- map packPair <$> liftIO getEnvironment
     -- TODO better solution for DISPLAY? TODO will this work on windows?
     local (\cfg -> cfg {configEnvironment = ("GIT_ASKPASS", "vcsgui-askpass"):("DISPLAY", ":0.0"):inheritEnv ++ cfgEnv}) fn
-
+  where
+    packPair (a, b) = (T.pack a, T.pack b)

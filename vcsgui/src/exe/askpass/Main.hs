@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  Main
@@ -22,6 +23,7 @@ import qualified VCSGui.Common.GtkHelper as H
 import Data.Maybe (fromMaybe)
 
 import Paths_vcsgui(getDataFileName)
+import qualified Data.Text as T (unpack)
 --
 -- glade path and object accessors
 --
@@ -56,7 +58,7 @@ showAskpassGUI = do
     H.registerQuitAction $ actCancel gui
     on (H.getItem (actOk gui)) actionActivated $ do
                                         pw <- H.get (entryPw gui)
-                                        putStr $ fromMaybe "" pw
+                                        putStr . T.unpack $ fromMaybe "" pw
                                         mainQuit
     -- present window
     widgetShowAll $ H.getItem $ window gui

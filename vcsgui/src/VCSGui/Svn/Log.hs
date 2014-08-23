@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Svn.Log
@@ -21,17 +22,19 @@ import VCSGui.Svn.AskPassword
 
 import qualified VCSWrapper.Svn as Svn
 import qualified VCSWrapper.Common as WC
+import Data.Text (Text)
+import qualified Data.Text as T (unpack)
 
 -- | Shows a GUI showing log for current working copy.
-showLogGUI :: Either Handler (Maybe String) -- ^ Either 'Handler' for password request or password (nothing for no password)
+showLogGUI :: Either Handler (Maybe Text) -- ^ Either 'Handler' for password request or password (nothing for no password)
            -> Svn.Ctx ()
 showLogGUI eitherHandlerOrPw = do
         logEntries <- Svn.simpleLog
         C.showLogGUI logEntries [] Nothing (okCallback eitherHandlerOrPw) False
 
-okCallback :: Either Handler (Maybe String) -- ^ either callback for password request or password (nothing for no password)
+okCallback :: Either Handler (Maybe Text) -- ^ either callback for password request or password (nothing for no password)
            -> WC.LogEntry                   -- ^ chosen logentry
-           -> Maybe String                  -- ^ chosen branch name
+           -> Maybe Text                  -- ^ chosen branch name
            -> WC.Ctx()
 okCallback eitherHandlerOrPw logEntry _ = do
     case eitherHandlerOrPw of
@@ -53,6 +56,6 @@ okCallback eitherHandlerOrPw logEntry _ = do
     doRevert logEntry mbPw = do
                             Svn.mergeHeadToRevision (revision logEntry) mbPw []
                             return()
-    revision logEntry = read $ Svn.commitID logEntry :: Integer
+    revision logEntry = read . T.unpack $ Svn.commitID logEntry :: Integer
 
 

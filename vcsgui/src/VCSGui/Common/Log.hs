@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.Log
@@ -11,7 +13,6 @@
 -- | Functions to show a log window. This mostly hides the window-building tasks from the specific VCS implementation.
 --
 -----------------------------------------------------------------------------
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module VCSGui.Common.Log (
     showLogGUI
 ) where
@@ -26,11 +27,14 @@ import qualified VCSWrapper.Common as Common
 
 import Data.Maybe (fromMaybe)
 import Paths_vcsgui(getDataFileName)
+import Data.Text (Text)
+import qualified Data.Text as T (pack)
+import Data.Monoid ((<>))
 
 getGladepath = getDataFileName "data/guiCommonLog.glade"
 
 data LogConfig a = LogConfig {
-    options :: [String]
+    options :: [Text]
     ,treeViewSetter :: Gtk.TreeView -> TreeViewItem a
 }
 
@@ -52,14 +56,14 @@ data LogGUI = LogGUI {
 -- | Show the history of a repository.
 showLogGUI :: [Common.LogEntry]
             -- ^ logEntries to be displayed initially
-            -> [String]
+            -> [Text]
             -- ^ options will be displayed in a menu as checkboxes (TODO this is currently not implemented)
-            -> Maybe ((String, [String]), (String -> Common.Ctx [Common.LogEntry]))
+            -> Maybe ((Text, [Text]), (Text -> Common.Ctx [Common.LogEntry]))
             -- ^ (list of branchnames to display, Function called when a different branch is selected)
             --
             -- The function will be called with the selected branchname to repopulate the displayed LogEntries.
             -- If 'Nothing', no branch selection will be displayed.
-            -> (Common.LogEntry -> Maybe String -> Common.Ctx ())
+            -> (Common.LogEntry -> Maybe Text -> Common.Ctx ())
             -- ^ (selected line, name of the branch to checkout from)
             --
             -- This function is called on checkout action. The window will be closed afterwards.
@@ -72,9 +76,9 @@ showLogGUI logEntries options (Just (branches, changeBranchFn)) doCheckoutFn dis
         return ()
 
 guiWithoutBranches :: [Common.LogEntry]
-                    -> [String]
+                    -> [Text]
                     -> (Common.LogEntry
-                        -> (Maybe String)
+                        -> (Maybe Text)
                         -> Common.Ctx ())
                     -> Bool -- ^ Add column to display branch name
                     -> Common.Ctx LogGUI
@@ -107,14 +111,14 @@ guiWithoutBranches logEntries options doCheckoutFn displayBranchNames = do
     setupLogColumns gui displayBranchNames = do
         let item = (logTreeView gui)
         addTextColumnToTreeView item "Subject" (\Common.LogEntry { Common.subject = t } -> [Gtk.cellText Gtk.:= t])
-        addTextColumnToTreeView item "Author" (\Common.LogEntry { Common.author = t, Common.email = mail } -> [Gtk.cellText Gtk.:= (t ++ " <" ++ mail ++ ">")])
+        addTextColumnToTreeView item "Author" (\Common.LogEntry { Common.author = t, Common.email = mail } -> [Gtk.cellText Gtk.:= t <> " <" <> mail <> ">"])
         addTextColumnToTreeView item "Date" (\Common.LogEntry { Common.date = t } -> [Gtk.cellText Gtk.:= t])
         case displayBranchNames of
-            True -> addTextColumnToTreeView item "Branch" (\Common.LogEntry { Common.mbBranch = t } -> [Gtk.cellText Gtk.:= (fromMaybe "" t)])
+            True -> addTextColumnToTreeView item "Branch" (\Common.LogEntry { Common.mbBranch = t } -> [Gtk.cellText Gtk.:= fromMaybe "" t])
             False -> return()
         return ()
 
-guiAddBranches :: LogGUI -> (String, [String]) -> (String -> Common.Ctx [Common.LogEntry]) -> Common.Ctx ()
+guiAddBranches :: LogGUI -> (Text, [Text]) -> (Text -> Common.Ctx [Common.LogEntry]) -> Common.Ctx ()
 guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
         -- set branch selection visible
         liftIO $ Gtk.set (getItem $ lblBranch gui) [Gtk.widgetVisible Gtk.:= True]
@@ -130,7 +134,7 @@ guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
         liftIO $ Gtk.on (getItem $ comboBranch gui) Gtk.changed $ changeBranchFn' config (fmap (fromMaybe "") $ get $ comboBranch gui)
         return ()
     where
-    changeBranchFn' :: Common.Config -> IO String -> IO ()
+    changeBranchFn' :: Common.Config -> IO Text -> IO ()
     changeBranchFn' cfg branchIO = do
         let (store, view) = getItem $ logTreeView gui
         branch <- branchIO

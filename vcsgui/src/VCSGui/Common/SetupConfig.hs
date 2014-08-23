@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.SetupConfig
@@ -28,6 +29,9 @@ import VCSGui.Common.Error
 import qualified VCSGui.Common.GtkHelper as H
 import qualified VCSGui.Common.MergeTool as MergeTool
 import qualified VCSWrapper.Common as Wrapper
+import Data.Text (Text)
+import qualified Data.Text as T (unpack, pack)
+import Control.Applicative ((<$>))
 
 type Config = Maybe (Wrapper.VCSType, Wrapper.Config, Maybe MergeTool.MergeTool)
             --config for setting up vcs
@@ -138,16 +142,16 @@ connectSetupRepoGui callback gui = do
                 Just path -> do
                     -- discover vcs
                     availableVCS <- discoverVCS path
-                    H.set (comboBoxVCSType gui) $ map (\vcs -> show vcs) availableVCS
+                    H.set (comboBoxVCSType gui) $ map (T.pack . show) availableVCS
                     -- update gui
-                    H.set (entRepo gui) path
+                    H.set (entRepo gui) (T.pack path)
                     return ()
         on (H.getItem (actBrowseExec gui)) actionActivated $ liftIO $ do
             mbExec <- showFolderChooserDialog "Choose executable location" (H.getItem $ winSetupRepo gui) FileChooserActionOpen
             case mbExec of
                 Nothing -> return ()
                 Just exec -> do
-                    H.set (entExec gui) exec
+                    H.set (entExec gui) (T.pack exec)
                     H.set (checkbtExec gui) True
                     return ()
 
@@ -183,12 +187,12 @@ connectSetupRepoGui callback gui = do
                 Nothing -> return ()
                 Just path -> do
                     -- update gui
-                    H.set (entPathToTool gui) path
+                    H.set (entPathToTool gui) (T.pack path)
                     return ()
         return ()
 
     where
-    createVCSTypAndConfig :: SetupRepoGUI -> IO (Either String (Wrapper.VCSType, Wrapper.Config, Maybe MergeTool.MergeTool))
+    createVCSTypAndConfig :: SetupRepoGUI -> IO (Either Text (Wrapper.VCSType, Wrapper.Config, Maybe MergeTool.MergeTool))
     createVCSTypAndConfig gui = do
             path <- H.get (entRepo gui)
 
@@ -207,7 +211,7 @@ connectSetupRepoGui callback gui = do
                                 return (Nothing,Nothing)
             selectedVCSType <- H.get (comboBoxVCSType gui)
             mbPathToTool <- H.get (entPathToTool gui)
-            let tuple = createVCSTypAndConfig' path author mail exec selectedVCSType mbPathToTool
+            let tuple = createVCSTypAndConfig' (T.unpack <$> path) author mail (T.unpack <$> exec) (T.unpack <$> selectedVCSType) (T.unpack <$> mbPathToTool)
             putStrLn $ "tuple"++show tuple
             return tuple
             where
@@ -237,9 +241,9 @@ initSetupRepoGui mbConfig gui = do
                 case mbPath of
                     Nothing -> return ()
                     Just path -> do
-                                    H.set (entRepo gui) $ path
+                                    H.set (entRepo gui) $ T.pack path
                                     availableVCS <- discoverVCS path
-                                    H.set (comboBoxVCSType gui) $ map (\vcs -> show vcs) availableVCS
+                                    H.set (comboBoxVCSType gui) $ map (T.pack . show) availableVCS
                                     --get position (hopefully always index in liststore = index in list)
                                     case findIndex (== vcsType) availableVCS of
                                         Just index ->
@@ -252,7 +256,7 @@ initSetupRepoGui mbConfig gui = do
                                     return ()
                     Just exec -> do
                                     H.set (checkbtExec gui) True
-                                    H.set (entExec gui) $ exec
+                                    H.set (entExec gui) $ T.pack exec
 
                 case mbAuthor of
                     Nothing -> do
@@ -264,7 +268,7 @@ initSetupRepoGui mbConfig gui = do
                                     H.set (entEmail gui) $ fromMaybe "" email
                 case mbMergeTool of
                     Nothing -> return()
-                    Just mergeTool -> H.set (entPathToTool gui) (MergeTool.fullPath mergeTool)
+                    Just mergeTool -> H.set (entPathToTool gui) (T.pack $ MergeTool.fullPath mergeTool)
 
                 return ()
 
@@ -296,7 +300,7 @@ discoverVCS path = do
                             _      -> Wrapper.SVN --TODO throw error on this, improve this code
 
 -- | shows a dialog to choose a folder, returns Just FilePath to folder if succesfull, Nothing if cancelled
-showFolderChooserDialog :: String -- ^ title of the window
+showFolderChooserDialog :: Text -- ^ title of the window
     -> Window -- ^ parent window
     -> FileChooserAction
     -> IO (Maybe FilePath)

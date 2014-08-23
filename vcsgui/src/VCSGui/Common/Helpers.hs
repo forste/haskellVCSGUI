@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.Helpers
@@ -14,9 +15,16 @@
 
 module VCSGui.Common.Helpers (
     emptyListToNothing
+  , emptyTextToNothing
 ) where
+
+import Data.Text (Text)
 
 -- | Return 'Nothing' if given list is empty, 'Just' the list otherwise.
 emptyListToNothing :: [a] -> Maybe [a]
 emptyListToNothing [] = Nothing
 emptyListToNothing l = Just l
+
+emptyTextToNothing :: Text -> Maybe Text
+emptyTextToNothing "" = Nothing
+emptyTextToNothing l = Just l

@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.ExceptionHandler
@@ -20,6 +21,8 @@ import qualified Control.Exception as Exc
 
 import VCSWrapper.Common
 import VCSGui.Common.Error
+import qualified Data.Text as T (unwords, unlines)
+import Data.Monoid ((<>))
 
 
 -- | Wraps an IO computation to display an error message if a 'VCSException' occurs.
@@ -30,7 +33,7 @@ defaultVCSExceptionHandler vcsRunner = do
     case o of
         Left (VCSException exitCode out err repoLocation (cmd:opts)) -> do
             putStrLn $ "exception caught"
-            showErrorGUI $ unlines ["An error occured.", err, "Details:", "command: " ++ cmd, "options: " ++ unwords opts]
+            showErrorGUI $ T.unlines ["An error occured.", err, "Details:", "command: " <> cmd, "options: " <> T.unwords opts]
         Right _ -> do
             putStrLn $ "no exception"
             return ()

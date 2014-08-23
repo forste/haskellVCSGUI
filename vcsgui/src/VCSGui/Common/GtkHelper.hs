@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.GtkHelper
@@ -65,35 +66,37 @@ import qualified Graphics.UI.Gtk as Gtk
 import System.Directory
 import Control.Monad.Trans(liftIO)
 import System.IO (hPutStrLn, stderr)
-import VCSGui.Common.Helpers (emptyListToNothing)
+import VCSGui.Common.Helpers (emptyTextToNothing)
+import Data.Text (Text)
+import qualified Data.Text as T (unpack)
 
 -- Typesynonyms
-type WindowItem = (String, Gtk.Window, ())
-type ActionItem = (String, Gtk.Action, ())
-type LabelItem = (String, Gtk.Label, (IO (Maybe String), String -> IO ()))
-type TextEntryItem = (String, Gtk.Entry, (IO (Maybe String), String -> IO ()))
-type ComboBoxItem = (String, Gtk.ComboBox, (IO (Maybe String), [String] -> IO ()))
-type TextViewItem = (String, Gtk.TextView, (IO (Maybe String), String -> IO ()))
-type TreeViewItem a = (String, (Gtk.ListStore a, Gtk.TreeView), (IO (Maybe [a]), [a] -> IO ()))
-type CheckButtonItem = (String, Gtk.CheckButton, (IO Bool, Bool -> IO()))
-type ButtonItem = (String, Gtk.Button, (IO String, String -> IO()))
+type WindowItem = (Text, Gtk.Window, ())
+type ActionItem = (Text, Gtk.Action, ())
+type LabelItem = (Text, Gtk.Label, (IO (Maybe Text), Text -> IO ()))
+type TextEntryItem = (Text, Gtk.Entry, (IO (Maybe Text), Text -> IO ()))
+type ComboBoxItem = (Text, Gtk.ComboBox, (IO (Maybe Text), [Text] -> IO ()))
+type TextViewItem = (Text, Gtk.TextView, (IO (Maybe Text), Text -> IO ()))
+type TreeViewItem a = (Text, (Gtk.ListStore a, Gtk.TreeView), (IO (Maybe [a]), [a] -> IO ()))
+type CheckButtonItem = (Text, Gtk.CheckButton, (IO Bool, Bool -> IO()))
+type ButtonItem = (Text, Gtk.Button, (IO Text, Text -> IO()))
 
 -- Type accessors
 
 -- | return the name of this item (as in the gladefile)
-getName :: (String, a, b) -> String
+getName :: (Text, a, b) -> Text
 getName (n, _, _) = n
 
 -- | return the Gtk object wrapped by given item
-getItem :: (String, a, b) -> a
+getItem :: (Text, a, b) -> a
 getItem (_, item, _) = item
 
 -- | call teh get method of an *Item
-get :: (String, a, (b, c)) -> b
+get :: (Text, a, (b, c)) -> b
 get (_, _, (getter, _)) = getter
 
 -- | call the set method of an *Item
-set :: (String, a, (b, c)) -> c
+set :: (Text, a, (b, c)) -> c
 set (_,_, (_, setter)) = setter
 
 
@@ -111,7 +114,7 @@ openGladeFile fn = do
 
 -- | Get a 'WindowItem' from a gladefile.
 getWindowFromGlade :: Gtk.Builder
-    -> String -- ^ name of the window to get as specified in the gladefile.
+    -> Text -- ^ name of the window to get as specified in the gladefile.
     -> IO WindowItem
 getWindowFromGlade builder name = do
     (a, b) <- wrapWidget builder Gtk.castToWindow name
@@ -119,7 +122,7 @@ getWindowFromGlade builder name = do
 
 -- | Get an 'ActionItem' from a gladefile.
 getActionFromGlade :: Gtk.Builder
-    -> String -- ^ name of the action to get as specified in the gladefile.
+    -> Text -- ^ name of the action to get as specified in the gladefile.
     -> IO ActionItem
 getActionFromGlade builder name = do
     (a, b) <- wrapWidget builder Gtk.castToAction name
@@ -127,42 +130,42 @@ getActionFromGlade builder name = do
 
 -- | Get an 'LabelItem' from a gladefile.
 getLabelFromGlade :: Gtk.Builder
-    -> String -- ^ name of the label to get as specified in the gladefile.
+    -> Text -- ^ name of the label to get as specified in the gladefile.
     -> IO LabelItem
 getLabelFromGlade builder name = do
     (_, entry) <- wrapWidget builder Gtk.castToLabel name
-    let getter = error "don't call get on a gtk label!" :: IO (Maybe String)
+    let getter = error "don't call get on a gtk label!" :: IO (Maybe Text)
         setter val = Gtk.labelSetText entry val :: IO ()
     return (name, entry, (getter, setter))
 
 -- | Get a 'ButtonItem' from a gladefile.
 getButtonFromGlade :: Gtk.Builder
-    -> String -- ^ name of the button to get as specified in the gladefile.
+    -> Text -- ^ name of the button to get as specified in the gladefile.
     -> IO ButtonItem
 getButtonFromGlade builder name = do
     (_,btn) <- wrapWidget builder Gtk.castToButton name
-    let getter = Gtk.buttonGetLabel btn :: IO String
+    let getter = Gtk.buttonGetLabel btn :: IO Text
         setter val = Gtk.buttonSetLabel btn val
     return (name, btn, (getter,setter))
 
 -- | Get a 'TextEntryItem' from a gladefile.
 getTextEntryFromGlade :: Gtk.Builder
-    -> String -- ^ name of the text entry to get as specified in the gladefile.
+    -> Text -- ^ name of the text entry to get as specified in the gladefile.
     -> IO TextEntryItem
 getTextEntryFromGlade builder name = do
     (_, entry) <- wrapWidget builder Gtk.castToEntry name
-    let getter = fmap emptyListToNothing $ Gtk.entryGetText entry :: IO (Maybe String)
+    let getter = fmap emptyTextToNothing $ Gtk.entryGetText entry :: IO (Maybe Text)
         setter val = Gtk.entrySetText entry val :: IO ()
     return (name, entry, (getter, setter))
 
 -- | Get a 'ComboBoxItem' from a gladefile.
 getComboBoxFromGlade :: Gtk.Builder
-                    -> String -- ^ name of the combo box to get as specified in the gladefile.
+                    -> Text -- ^ name of the combo box to get as specified in the gladefile.
                     -> IO ComboBoxItem
 getComboBoxFromGlade builder name = do
     (_, combo) <- wrapWidget builder Gtk.castToComboBox name
     Gtk.comboBoxSetModelText combo
-    let getter = Gtk.comboBoxGetActiveText combo  :: IO (Maybe String) -- get selected text
+    let getter = Gtk.comboBoxGetActiveText combo  :: IO (Maybe Text) -- get selected text
         setter entries = do -- fill with new entries
             store <- Gtk.comboBoxGetModelText combo
             Gtk.listStoreClear store
@@ -172,13 +175,13 @@ getComboBoxFromGlade builder name = do
 
 -- | Get a 'TextViewItem' from a gladefile.
 getTextViewFromGlade :: Gtk.Builder
-    -> String -- ^ name of the text view to get as specified in the gladefile.
+    -> Text -- ^ name of the text view to get as specified in the gladefile.
     -> IO TextViewItem
 getTextViewFromGlade builder name =  do
         (_, entry)  <- wrapWidget builder Gtk.castToTextView name
         buffer <- Gtk.textViewGetBuffer entry
-        let getter = getLongText buffer :: IO (Maybe String)
-            setter = (\text -> Gtk.textBufferSetText buffer text) :: String -> IO ()
+        let getter = getLongText buffer :: IO (Maybe Text)
+            setter = (\text -> Gtk.textBufferSetText buffer text) :: Text -> IO ()
         return (name, entry, (getter, setter))
     where
     getLongText buffer = do
@@ -191,7 +194,7 @@ getTextViewFromGlade builder name =  do
 
 -- | Get a 'CheckButtonItem' from a gladefile.
 getCheckButtonFromGlade :: Gtk.Builder
-    -> String -- ^ name of the check button to get as specified in the gladefile.
+    -> Text -- ^ name of the check button to get as specified in the gladefile.
     -> IO CheckButtonItem
 getCheckButtonFromGlade builder name = do
         (_,bt) <- wrapWidget builder Gtk.castToCheckButton name
@@ -205,7 +208,7 @@ getCheckButtonFromGlade builder name = do
 
 -- | Get a 'TreeViewItem' from a gladefile.
 getTreeViewFromGlade :: Gtk.Builder
-    -> String -- ^ name of the tree view to get as specified in the gladefile.
+    -> Text -- ^ name of the tree view to get as specified in the gladefile.
     -> [a] -- ^ Content of the new tree view.
     -> IO (TreeViewItem a)
 getTreeViewFromGlade builder name rows = do
@@ -217,7 +220,7 @@ getTreeViewFromGlade builder name rows = do
 
 -- | Get a 'TreeViewItem' from a gladefile.
 getTreeViewFromGladeCustomStore :: Gtk.Builder
-                        -> String -- ^ name of the tree view to get as specified in the gladefile.
+                        -> Text -- ^ name of the tree view to get as specified in the gladefile.
                         -> (Gtk.TreeView -> IO (Gtk.ListStore a)) -- ^ fn defining how to setup the liststore
                         -> IO (TreeViewItem a)
 getTreeViewFromGladeCustomStore builder name setupListStore = do
@@ -291,7 +294,7 @@ registerQuitWithCustomFun win fun = Gtk.on (getItem win) Gtk.deleteEvent (liftIO
 addColumnToTreeView :: Gtk.CellRendererClass r =>
     TreeViewItem a
     -> r -- ^ CellRenderer
-    -> String -- ^ title
+    -> Text -- ^ title
     -> (a -> [Gtk.AttrOp r]) -- ^ mapping
     -> IO ()
 addColumnToTreeView (_, item, _) = do
@@ -306,7 +309,7 @@ addColumnToTreeView (_, item, _) = do
 addColumnToTreeView' :: Gtk.CellRendererClass r =>
     (Gtk.ListStore a, Gtk.TreeView)
     -> r
-    -> String
+    -> Text
     -> (a -> [Gtk.AttrOp r])
     -> IO ()
 addColumnToTreeView' (listStore, listView) renderer title value2attributes = do
@@ -318,7 +321,7 @@ addColumnToTreeView' (listStore, listView) renderer title value2attributes = do
 
 -- | Shortcut for adding text columns to a TreeView. See 'addColumnToTreeView'.
 addTextColumnToTreeView :: TreeViewItem a
-    -> String -- ^ title
+    -> Text -- ^ title
     -> (a -> [Gtk.AttrOp Gtk.CellRendererText]) -- ^ mapping
     -> IO ()
 addTextColumnToTreeView tree title map = do
@@ -327,7 +330,7 @@ addTextColumnToTreeView tree title map = do
 
 -- | Shortcut for adding text columns to a TreeView. See 'addColumnToTreeView\''.
 addTextColumnToTreeView' :: (Gtk.ListStore a, Gtk.TreeView)
-    -> String
+    -> Text
     -> (a -> [Gtk.AttrOp Gtk.CellRendererText])
     -> IO ()
 addTextColumnToTreeView' item title map = do
@@ -341,8 +344,8 @@ addTextColumnToTreeView' item title map = do
 wrapWidget :: Gtk.GObjectClass objClass =>
      Gtk.Builder
      -> (Gtk.GObject -> objClass)
-     -> String -> IO (String, objClass)
+     -> Text -> IO (Text, objClass)
 wrapWidget builder cast name = do
-    hPutStrLn stderr $ " cast " ++ name
+    hPutStrLn stderr $ " cast " ++ T.unpack name
     gobj <- Gtk.builderGetObject builder cast name
     return (name, gobj)
