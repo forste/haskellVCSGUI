@@ -1,5 +1,5 @@
 name: vcsgui
-version: 0.1.0.0
+version: 0.1.1.0
 cabal-version: >= 1.8
 build-type: Simple
 license: GPL
@@ -39,7 +39,7 @@ library
                base >=4.0.0.0 && <4.8,
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.3,
-               vcswrapper ==0.1.0,
+               vcswrapper >=0.1.1 && <0.2,
                process >=1.0.1.5 && <1.3,
                text -any
     if flag(gtk3)
@@ -70,7 +70,7 @@ executable vcsgui
                base >=4.0.0.0 && <4.8,
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.3,
-               vcswrapper ==0.1.0,
+               vcswrapper >=0.1.1 && <0.2,
                process >=1.0.1.5 && <1.3,
                text -any
     if flag(gtk3)
@@ -100,7 +100,7 @@ executable vcsgui-askpass
                base >=4.0.0.0 && <4.8,
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.3,
-               vcswrapper ==0.1.0,
+               vcswrapper >=0.1.1 && <0.2,
                process >=1.0.1.5 && <1.3,
                text -any
     if flag(gtk3)
