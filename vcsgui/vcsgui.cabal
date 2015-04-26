@@ -35,8 +35,8 @@ flag gtk3
 
 library
     build-depends:
-               filepath >=1.2.0.0 && < 1.4,
-               base >=4.0.0.0 && <4.8,
+               filepath >=1.2.0.0 && < 1.5,
+               base >=4.0.0.0 && <4.9,
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.3,
                vcswrapper >=0.1.1 && <0.2,
@@ -66,8 +66,8 @@ library
 executable vcsgui
     main-is: Main.hs
     build-depends:
-               filepath >=1.2.0.0 && < 1.4,
-               base >=4.0.0.0 && <4.8,
+               filepath >=1.2.0.0 && < 1.5,
+               base >=4.0.0.0 && <4.9,
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.3,
                vcswrapper >=0.1.1 && <0.2,
@@ -96,8 +96,8 @@ executable vcsgui
 executable vcsgui-askpass
     main-is: Main.hs
     build-depends:
-               filepath >=1.2.0.0 && < 1.4,
-               base >=4.0.0.0 && <4.8,
+               filepath >=1.2.0.0 && < 1.5,
+               base >=4.0.0.0 && <4.9,
                directory >=1.1.0.0 && <1.3,
                mtl >=2.0.1.0 && <2.3,
                vcswrapper >=0.1.1 && <0.2,
