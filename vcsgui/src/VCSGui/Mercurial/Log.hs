@@ -16,7 +16,6 @@ module VCSGui.Mercurial.Log (
     showLogGUI
 ) where
 
-import qualified Graphics.UI.Gtk as Gtk
 import qualified VCSGui.Common.Log as Common
 import qualified VCSWrapper.Mercurial as Mercurial
 import Control.Monad.Reader (liftIO)

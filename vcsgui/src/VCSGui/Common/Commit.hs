@@ -25,7 +25,6 @@ module VCSGui.Common.Commit (
 
 import qualified VCSWrapper.Common as Wrapper
 import qualified VCSGui.Common.GtkHelper as H
-import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 import Control.Monad
 import Control.Monad.Reader
@@ -33,6 +32,15 @@ import Data.Maybe
 import Paths_vcsgui(getDataFileName)
 import qualified Data.Text as T (unpack, pack)
 import Data.Text (Text)
+import GI.Gtk.Objects.TreeView (TreeView(..))
+import Data.GI.Gtk.ModelView.SeqStore
+       (seqStoreAppend, seqStoreClear, seqStoreToList, SeqStore(..))
+import GI.Gtk.Objects.Action (onActionActivate)
+import GI.Gtk.Objects.Widget (widgetShowAll)
+import GI.Gtk.Objects.Builder (builderGetObject, Builder(..))
+import Foreign.ForeignPtr (ForeignPtr)
+import Data.GI.Base.BasicTypes (GObject)
+import Data.GI.Base.ManagedPtr (unsafeCastTo)
 
 --
 -- glade path and object accessors
@@ -55,9 +63,9 @@ type OkCallBack = Text    -- ^ Commit message as specified in the GUI.
             -> [Option]     -- ^ options (this is currently not implemented i.e. '[]' is passed)
             -> Wrapper.Ctx ()
 
--- | fn to set listStore model for treeview
+-- | fn to set seqStore model for treeview
 type TreeViewSetter = TreeView
-                   -> Wrapper.Ctx (ListStore SCFile)
+                   -> Wrapper.Ctx (SeqStore SCFile)
 
 
 data CommitGUI = CommitGUI {
@@ -110,7 +118,7 @@ showCommitGUI setUpTreeView okCallback = do
     liftIO $ H.registerClose $ windowCommit gui
     liftIO $ H.registerCloseAction (actCancel gui) (windowCommit gui)
     config <- ask
-    liftIO $ on (H.getItem (actCommit gui)) actionActivated $ do
+    liftIO $ onActionActivate (H.getItem (actCommit gui)) $ do
                                         let (store,_) = H.getItem (treeViewFiles gui)
                                         selectedFiles <- getSelectedFiles store
                                         mbMsg <- H.get (txtViewMsg gui)
@@ -129,7 +137,7 @@ showCommitGUI setUpTreeView okCallback = do
 
 
 
-loadCommitGUI :: TreeViewSetter   -- ^ fn to set listStore model for treeview
+loadCommitGUI :: TreeViewSetter   -- ^ fn to set seqStore model for treeview
                 -> Wrapper.Ctx CommitGUI
 loadCommitGUI setUpTreeView = do
                 gladepath <- liftIO getGladepath
@@ -145,9 +153,9 @@ loadCommitGUI setUpTreeView = do
 ---- HELPERS
 ----
 
-getSelectedFiles :: ListStore SCFile -> IO [FilePath]
-getSelectedFiles listStore = do
-            listedFiles <- listStoreToList listStore
+getSelectedFiles :: SeqStore SCFile -> IO [FilePath]
+getSelectedFiles seqStore = do
+            listedFiles <- seqStoreToList seqStore
             let selectedFiles = map (\scf -> filePath scf )
                                 $ filter (\scf -> selected scf) listedFiles
             return (selectedFiles)
@@ -156,39 +164,39 @@ getTreeViewFromGladeCustomStore :: Builder
                         -> Text
                         -> TreeViewSetter
                         -> Wrapper.Ctx (H.TreeViewItem SCFile)
-getTreeViewFromGladeCustomStore builder name setupListStore = do
-    (_, tView) <- liftIO $ wrapWidget builder castToTreeView name
-    store <- setupListStore tView
-    let getter = getFromListStore (store, tView)
-        setter = setToListStore (store, tView)
+getTreeViewFromGladeCustomStore builder name setupSeqStore = do
+    (_, tView) <- liftIO $ wrapWidget builder TreeView name
+    store <- setupSeqStore tView
+    let getter = getFromSeqStore (store, tView)
+        setter = setToSeqStore (store, tView)
     return (name, (store, tView), (getter, setter))
 
 ---
 --- same as gtkhelper, but avoiding exposing it
 ---
-wrapWidget :: GObjectClass objClass =>
+wrapWidget :: GObject objClass =>
      Builder
-     -> (GObject -> objClass)
+     -> (ForeignPtr objClass -> objClass)
      -> Text -> IO (Text, objClass)
-wrapWidget builder cast name = do
+wrapWidget builder constructor name = do
     putStrLn $ " cast " ++ T.unpack name
-    gobj <- builderGetObject builder cast name
+    gobj <- builderGetObject builder name >>= unsafeCastTo constructor
     return (name, gobj)
 
-getFromListStore :: (ListStore a, TreeView)
+getFromSeqStore :: (SeqStore a, TreeView)
     -> IO (Maybe [a])
-getFromListStore (store, _) = do
-    list <- listStoreToList store
+getFromSeqStore (store, _) = do
+    list <- seqStoreToList store
     if null list
         then return Nothing
         else return $ Just list
 
-setToListStore :: (ListStore a, TreeView)
+setToSeqStore :: (SeqStore a, TreeView)
     -> [a]
     -> IO ()
-setToListStore (store, view) newList = do
-    listStoreClear store
-    mapM_ (listStoreAppend store) newList
+setToSeqStore (store, view) newList = do
+    seqStoreClear store
+    mapM_ (seqStoreAppend store) newList
     return ()
 
 

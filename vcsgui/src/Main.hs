@@ -24,8 +24,8 @@ import qualified VCSGui.Git.Log as GitLog
 import qualified VCSGui.Git.Commit as GitCommit
 import qualified VCSGui.Mercurial.Commit as MercurialCommit
 import qualified VCSGui.Mercurial.Log as MercurialLog
-import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
+import qualified GI.Gtk.Functions as Gtk (main, init)
 --
 --svn
 --
@@ -165,10 +165,10 @@ main = do
 
 --{-
 main = do
-        initGUI
+        Gtk.init Nothing
         runWithConfig $
             MercurialLog.showLogGUI
-        mainGUI
+        Gtk.main
     where
         runWithConfig = Wrapper.runVcs $ Wrapper.makeConfig (Just cwdMercurial) Nothing Nothing
 ---}

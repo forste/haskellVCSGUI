@@ -17,7 +17,6 @@ module VCSGui.Svn.Checkout (
     showCheckoutGUI
 ) where
 
-import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 import Control.Monad
 import Control.Monad.Reader
@@ -27,6 +26,8 @@ import Paths_vcsgui(getDataFileName)
 import Data.Maybe
 import qualified Data.Text as T (unpack, pack)
 import Control.Applicative ((<$>))
+import GI.Gtk.Objects.Action (onActionActivate)
+import GI.Gtk.Objects.Widget (widgetShowAll)
 --
 -- glade path and object accessors
 --
@@ -59,7 +60,7 @@ showCheckoutGUI = do
          -- connect actions
         H.registerClose $ windowCheckout gui
         H.registerCloseAction (actCancel gui) (windowCheckout gui)
-        liftIO $ on (H.getItem (actCheckout gui)) actionActivated $ do
+        liftIO $ onActionActivate (H.getItem (actCheckout gui)) $ do
                                             url <- H.get (txtViewUrl gui)
                                             realRevision <- H.get (txtViewRevision gui)
                                             realFilePath <- H.get (txtViewPath gui)

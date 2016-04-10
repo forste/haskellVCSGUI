@@ -1,5 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DataKinds #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  Main
@@ -28,10 +29,21 @@ import VCSGui.Common.ExceptionHandler
 
 import qualified VCSWrapper.Svn as Svn
 
-import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 import Data.Text (Text)
 import qualified Data.Text as T (pack)
+import GI.Gtk.Objects.TreeView (treeViewSetModel, TreeView(..))
+import Data.GI.Gtk.ModelView.SeqStore
+       (seqStoreSetValue, seqStoreIterToIndex, seqStoreGetValue,
+        seqStoreNew, SeqStore(..))
+import GI.Gtk.Objects.CellRendererToggle
+       (onCellRendererToggleToggled, cellRendererToggleNew)
+import Data.GI.Base.Attributes (AttrOp(..), AttrLabelProxy(..))
+import GI.Gtk.Interfaces.TreeModel (treeModelGetIterFromString)
+import GI.Gtk.Objects.CellRendererText (cellRendererTextNew)
+
+_active = AttrLabelProxy :: AttrLabelProxy "active"
+_text = AttrLabelProxy :: AttrLabelProxy "text"
 
 {-  |
     Shows a GUI showing status of subversion and possibilites to commit/cancel.
@@ -82,7 +94,7 @@ okCallback eitherHandlerOrPw msg filesToCommit _ =  do
 
 
 
-setUpTreeView :: TreeView -> Svn.Ctx (ListStore C.SCFile)
+setUpTreeView :: TreeView -> Svn.Ctx (SeqStore C.SCFile)
 setUpTreeView listView = do
     -- get status
     repoStatus <- Svn.status
@@ -91,49 +103,50 @@ setUpTreeView listView = do
 
     liftIO $ do
         -- create model
-        listStore <- listStoreNew [
+        seqStore <- seqStoreNew [
                 (C.SVNSCFile (ctxSelect (Svn.modification status))
                              (Svn.filePath status)
                              (T.pack . show $ Svn.modification status)
                              (Svn.isLocked status))
                 | status <- repoStatus]
-        treeViewSetModel listView listStore
+        treeViewSetModel listView (Just seqStore)
 
-        let treeViewItem = (listStore, listView)
+        let treeViewItem = (seqStore, listView)
 
         renderer <- cellRendererToggleNew
         H.addColumnToTreeView' treeViewItem
                                renderer
                                ""
-                               $ \scf -> [cellToggleActive := C.selected scf]
+                               $ \scf -> [_active := C.selected scf]
 
         -- connect select action
-        on renderer cellToggled $ \(columnId :: Text) -> do
-                                Just treeIter <- treeModelGetIterFromString listStore columnId
-                                value <- listStoreGetValue listStore $ listStoreIterToIndex treeIter
+        onCellRendererToggleToggled renderer $ \(columnId :: Text) -> do
+                                (True, treeIter) <- treeModelGetIterFromString seqStore columnId
+                                n <- seqStoreIterToIndex treeIter
+                                value <- seqStoreGetValue seqStore n
                                 let newValue = (\(C.SVNSCFile bool fp s l) -> C.SVNSCFile (not bool) fp s l)
                                                 value
-                                listStoreSetValue listStore (listStoreIterToIndex treeIter) newValue
+                                seqStoreSetValue seqStore n newValue
                                 return ()
 
         renderer <- cellRendererTextNew
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "Files to commit"
-                               $ \scf -> [cellText := T.pack $ C.filePath scf]
+                               $ \scf -> [_text := T.pack $ C.filePath scf]
 
         renderer <- cellRendererTextNew
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "Status"
-                               $ \scf -> [cellText := C.status scf]
+                               $ \scf -> [_text := C.status scf]
 
         renderer <- cellRendererToggleNew
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "Locked"
-                               $ \scf -> [cellToggleActive := C.isLocked scf]
-        return listStore
+                               $ \scf -> [_active := C.isLocked scf]
+        return seqStore
     where
         ctxSelect status =  status == Svn.Added || status == Svn.Deleted || status==Svn.Modified ||
                             status == Svn.Replaced

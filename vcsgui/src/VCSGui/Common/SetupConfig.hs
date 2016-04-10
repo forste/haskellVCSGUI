@@ -16,7 +16,6 @@
 module VCSGui.Common.SetupConfig (
     showSetupConfigGUI
 ) where
-import Graphics.UI.Gtk hiding (set, get)
 import Control.Monad.Trans(liftIO)
 import Data.Maybe
 import Control.Monad
@@ -32,6 +31,21 @@ import qualified VCSWrapper.Common as Wrapper
 import Data.Text (Text)
 import qualified Data.Text as T (unpack, pack)
 import Control.Applicative ((<$>))
+import GI.Gtk.Objects.Action (onActionActivate)
+import GI.Gtk.Enums
+       (ResponseType(..), FileChooserAction, FileChooserAction(..))
+import GI.Gtk.Objects.ToggleButton (onToggleButtonToggled)
+import GI.Gtk.Objects.Widget
+       (widgetDestroy, widgetHide, widgetShowAll)
+import GI.Gtk.Objects.ComboBox (comboBoxSetActive)
+import GI.Gtk.Objects.Window
+       (setWindowTransientFor, setWindowTitle, Window(..))
+import Data.GI.Base (new)
+import GI.Gtk.Objects.FileChooserDialog (FileChooserDialog(..))
+import GI.Gtk.Objects.Dialog (dialogRun, dialogAddButton)
+import GI.Gtk.Interfaces.FileChooser
+       (setFileChooserAction, fileChooserGetFilename)
+import GI.Gtk.Objects.Builder (Builder(..))
 
 type Config = Maybe (Wrapper.VCSType, Wrapper.Config, Maybe MergeTool.MergeTool)
             --config for setting up vcs
@@ -127,7 +141,7 @@ connectSetupRepoGui callback gui = do
         H.registerClose $ winSetupRepo gui
         liftIO $ H.registerCloseAction (actCancel gui) (winSetupRepo gui)
 
-        on (H.getItem (actOk gui)) actionActivated $
+        onActionActivate (H.getItem (actOk gui)) $
                                 do mbConfig <- createVCSTypAndConfig gui
                                    case mbConfig of
                                     Left errorMsg ->  showErrorGUI errorMsg
@@ -135,7 +149,7 @@ connectSetupRepoGui callback gui = do
                                                        callback $ Just tuple
                                                        H.closeWin $ winSetupRepo gui
 
-        on (H.getItem (actBrowseRepo gui)) actionActivated $ liftIO $ do
+        onActionActivate (H.getItem (actBrowseRepo gui)) $ liftIO $ do
             mbPath <- showFolderChooserDialog "Choose repository location" (H.getItem $ winSetupRepo gui) FileChooserActionSelectFolder
             case mbPath of
                 Nothing -> return ()
@@ -146,7 +160,7 @@ connectSetupRepoGui callback gui = do
                     -- update gui
                     H.set (entRepo gui) (T.pack path)
                     return ()
-        on (H.getItem (actBrowseExec gui)) actionActivated $ liftIO $ do
+        onActionActivate (H.getItem (actBrowseExec gui)) $ liftIO $ do
             mbExec <- showFolderChooserDialog "Choose executable location" (H.getItem $ winSetupRepo gui) FileChooserActionOpen
             case mbExec of
                 Nothing -> return ()
@@ -155,7 +169,7 @@ connectSetupRepoGui callback gui = do
                     H.set (checkbtExec gui) True
                     return ()
 
-        on (H.getItem (checkbtExec gui)) toggled $ do
+        onToggleButtonToggled (H.getItem (checkbtExec gui)) $ do
                                             putStrLn "checkbtnexec toogled"
                                             active <- H.get (checkbtExec gui)
                                             if active then do
@@ -167,7 +181,7 @@ connectSetupRepoGui callback gui = do
                                                     widgetHide (H.getItem (entExec gui))
                                                     widgetHide (H.getItem (btnBrowseExec gui))
 
-        on (H.getItem (checkbtAuthor gui)) toggled $ do
+        onToggleButtonToggled (H.getItem (checkbtAuthor gui)) $ do
                                             putStrLn "checkbtnauthor toogled"
                                             active <- H.get (checkbtAuthor gui)
                                             if active then do
@@ -181,7 +195,7 @@ connectSetupRepoGui callback gui = do
                                                     widgetHide (H.getItem (lblEmail gui))
                                                     widgetHide (H.getItem (entEmail gui))
                                             return ()
-        liftIO $ on (H.getItem (actBrowsePathToTool gui)) actionActivated $ do
+        liftIO $ onActionActivate (H.getItem (actBrowsePathToTool gui)) $ do
             mbPath <- showFolderChooserDialog "Select executable" (H.getItem $ winSetupRepo gui) FileChooserActionOpen
             case mbPath of
                 Nothing -> return ()
@@ -248,7 +262,7 @@ initSetupRepoGui mbConfig gui = do
                                     case findIndex (== vcsType) availableVCS of
                                         Just index ->
                                             --set active
-                                            comboBoxSetActive (H.getItem (comboBoxVCSType gui)) index
+                                            comboBoxSetActive (H.getItem (comboBoxVCSType gui)) (fromIntegral index)
                                         _ -> return ()
                 case mbExec of
                     Nothing -> do
@@ -305,15 +319,20 @@ showFolderChooserDialog :: Text -- ^ title of the window
     -> FileChooserAction
     -> IO (Maybe FilePath)
 showFolderChooserDialog title parent fcAction = do
-    dialog <- fileChooserDialogNew (Just title) (Just parent) fcAction [("Cancel", ResponseCancel), ("Select", ResponseAccept)]
+    dialog <- new FileChooserDialog []
+    setWindowTitle dialog title
+    dialogAddButton dialog "gtk-cancel" (fromIntegral $ fromEnum ResponseTypeCancel)
+    dialogAddButton dialog "Select" (fromIntegral $ fromEnum ResponseTypeAccept)
+    setWindowTransientFor dialog parent
+    setFileChooserAction dialog fcAction
     response <- dialogRun dialog
-    case response of
-        ResponseCancel      -> widgetDestroy dialog >> return Nothing
-        ResponseDeleteEvent -> widgetDestroy dialog >> return Nothing
-        ResponseAccept      -> do
+    case toEnum $ fromIntegral response of
+        ResponseTypeCancel      -> widgetDestroy dialog >> return Nothing
+        ResponseTypeDeleteEvent -> widgetDestroy dialog >> return Nothing
+        ResponseTypeAccept      -> do
             f <- fileChooserGetFilename dialog
             widgetDestroy dialog
-            return f
+            return $ Just f
 
 
 

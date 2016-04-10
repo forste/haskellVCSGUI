@@ -21,8 +21,9 @@ import qualified VCSWrapper.Common as Wrapper
 import Paths_vcsgui(getDataFileName)
 import qualified VCSGui.Common.GtkHelper as H
 import Control.Monad.Trans(liftIO)
-import Graphics.UI.Gtk
 import Control.Monad.Reader(ask)
+import GI.Gtk.Objects.Action (onActionActivate)
+import GI.Gtk.Objects.Widget (widgetShowAll)
 
 --
 -- glade path and object accessors
@@ -50,11 +51,11 @@ showConflictsResolvedGUI handler = do
     -- connect actions
     liftIO $ H.registerClose $ windowConflictsResolved gui
     config <- ask
-    liftIO $ on (H.getItem (actConflictsNotResolved gui)) actionActivated $ do
+    liftIO $ onActionActivate (H.getItem (actConflictsNotResolved gui)) $ do
                                         Wrapper.runVcs config $ handler False
                                         H.closeWin (windowConflictsResolved gui)
 
-    liftIO $ on (H.getItem (actConflictsResolved gui)) actionActivated $ do
+    liftIO $ onActionActivate (H.getItem (actConflictsResolved gui)) $ do
                                         Wrapper.runVcs config $ handler True
                                         H.closeWin (windowConflictsResolved gui)
 
