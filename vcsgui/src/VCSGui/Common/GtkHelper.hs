@@ -113,6 +113,8 @@ import qualified GI.Gtk.Objects.CellRendererText as Gtk
 import qualified Data.GI.Base.BasicTypes as Gtk (GObject)
 import Foreign.ForeignPtr (ForeignPtr)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
+import Data.GI.Base.BasicTypes (NullToNothing(..))
+import Data.Maybe (fromJust)
 
 -- Typesynonyms
 type WindowItem = (Text, Gtk.Window, ())
@@ -391,7 +393,7 @@ wrapWidget :: Gtk.GObject objClass =>
      -> Text -> IO (Text, objClass)
 wrapWidget builder constructor name = do
     hPutStrLn stderr $ " cast " ++ T.unpack name
-    gobj <- Gtk.builderGetObject builder name >>= unsafeCastTo constructor
+    gobj <- nullToNothing (Gtk.builderGetObject builder name) >>= unsafeCastTo constructor . fromJust
     return (name, gobj)
 
 

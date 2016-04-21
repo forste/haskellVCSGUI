@@ -23,7 +23,7 @@ import qualified VCSGui.Common as VCSGUI
 
 import qualified VCSWrapper.Common as Wrapper
 
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromJust, fromMaybe)
 import Control.Monad.Trans(liftIO)
 import Paths_vcsgui(getDataFileName)
 import Control.Monad.Reader(ask)
@@ -38,6 +38,7 @@ import GI.Gtk.Objects.Widget
 import Data.GI.Base.Attributes (AttrOp(..))
 import GI.Gtk.Objects.Builder (builderGetObject)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
+import Data.GI.Base.BasicTypes (NullToNothing(..))
 --
 -- glade path and object accessors
 --
@@ -138,5 +139,5 @@ loadAskpassGUI = do
     setToggleButtonActive (H.getItem checkbtUsePw) True
     checkbtSaveForSession <- H.getCheckButtonFromGlade builder accessorCheckbtSaveForSession
     setToggleButtonActive (H.getItem checkbtSaveForSession) True
-    boxUsePw <- builderGetObject builder accessorboxUsePwd >>= unsafeCastTo VBox
+    boxUsePw <- nullToNothing (builderGetObject builder accessorboxUsePwd) >>= unsafeCastTo VBox . fromJust
     return $ AskpassGUI windowAskpass actOk actCancel entryPw checkbtUsePw checkbtSaveForSession boxUsePw

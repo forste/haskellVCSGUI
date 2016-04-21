@@ -39,7 +39,7 @@ import GI.Gtk.Objects.Action (onActionActivate)
 import GI.Gtk.Objects.Widget (widgetShowAll)
 import GI.Gtk.Objects.Builder (builderGetObject, Builder(..))
 import Foreign.ForeignPtr (ForeignPtr)
-import Data.GI.Base.BasicTypes (GObject)
+import Data.GI.Base.BasicTypes (NullToNothing(..), GObject)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
 
 --
@@ -180,7 +180,7 @@ wrapWidget :: GObject objClass =>
      -> Text -> IO (Text, objClass)
 wrapWidget builder constructor name = do
     putStrLn $ " cast " ++ T.unpack name
-    gobj <- builderGetObject builder name >>= unsafeCastTo constructor
+    gobj <- nullToNothing (builderGetObject builder name) >>= unsafeCastTo constructor . fromJust
     return (name, gobj)
 
 getFromSeqStore :: (SeqStore a, TreeView)

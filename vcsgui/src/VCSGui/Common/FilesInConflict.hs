@@ -42,7 +42,7 @@ import GI.Gtk.Objects.CellRendererToggle
        (onCellRendererToggleToggled, cellRendererToggleNew)
 import GI.Gtk.Interfaces.TreeModel (treeModelGetIterFromString)
 import GI.Gtk.Objects.Builder (builderGetObject, Builder(..))
-import Data.GI.Base.BasicTypes (GObject)
+import Data.GI.Base.BasicTypes (NullToNothing(..), GObject)
 import Foreign.ForeignPtr (ForeignPtr)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
 import Data.GI.Gtk.ModelView.SeqStore
@@ -56,6 +56,7 @@ import GI.Gtk.Objects.FileChooserDialog (FileChooserDialog(..))
 import GI.Gtk.Objects.Dialog (dialogRun, dialogAddButton)
 import GI.Gtk.Interfaces.FileChooser
        (fileChooserGetFilename, setFileChooserAction)
+import Data.Maybe (fromJust)
 
 _active = AttrLabelProxy :: AttrLabelProxy "active"
 _text = AttrLabelProxy :: AttrLabelProxy "text"
@@ -254,7 +255,7 @@ wrapWidget :: GObject objClass =>
      -> Text -> IO (Text, objClass)
 wrapWidget builder constructor name = do
     putStrLn $ " cast " ++ T.unpack name
-    gobj <- builderGetObject builder name >>= unsafeCastTo constructor
+    gobj <- nullToNothing (builderGetObject builder name) >>= unsafeCastTo constructor . fromJust
     return (name, gobj)
 
 getFromSeqStore :: (SeqStore a, TreeView)
@@ -294,6 +295,6 @@ showFolderChooserDialog title parent fcAction = do
         ResponseTypeAccept      -> do
             f <- fileChooserGetFilename dialog
             widgetDestroy dialog
-            return $ Just f
+            return f
 
 

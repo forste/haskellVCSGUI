@@ -332,7 +332,7 @@ showFolderChooserDialog title parent fcAction = do
         ResponseTypeAccept      -> do
             f <- fileChooserGetFilename dialog
             widgetDestroy dialog
-            return $ Just f
+            return f
 
 
 
