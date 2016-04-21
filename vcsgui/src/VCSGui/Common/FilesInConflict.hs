@@ -51,7 +51,7 @@ import Data.GI.Gtk.ModelView.SeqStore
         seqStoreNew, SeqStore(..))
 import GI.Gtk.Objects.Window
        (setWindowTransientFor, setWindowTitle, Window(..))
-import Data.GI.Base (new)
+import Data.GI.Base (new, nullToNothing)
 import GI.Gtk.Objects.FileChooserDialog (FileChooserDialog(..))
 import GI.Gtk.Objects.Dialog (dialogRun, dialogAddButton)
 import GI.Gtk.Interfaces.FileChooser
@@ -293,7 +293,7 @@ showFolderChooserDialog title parent fcAction = do
         ResponseTypeCancel      -> widgetDestroy dialog >> return Nothing
         ResponseTypeDeleteEvent -> widgetDestroy dialog >> return Nothing
         ResponseTypeAccept      -> do
-            f <- fileChooserGetFilename dialog
+            f <- nullToNothing $ fileChooserGetFilename dialog
             widgetDestroy dialog
             return f
 
