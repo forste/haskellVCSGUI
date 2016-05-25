@@ -37,14 +37,14 @@ library
         VCSGui.Mercurial
     build-depends:
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.9,
+        base >=4.0.0.0 && <4.10,
         directory >=1.1.0.0 && <1.3,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.1.1 && <0.2,
-        process >=1.0.1.5 && <1.3,
+        process >=1.0.1.5 && <1.5,
         text -any,
-        haskell-gi-base >=0.14 && <0.15,
-        gi-gtk >=0.3.16 && <0.3.21,
+        haskell-gi-base >=0.17 && <0.18,
+        gi-gtk >=3.0.2 && <3.1,
         gi-gtk-hs >=0.1.1 && <0.2
     hs-source-dirs: src
     other-modules:
@@ -81,14 +81,14 @@ executable vcsgui
     main-is: Main.hs
     build-depends:
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.9,
+        base >=4.0.0.0 && <4.10,
         directory >=1.1.0.0 && <1.3,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.1.1 && <0.2,
-        process >=1.0.1.5 && <1.3,
+        process >=1.0.1.5 && <1.5,
         text -any,
-        haskell-gi-base >=0.14 && <0.15,
-        gi-gtk >=0.3.16 && <0.3.21,
+        haskell-gi-base >=0.17 && <0.18,
+        gi-gtk >=3.0.2 && <3.1,
         gi-gtk-hs >=0.1.1 && <0.2
     hs-source-dirs: src
     other-modules:
@@ -123,14 +123,14 @@ executable vcsgui-askpass
     main-is: Main.hs
     build-depends:
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.9,
+        base >=4.0.0.0 && <4.10,
         directory >=1.1.0.0 && <1.3,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.1.1 && <0.2,
-        process >=1.0.1.5 && <1.3,
+        process >=1.0.1.5 && <1.5,
         text -any,
-        haskell-gi-base >=0.14 && <0.15,
-        gi-gtk >=0.3.16 && <0.3.21,
+        haskell-gi-base >=0.17 && <0.18,
+        gi-gtk >=3.0.2 && <3.1,
         gi-gtk-hs >=0.1.1 && <0.2
     hs-source-dirs: src/exe/askpass src
     other-modules:
