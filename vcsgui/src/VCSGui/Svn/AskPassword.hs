@@ -23,13 +23,22 @@ import qualified VCSGui.Common as VCSGUI
 
 import qualified VCSWrapper.Common as Wrapper
 
-import Graphics.UI.Gtk
-
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromJust, fromMaybe)
 import Control.Monad.Trans(liftIO)
 import Paths_vcsgui(getDataFileName)
 import Control.Monad.Reader(ask)
 import Data.Text (Text)
+import GI.Gtk.Objects.VBox (VBox(..))
+import GI.Gtk.Objects.Action (onActionActivate)
+import GI.Gtk.Objects.ToggleButton
+       (setToggleButtonActive, getToggleButtonActive,
+        onToggleButtonToggled)
+import GI.Gtk.Objects.Widget
+       (onWidgetDeleteEvent, widgetHide, widgetShowAll)
+import Data.GI.Base.Attributes (AttrOp(..))
+import GI.Gtk.Objects.Builder (builderGetObject)
+import Data.GI.Base.ManagedPtr (unsafeCastTo)
+import Data.GI.Base.BasicTypes (NullToNothing(..))
 --
 -- glade path and object accessors
 --
@@ -76,7 +85,7 @@ showAskpassGUI handler = do
         -- connect actions
         registerClose (windowAskpass gui) handler config
         registerCloseAction (actCancel gui) (windowAskpass gui) handler config
-        on (H.getItem (actOk gui)) actionActivated $ do
+        onActionActivate (H.getItem (actOk gui)) $ do
                                             putStrLn "ok clicked"
                                             usePw <- H.get $ checkbtUsePw gui
                                             pw <- H.get (entryPw gui)
@@ -86,8 +95,8 @@ showAskpassGUI handler = do
                                                                  else Just (saveForSession, Nothing)
                                             VCSGUI.defaultVCSExceptionHandler $ Wrapper.runVcs config $ handler args
                                             H.closeWin (windowAskpass gui)
-        on (H.getItem (checkbtUsePw gui)) toggled $ do
-                                            active <- get (H.getItem (checkbtUsePw gui)) toggleButtonActive
+        onToggleButtonToggled (H.getItem (checkbtUsePw gui)) $ do
+                                            active <- getToggleButtonActive (H.getItem (checkbtUsePw gui))
                                             if active then
                                                     widgetShowAll (boxUsePwd gui)
                                                 else
@@ -100,14 +109,14 @@ registerClose :: H.WindowItem
                 -> Handler
                 -> Wrapper.Config
                 -> IO()
-registerClose win handler config = on (H.getItem win) deleteEvent (liftIO (close win handler config) >> return False) >> return ()
+registerClose win handler config = onWidgetDeleteEvent (H.getItem win) (\e -> liftIO (close win handler config) >> return False) >> return ()
 
 registerCloseAction :: H.ActionItem
                     -> H.WindowItem
                     -> Handler
                     -> Wrapper.Config
                     -> IO()
-registerCloseAction act win handler config = on (H.getItem act) actionActivated (liftIO (close win handler config)) >> return ()
+registerCloseAction act win handler config = onActionActivate (H.getItem act) (liftIO (close win handler config)) >> return ()
 
 close :: H.WindowItem
                 -> Handler
@@ -127,8 +136,8 @@ loadAskpassGUI = do
     actCancel <- H.getActionFromGlade builder accessorActCancel
     entryPw <- H.getTextEntryFromGlade builder accessorEntryPw
     checkbtUsePw <- H.getCheckButtonFromGlade builder accessorCheckbtUsePw
-    set (H.getItem checkbtUsePw) [toggleButtonActive := True]
+    setToggleButtonActive (H.getItem checkbtUsePw) True
     checkbtSaveForSession <- H.getCheckButtonFromGlade builder accessorCheckbtSaveForSession
-    set (H.getItem checkbtSaveForSession) [toggleButtonActive := True]
-    boxUsePw <- builderGetObject builder castToVBox accessorboxUsePwd
+    setToggleButtonActive (H.getItem checkbtSaveForSession) True
+    boxUsePw <- nullToNothing (builderGetObject builder accessorboxUsePwd) >>= unsafeCastTo VBox . fromJust
     return $ AskpassGUI windowAskpass actOk actCancel entryPw checkbtUsePw checkbtSaveForSession boxUsePw

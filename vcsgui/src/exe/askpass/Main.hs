@@ -18,12 +18,15 @@ module Main (
     main
 ) where
 
-import Graphics.UI.Gtk
 import qualified VCSGui.Common.GtkHelper as H
 import Data.Maybe (fromMaybe)
 
 import Paths_vcsgui(getDataFileName)
 import qualified Data.Text as T (unpack)
+import qualified GI.Gtk.Functions as Gtk (main, init)
+import GI.Gtk.Objects.Action (onActionActivate)
+import GI.Gtk.Functions (mainQuit)
+import GI.Gtk.Objects.Widget (widgetShowAll)
 --
 -- glade path and object accessors
 --
@@ -44,9 +47,9 @@ data AskpassGUI = AskpassGUI {
 
 main :: IO ()
 main = do
-    initGUI
+    Gtk.init Nothing
     showAskpassGUI
-    mainGUI
+    Gtk.main
 
 
 showAskpassGUI :: IO ()
@@ -56,7 +59,7 @@ showAskpassGUI = do
     -- connect actions
     H.registerQuit $ window gui
     H.registerQuitAction $ actCancel gui
-    on (H.getItem (actOk gui)) actionActivated $ do
+    onActionActivate (H.getItem (actOk gui)) $ do
                                         pw <- H.get (entryPw gui)
                                         putStr . T.unpack $ fromMaybe "" pw
                                         mainQuit

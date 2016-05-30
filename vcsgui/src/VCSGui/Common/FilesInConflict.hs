@@ -1,5 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DataKinds #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.FilesInConflict
@@ -25,13 +26,40 @@ import qualified VCSGui.Common.MergeTool as Merge
 import qualified VCSGui.Common.Process as Process
 import qualified VCSGui.Common.ConflictsResolved as ConflictsResolvedGUI
 import qualified VCSGui.Common.Error as Error
-import Graphics.UI.Gtk
 import Control.Monad.Trans(liftIO)
 import Control.Monad
 import Control.Monad.Reader
 import Paths_vcsgui(getDataFileName)
 import Data.Text (Text)
 import qualified Data.Text as T (unpack, pack)
+import GI.Gtk.Objects.TreeView (treeViewSetModel, TreeView(..))
+import GI.Gtk.Objects.Action (onActionActivate)
+import GI.Gtk.Enums (ResponseType(..), FileChooserAction(..))
+import GI.Gtk.Objects.Widget (widgetDestroy, widgetShowAll)
+import GI.Gtk.Objects.CellRendererText (cellRendererTextNew)
+import Data.GI.Base.Attributes (AttrOp(..), AttrLabelProxy(..))
+import GI.Gtk.Objects.CellRendererToggle
+       (onCellRendererToggleToggled, cellRendererToggleNew)
+import GI.Gtk.Interfaces.TreeModel (treeModelGetIterFromString)
+import GI.Gtk.Objects.Builder (builderGetObject, Builder(..))
+import Data.GI.Base.BasicTypes (NullToNothing(..), GObject)
+import Foreign.ForeignPtr (ForeignPtr)
+import Data.GI.Base.ManagedPtr (unsafeCastTo)
+import Data.GI.Gtk.ModelView.SeqStore
+       (seqStoreAppend, seqStoreClear, seqStoreToList,
+        seqStoreSetValue, seqStoreIterToIndex, seqStoreGetValue,
+        seqStoreNew, SeqStore(..))
+import GI.Gtk.Objects.Window
+       (setWindowTransientFor, setWindowTitle, Window(..))
+import Data.GI.Base (new, nullToNothing)
+import GI.Gtk.Objects.FileChooserDialog (FileChooserDialog(..))
+import GI.Gtk.Objects.Dialog (dialogRun, dialogAddButton)
+import GI.Gtk.Interfaces.FileChooser
+       (fileChooserGetFilename, setFileChooserAction)
+import Data.Maybe (fromJust)
+
+_active = AttrLabelProxy :: AttrLabelProxy "active"
+_text = AttrLabelProxy :: AttrLabelProxy "text"
 
 --
 -- glade path and object accessors
@@ -52,7 +80,7 @@ accessorEntPath = "entPath"
 -- | Handler being called after all files have been resolved and resolved button is pressed
 type Handler = Wrapper.Ctx()
 
--- fn to set listStore model for treeview
+-- fn to set seqStore model for treeview
 type TreeViewSetter = (Maybe FilePath) -- ^ Maybe cwd
                    -> [FilePath] -- ^ conflicting files
                    -> (FilePath -> Wrapper.Ctx [FilePath]) -- ^ fn receiving a path to a conflicting file and returning all conflicting files involved in the conflict (max 4)
@@ -60,7 +88,7 @@ type TreeViewSetter = (Maybe FilePath) -- ^ Maybe cwd
                    -> (Either Merge.MergeTool Merge.MergeToolSetter) -- ^ either a mergetool or fn to set one
                    -> H.TextEntryItem   -- ^ the entry to get the path to the mergetool from
                    -> TreeView -- ^ the treeview to set the model to
-                   -> Wrapper.Ctx (ListStore SCFile)
+                   -> Wrapper.Ctx (SeqStore SCFile)
 
 -- GUI storing accessible elements
 data GUI = GUI {
@@ -81,7 +109,7 @@ data SCFile = SCFile {
 
 
 -- | Shows a GUI showing conflicting files and providing means to resolve the conflicts.
-showFilesInConflictGUI :: (Maybe TreeViewSetter) -- ^ fn to set listStore model for treeview, Nothing for default
+showFilesInConflictGUI :: (Maybe TreeViewSetter) -- ^ fn to set seqStore model for treeview, Nothing for default
         -> [FilePath]                            -- ^ conflicting files
         -> (FilePath -> Wrapper.Ctx [FilePath]) -- ^ fn receiving a path to a conflicting file and returning all conflicting files involved in the conflict (max 4)
         -> (FilePath -> Wrapper.Ctx ())       -- ^ fn to mark files as resolved in VCS
@@ -105,11 +133,11 @@ showFilesInConflictGUI (Just setUpTreeView) filesInConflict filesToResolveGetter
     liftIO $ H.registerClose $ windowFilesInConflict gui
     liftIO $ H.registerCloseAction (actCancel gui) (windowFilesInConflict gui)
     config <- ask
-    liftIO $ on (H.getItem (actResolved gui)) actionActivated $ do
+    liftIO $ onActionActivate (H.getItem (actResolved gui)) $ do
                                         --TODO check if all files have been resolved
                                         Wrapper.runVcs config $ actResolvedHandler
                                         H.closeWin (windowFilesInConflict gui)
-    liftIO $ on (H.getItem (actBrowsePath gui)) actionActivated $ do
+    liftIO $ onActionActivate (H.getItem (actBrowsePath gui)) $ do
             mbPath <- showFolderChooserDialog "Select executable" (H.getItem $ windowFilesInConflict gui) FileChooserActionOpen
             case mbPath of
                 Nothing -> return ()
@@ -126,8 +154,8 @@ showFilesInConflictGUI (Just setUpTreeView) filesInConflict filesToResolveGetter
 
     return ()
 
-loadGUI :: (H.TextEntryItem -> TreeView -> Wrapper.Ctx (ListStore SCFile))
-        -- ^ (The entry to get the path to the mergetool from. , treeview to setup, fn to set listStore model for treeview
+loadGUI :: (H.TextEntryItem -> TreeView -> Wrapper.Ctx (SeqStore SCFile))
+        -- ^ (The entry to get the path to the mergetool from. , treeview to setup, fn to set seqStore model for treeview
         -> Wrapper.Ctx GUI
 loadGUI setUpTreeView = do
                 gladepath <- liftIO getGladepath
@@ -146,31 +174,31 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
     config <- ask
     liftIO $ do
         -- create model
-        listStore <- listStoreNew [
+        seqStore <- seqStoreNew [
                 (SCFile      fileName
                              (False))
                 | fileName <- conflictingFiles]
-        treeViewSetModel listView listStore
+        treeViewSetModel listView (Just seqStore)
 
-        let treeViewItem = (listStore, listView)
+        let treeViewItem = (seqStore, listView)
 
         renderer <- cellRendererTextNew
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "File"
-                               $ \scf -> [cellText := T.pack $ filePath scf]
+                               $ \scf -> [_text := T.pack $ filePath scf]
 
         renderer <- cellRendererToggleNew
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "Resolved"
-                               $ \scf -> [cellToggleActive := isResolved scf]
+                               $ \scf -> [_active := isResolved scf]
 
         -- connect select action
-        on renderer cellToggled $ \(columnId :: Text) -> do
+        onCellRendererToggleToggled renderer $ \(columnId :: Text) -> do
                                 putStrLn $ "Checkbutton clicked at column " ++ (show columnId)
                                 --TODO only call tool if button is not checked, move this code to being called if a click on row is received
-                                let callTool' = (\path -> Wrapper.runVcs config $ callTool columnId listStore path)
+                                let callTool' = (\path -> Wrapper.runVcs config $ callTool columnId seqStore path)
                                 mbPath <- H.get entPath
                                 case mbPath of
                                     Nothing -> Error.showErrorGUI "MergeTool not set. Set MergeTool first."
@@ -178,28 +206,29 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
                                 return ()
 
 
-        return listStore
+        return seqStore
         where
-            callTool columnId listStore pathToTool = do
+            callTool columnId seqStore pathToTool = do
                         config <- ask
-                        Just treeIter <- liftIO $ treeModelGetIterFromString listStore columnId
-                        value <- liftIO $ listStoreGetValue listStore $ listStoreIterToIndex treeIter
+                        (True, treeIter) <- liftIO $ treeModelGetIterFromString seqStore columnId
+                        value <- liftIO $ seqStoreGetValue seqStore =<< seqStoreIterToIndex treeIter
                         filesToResolve <- filesToResolveGetter $ filePath value
                         resolvedByTool <- liftIO $ Process.exec mbcwd pathToTool $ map T.pack filesToResolve
-                        let setResolved' = setResolved listStore treeIter value
+                        let setResolved' = setResolved seqStore treeIter value
                         case resolvedByTool of
                                     False -> ConflictsResolvedGUI.showConflictsResolvedGUI
                                                 (\resolved -> setResolved' resolved)
-                                    True -> setResolved listStore treeIter value True
+                                    True -> setResolved seqStore treeIter value True
                         return()
-            setResolved listStore treeIter oldValue isResolved = do
+            setResolved seqStore treeIter oldValue isResolved = do
                         let fp = filePath oldValue
                         case isResolved of
                             False -> return ()
                             True -> resolveMarker fp
                         let newValue = (\(SCFile fp b) -> SCFile fp isResolved)
                                         oldValue
-                        liftIO $ listStoreSetValue listStore (listStoreIterToIndex treeIter) newValue
+                        n <- seqStoreIterToIndex treeIter
+                        liftIO $ seqStoreSetValue seqStore n newValue
                         return ()
 
 ----
@@ -208,41 +237,41 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
 
 getTreeViewFromGladeCustomStore :: Builder
                         -> Text
-                        -> (TreeView -> Wrapper.Ctx (ListStore SCFile)) -- ^ fn defining how to setup the liststore
+                        -> (TreeView -> Wrapper.Ctx (SeqStore SCFile)) -- ^ fn defining how to setup the liststore
                         -> Wrapper.Ctx (H.TreeViewItem SCFile)
-getTreeViewFromGladeCustomStore builder name setupListStore = do
-    (_, tView) <- liftIO $ wrapWidget builder castToTreeView name
-    store <- setupListStore tView
-    let getter = getFromListStore (store, tView)
-        setter = setToListStore (store, tView)
+getTreeViewFromGladeCustomStore builder name setupSeqStore = do
+    (_, tView) <- liftIO $ wrapWidget builder TreeView name
+    store <- setupSeqStore tView
+    let getter = getFromSeqStore (store, tView)
+        setter = setToSeqStore (store, tView)
     return (name, (store, tView), (getter, setter))
 
 ---
 --- same as gtkhelper, but avoiding exposing it
 ---
-wrapWidget :: GObjectClass objClass =>
+wrapWidget :: GObject objClass =>
      Builder
-     -> (GObject -> objClass)
+     -> (ForeignPtr objClass -> objClass)
      -> Text -> IO (Text, objClass)
-wrapWidget builder cast name = do
+wrapWidget builder constructor name = do
     putStrLn $ " cast " ++ T.unpack name
-    gobj <- builderGetObject builder cast name
+    gobj <- nullToNothing (builderGetObject builder name) >>= unsafeCastTo constructor . fromJust
     return (name, gobj)
 
-getFromListStore :: (ListStore a, TreeView)
+getFromSeqStore :: (SeqStore a, TreeView)
     -> IO (Maybe [a])
-getFromListStore (store, _) = do
-    list <- listStoreToList store
+getFromSeqStore (store, _) = do
+    list <- seqStoreToList store
     if null list
         then return Nothing
         else return $ Just list
 
-setToListStore :: (ListStore a, TreeView)
+setToSeqStore :: (SeqStore a, TreeView)
     -> [a]
     -> IO ()
-setToListStore (store, view) newList = do
-    listStoreClear store
-    mapM_ (listStoreAppend store) newList
+setToSeqStore (store, view) newList = do
+    seqStoreClear store
+    mapM_ (seqStoreAppend store) newList
     return ()
 
 -- HELPER
@@ -253,13 +282,18 @@ showFolderChooserDialog :: Text -- ^ title of the window
     -> FileChooserAction
     -> IO (Maybe FilePath)
 showFolderChooserDialog title parent fcAction = do
-    dialog <- fileChooserDialogNew (Just title) (Just parent) fcAction [("Cancel", ResponseCancel), ("Select", ResponseAccept)]
+    dialog <- new FileChooserDialog []
+    setWindowTitle dialog title
+    dialogAddButton dialog "gtk-cancel" (fromIntegral $ fromEnum ResponseTypeCancel)
+    dialogAddButton dialog "Select" (fromIntegral $ fromEnum ResponseTypeAccept)
+    setWindowTransientFor dialog parent
+    setFileChooserAction dialog fcAction
     response <- dialogRun dialog
-    case response of
-        ResponseCancel      -> widgetDestroy dialog >> return Nothing
-        ResponseDeleteEvent -> widgetDestroy dialog >> return Nothing
-        ResponseAccept      -> do
-            f <- fileChooserGetFilename dialog
+    case toEnum $ fromIntegral response of
+        ResponseTypeCancel      -> widgetDestroy dialog >> return Nothing
+        ResponseTypeDeleteEvent -> widgetDestroy dialog >> return Nothing
+        ResponseTypeAccept      -> do
+            f <- nullToNothing $ fileChooserGetFilename dialog
             widgetDestroy dialog
             return f
 

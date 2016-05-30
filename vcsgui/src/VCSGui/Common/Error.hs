@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
 -----------------------------------------------------------------------------
 --
@@ -17,14 +18,24 @@ module VCSGui.Common.Error (
     showErrorGUI
 ) where
 
-import Graphics.UI.Gtk
 import Data.Text (Text)
+import GI.Gtk.Objects.Dialog (dialogUseHeaderBar, dialogRun)
+import GI.Gtk.Objects.Widget (widgetDestroy)
+import Data.GI.Base (new)
+import GI.Gtk.Objects.MessageDialog
+       (messageDialogMessageType, messageDialogButtons,
+        setMessageDialogText, MessageDialog(..))
+import GI.Gtk.Enums (ButtonsType(..), MessageType(..))
+import Data.GI.Base.Attributes (AttrOp(..))
 
 -- | Displays a simple window displaying given 'String' as an error message.
 showErrorGUI :: Text -- ^ Message to display.
     -> IO ()
 showErrorGUI msg = do
-    dialog <- messageDialogNew Nothing [] MessageError ButtonsOk msg
+    dialog <- new MessageDialog [dialogUseHeaderBar := 0,
+                                 messageDialogMessageType := MessageTypeError,
+                                 messageDialogButtons := ButtonsTypeOk]
+    setMessageDialogText dialog msg
     _ <- dialogRun dialog
     widgetDestroy dialog
     return ()

@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 -----------------------------------------------------------------------------
 --
 -- Module      :  VCSGui.Common.Log
@@ -18,7 +20,6 @@ module VCSGui.Common.Log (
 ) where
 
 import Control.Monad.Reader
-import qualified Graphics.UI.Gtk as Gtk
 import Data.Maybe
 
 import VCSGui.Common.GtkHelper
@@ -30,6 +31,23 @@ import Paths_vcsgui(getDataFileName)
 import Data.Text (Text)
 import qualified Data.Text as T (pack)
 import Data.Monoid ((<>))
+import qualified GI.Gtk.Objects.TreeView as Gtk
+       (treeViewSetCursor, treeViewGetCursor, TreeView(..))
+import qualified GI.Gtk.Objects.Action as Gtk (onActionActivate)
+import qualified GI.Gtk.Objects.Widget as Gtk
+       (setWidgetVisible, widgetShowAll)
+import qualified GI.Gtk.Interfaces.TreeModel as Gtk
+       (treeModelGetPath, treeModelGetIterFirst, treeModelGetIter)
+import qualified Data.GI.Gtk.ModelView.SeqStore as Gtk
+       (seqStoreIterToIndex, seqStoreGetValue, SeqStore(..))
+import qualified Data.GI.Base.Attributes as Gtk (AttrOp(..))
+import qualified Data.GI.Gtk.ComboBox as Gtk
+       (comboBoxSetActive, comboBoxPrependText)
+import qualified GI.Gtk.Objects.ComboBox as Gtk (onComboBoxChanged)
+import GI.Gtk.Objects.TreeViewColumn (noTreeViewColumn)
+import Data.GI.Base.Attributes (AttrLabelProxy(..))
+
+_text = AttrLabelProxy :: AttrLabelProxy "text"
 
 getGladepath = getDataFileName "data/guiCommonLog.glade"
 
@@ -91,7 +109,7 @@ guiWithoutBranches logEntries options doCheckoutFn displayBranchNames = do
         liftIO $ registerCloseAction (actLogCancel gui) (logWin gui)
 
         config <- ask
-        liftIO $ Gtk.on (getItem (actCheckout gui)) Gtk.actionActivated $
+        liftIO $ Gtk.onActionActivate (getItem (actCheckout gui)) $
             doCheckout' config (logTreeView gui) (comboBranch gui)
                 >> (closeWin (logWin gui))
 
@@ -101,37 +119,40 @@ guiWithoutBranches logEntries options doCheckoutFn displayBranchNames = do
     where
     doCheckout' :: Common.Config -> TreeViewItem Common.LogEntry -> ComboBoxItem -> IO ()
     doCheckout' cfg (_, (store, view), _) combo = do
-        (path, _) <- Gtk.treeViewGetCursor view -- TODO fix nothing selected bug here
-        Just treeIter <- Gtk.treeModelGetIter store path
-        selectedLog <- Gtk.listStoreGetValue store $ Gtk.listStoreIterToIndex treeIter
-        selectedBranch <- get combo
-        Common.runVcs cfg $ doCheckoutFn selectedLog selectedBranch
+        (mbPath, _) <- Gtk.treeViewGetCursor view
+        case mbPath of
+            Just path -> do
+                (True, treeIter) <- Gtk.treeModelGetIter store path
+                selectedLog <- Gtk.seqStoreGetValue store =<< Gtk.seqStoreIterToIndex treeIter
+                selectedBranch <- get combo
+                Common.runVcs cfg $ doCheckoutFn selectedLog selectedBranch
+            Nothing -> return () -- TODO fix nothing selected bug here
 
     setupLogColumns :: LogGUI -> Bool -> IO ()
     setupLogColumns gui displayBranchNames = do
         let item = (logTreeView gui)
-        addTextColumnToTreeView item "Subject" (\Common.LogEntry { Common.subject = t } -> [Gtk.cellText Gtk.:= t])
-        addTextColumnToTreeView item "Author" (\Common.LogEntry { Common.author = t, Common.email = mail } -> [Gtk.cellText Gtk.:= t <> " <" <> mail <> ">"])
-        addTextColumnToTreeView item "Date" (\Common.LogEntry { Common.date = t } -> [Gtk.cellText Gtk.:= t])
+        addTextColumnToTreeView item "Subject" (\Common.LogEntry { Common.subject = t } -> [_text Gtk.:= t])
+        addTextColumnToTreeView item "Author" (\Common.LogEntry { Common.author = t, Common.email = mail } -> [_text Gtk.:= t <> " <" <> mail <> ">"])
+        addTextColumnToTreeView item "Date" (\Common.LogEntry { Common.date = t } -> [_text Gtk.:= t])
         case displayBranchNames of
-            True -> addTextColumnToTreeView item "Branch" (\Common.LogEntry { Common.mbBranch = t } -> [Gtk.cellText Gtk.:= fromMaybe "" t])
+            True -> addTextColumnToTreeView item "Branch" (\Common.LogEntry { Common.mbBranch = t } -> [_text Gtk.:= fromMaybe "" t])
             False -> return()
         return ()
 
 guiAddBranches :: LogGUI -> (Text, [Text]) -> (Text -> Common.Ctx [Common.LogEntry]) -> Common.Ctx ()
 guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
         -- set branch selection visible
-        liftIO $ Gtk.set (getItem $ lblBranch gui) [Gtk.widgetVisible Gtk.:= True]
-        liftIO $ Gtk.set (getItem $ comboBranch gui) [Gtk.widgetVisible Gtk.:= True]
+        liftIO $ Gtk.setWidgetVisible (getItem $ lblBranch gui) True
+        liftIO $ Gtk.setWidgetVisible (getItem $ comboBranch gui) True
 
-        -- fill with data
+        -- fill with data®
         liftIO $ set (comboBranch gui) otherBranches
         liftIO $ Gtk.comboBoxPrependText (getItem $ comboBranch gui) curBranch
         liftIO $ Gtk.comboBoxSetActive (getItem $ comboBranch gui) 0
 
         -- register branch switch fn
         config <- ask
-        liftIO $ Gtk.on (getItem $ comboBranch gui) Gtk.changed $ changeBranchFn' config (fmap (fromMaybe "") $ get $ comboBranch gui)
+        liftIO $ Gtk.onComboBoxChanged (getItem $ comboBranch gui) $ changeBranchFn' config (fmap (fromMaybe "") $ get $ comboBranch gui)
         return ()
     where
     changeBranchFn' :: Common.Config -> IO Text -> IO ()
@@ -141,9 +162,11 @@ guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
         newLogEntries <- Common.runVcs cfg $ changeBranchFn branch
         set (logTreeView gui) newLogEntries
         -- set cursor to first log entry (so checkoutbutton works)
-        Just firstRowIter <- Gtk.treeModelGetIterFirst store
-        firstRow <- Gtk.treeModelGetPath store firstRowIter
-        Gtk.treeViewSetCursor view firstRow Nothing
+        Gtk.treeModelGetIterFirst store >>= \case
+            (True, firstRowIter) -> do
+                firstRow <- Gtk.treeModelGetPath store firstRowIter
+                Gtk.treeViewSetCursor view firstRow noTreeViewColumn False
+            _ -> return ()
 
 
 loadLogGui :: [Common.LogEntry] -> Common.Ctx LogGUI

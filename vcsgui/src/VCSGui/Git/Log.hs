@@ -19,7 +19,6 @@ module VCSGui.Git.Log (
     showLogGUI
 ) where
 
-import qualified Graphics.UI.Gtk as Gtk
 import qualified VCSGui.Common.Log as Common
 import qualified VCSWrapper.Git as Git
 import Control.Monad.Reader (liftIO)
@@ -27,6 +26,18 @@ import Data.Maybe (fromMaybe)
 import VCSGui.Common.Helpers (emptyTextToNothing)
 import qualified Data.Text as T (unpack, pack)
 import Data.Text (Text)
+import qualified GI.Gtk.Objects.Dialog as Gtk
+       (dialogRun, dialogGetContentArea, dialogAddButton, dialogNew)
+import qualified GI.Gtk.Enums as Gtk (ResponseType(..))
+import qualified GI.Gtk.Objects.Entry as Gtk
+       (entryGetText, entryNew)
+import qualified GI.Gtk.Objects.Label as Gtk (labelNew)
+import qualified GI.Gtk.Objects.HBox as Gtk (hBoxNew)
+import qualified GI.Gtk.Objects.Container as Gtk (containerAdd)
+import Data.GI.Base.ManagedPtr (unsafeCastTo)
+import GI.Gtk.Objects.Box (Box(..))
+import qualified GI.Gtk.Objects.Widget as Gtk
+       (widgetDestroy, widgetShowAll)
 
 
 {- | Calls 'Common.showLogGUI' using Git. This will display all log entries. The branch to be displayed can be selected.
@@ -53,17 +64,13 @@ showLogGUI = do
     askForNewBranchname :: IO (Maybe Text)
     askForNewBranchname = do
         dialog <- Gtk.dialogNew
-        Gtk.dialogAddButton dialog ("gtk-ok"::Text) Gtk.ResponseOk
-#if defined(MIN_VERSION_gtk3)
-        upper <- Gtk.dialogGetContentArea dialog
-#else
-        upper <- Gtk.dialogGetUpper dialog
-#endif
+        Gtk.dialogAddButton dialog ("gtk-ok"::Text) (fromIntegral $ fromEnum Gtk.ResponseTypeOk)
+        upper <- Gtk.dialogGetContentArea dialog >>= unsafeCastTo Box
 
         inputBranch <- Gtk.entryNew
         lblBranch <- Gtk.labelNew $ Just ("Enter a new branchname (empty for anonym branch):" :: Text)
         box <- Gtk.hBoxNew False 2
-        Gtk.containerAdd (Gtk.castToBox upper) box
+        Gtk.containerAdd upper box
         Gtk.containerAdd box lblBranch
         Gtk.containerAdd box inputBranch
 
