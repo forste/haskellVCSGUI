@@ -40,14 +40,11 @@ import qualified GI.Gtk.Interfaces.TreeModel as Gtk
        (treeModelGetPath, treeModelGetIterFirst, treeModelGetIter)
 import qualified Data.GI.Gtk.ModelView.SeqStore as Gtk
        (seqStoreIterToIndex, seqStoreGetValue, SeqStore(..))
-import qualified Data.GI.Base.Attributes as Gtk (AttrOp(..))
 import qualified Data.GI.Gtk.ComboBox as Gtk
        (comboBoxSetActive, comboBoxPrependText)
 import qualified GI.Gtk.Objects.ComboBox as Gtk (onComboBoxChanged)
 import GI.Gtk.Objects.TreeViewColumn (noTreeViewColumn)
-import Data.GI.Base.Attributes (AttrLabelProxy(..))
-
-_text = AttrLabelProxy :: AttrLabelProxy "text"
+import qualified GI.Gtk as Gtk (setCellRendererTextText)
 
 getGladepath = getDataFileName "data/guiCommonLog.glade"
 
@@ -131,11 +128,11 @@ guiWithoutBranches logEntries options doCheckoutFn displayBranchNames = do
     setupLogColumns :: LogGUI -> Bool -> IO ()
     setupLogColumns gui displayBranchNames = do
         let item = (logTreeView gui)
-        addTextColumnToTreeView item "Subject" (\Common.LogEntry { Common.subject = t } -> [_text Gtk.:= t])
-        addTextColumnToTreeView item "Author" (\Common.LogEntry { Common.author = t, Common.email = mail } -> [_text Gtk.:= t <> " <" <> mail <> ">"])
-        addTextColumnToTreeView item "Date" (\Common.LogEntry { Common.date = t } -> [_text Gtk.:= t])
+        addTextColumnToTreeView item "Subject" (\cell Common.LogEntry { Common.subject = t } -> Gtk.setCellRendererTextText cell t)
+        addTextColumnToTreeView item "Author" (\cell Common.LogEntry { Common.author = t, Common.email = mail } -> Gtk.setCellRendererTextText cell $ t <> " <" <> mail <> ">")
+        addTextColumnToTreeView item "Date" (\cell Common.LogEntry { Common.date = t } -> Gtk.setCellRendererTextText cell t)
         case displayBranchNames of
-            True -> addTextColumnToTreeView item "Branch" (\Common.LogEntry { Common.mbBranch = t } -> [_text Gtk.:= fromMaybe "" t])
+            True -> addTextColumnToTreeView item "Branch" (\cell Common.LogEntry { Common.mbBranch = t } -> Gtk.setCellRendererTextText cell $ fromMaybe "" t)
             False -> return()
         return ()
 

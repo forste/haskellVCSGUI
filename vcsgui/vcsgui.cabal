@@ -45,7 +45,7 @@ library
         text -any,
         haskell-gi-base >=0.17 && <0.18,
         gi-gtk >=3.0.2 && <3.1,
-        gi-gtk-hs >=0.2.0.0 && <0.3
+        gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src
     other-modules:
         VCSGui.Svn.Helper
@@ -89,7 +89,7 @@ executable vcsgui
         text -any,
         haskell-gi-base >=0.17 && <0.18,
         gi-gtk >=3.0.2 && <3.1,
-        gi-gtk-hs >=0.2.0.0 && <0.3
+        gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src
     other-modules:
         VCSGui.Svn.Helper
@@ -131,7 +131,7 @@ executable vcsgui-askpass
         text -any,
         haskell-gi-base >=0.17 && <0.18,
         gi-gtk >=3.0.2 && <3.1,
-        gi-gtk-hs >=0.2.0.0 && <0.3
+        gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src/exe/askpass src
     other-modules:
         VCSGui.Svn.Helper

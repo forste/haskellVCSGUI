@@ -101,13 +101,11 @@ import qualified GI.Gtk.Objects.Widget as Gtk
        (onWidgetDeleteEvent, widgetHide)
 import qualified GI.Gtk.Functions as Gtk (mainQuit)
 import qualified GI.Gtk.Objects.CellRenderer as Gtk (CellRendererK)
-import qualified Data.GI.Base.Attributes as Gtk
-       (AttrOpTag(..), AttrOp)
 import qualified GI.Gtk.Objects.TreeViewColumn as Gtk
        (treeViewColumnPackStart, setTreeViewColumnTitle,
         treeViewColumnNew)
 import qualified Data.GI.Gtk.ModelView.CellLayout as Gtk
-       (cellLayoutSetAttributes)
+       (cellLayoutSetDataFunction)
 import qualified GI.Gtk.Objects.CellRendererText as Gtk
        (cellRendererTextNew, CellRendererText(..))
 import qualified Data.GI.Base.BasicTypes as Gtk (GObject)
@@ -341,7 +339,7 @@ addColumnToTreeView :: Gtk.CellRendererK r =>
     TreeViewItem a
     -> r -- ^ CellRenderer
     -> Text -- ^ title
-    -> (a -> [Gtk.AttrOp r 'Gtk.AttrSet]) -- ^ mapping
+    -> (r -> a -> IO ()) -- ^ mapping
     -> IO ()
 addColumnToTreeView (_, item, _) = do
     addColumnToTreeView' item
@@ -356,19 +354,19 @@ addColumnToTreeView' :: Gtk.CellRendererK r =>
     (Gtk.SeqStore a, Gtk.TreeView)
     -> r
     -> Text
-    -> (a -> [Gtk.AttrOp r 'Gtk.AttrSet])
+    -> (r -> a -> IO ())
     -> IO ()
 addColumnToTreeView' (seqStore, listView) renderer title value2attributes = do
     newCol <- Gtk.treeViewColumnNew
     Gtk.setTreeViewColumnTitle newCol title
     Gtk.treeViewAppendColumn listView newCol
     Gtk.treeViewColumnPackStart newCol renderer True
-    Gtk.cellLayoutSetAttributes newCol renderer seqStore value2attributes
+    Gtk.cellLayoutSetDataFunction newCol renderer seqStore (value2attributes renderer)
 
 -- | Shortcut for adding text columns to a TreeView. See 'addColumnToTreeView'.
 addTextColumnToTreeView :: TreeViewItem a
     -> Text -- ^ title
-    -> (a -> [Gtk.AttrOp Gtk.CellRendererText 'Gtk.AttrSet]) -- ^ mapping
+    -> (Gtk.CellRendererText -> a -> IO ()) -- ^ mapping
     -> IO ()
 addTextColumnToTreeView tree title map = do
     r <- Gtk.cellRendererTextNew
@@ -377,7 +375,7 @@ addTextColumnToTreeView tree title map = do
 -- | Shortcut for adding text columns to a TreeView. See 'addColumnToTreeView\''.
 addTextColumnToTreeView' :: (Gtk.SeqStore a, Gtk.TreeView)
     -> Text
-    -> (a -> [Gtk.AttrOp Gtk.CellRendererText 'Gtk.AttrSet])
+    -> (Gtk.CellRendererText -> a -> IO ())
     -> IO ()
 addTextColumnToTreeView' item title map = do
     r <- Gtk.cellRendererTextNew
