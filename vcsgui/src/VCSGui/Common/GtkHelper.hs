@@ -100,7 +100,7 @@ import qualified GI.Gtk.Objects.ToggleButton as Gtk
 import qualified GI.Gtk.Objects.Widget as Gtk
        (onWidgetDeleteEvent, widgetHide)
 import qualified GI.Gtk.Functions as Gtk (mainQuit)
-import qualified GI.Gtk.Objects.CellRenderer as Gtk (CellRendererK)
+import qualified GI.Gtk.Objects.CellRenderer as Gtk (IsCellRenderer)
 import qualified GI.Gtk.Objects.TreeViewColumn as Gtk
        (treeViewColumnPackStart, setTreeViewColumnTitle,
         treeViewColumnNew)
@@ -335,7 +335,7 @@ registerQuitWithCustomFun win fun = Gtk.onWidgetDeleteEvent (getItem win) (\_ ->
 
 -- | Add a column to given SeqStore and TreeView using a mapping.
 -- The mapping consists of a CellRenderer, the title and a function, that maps each row to attributes of the column
-addColumnToTreeView :: Gtk.CellRendererK r =>
+addColumnToTreeView :: Gtk.IsCellRenderer r =>
     TreeViewItem a
     -> r -- ^ CellRenderer
     -> Text -- ^ title
@@ -350,7 +350,7 @@ addColumnToTreeView (_, item, _) = do
 --    Gtk.cellLayoutSetAttributes newCol renderer seqStore value2attributes
 
 -- | Same as 'addColumnToTreeView'. This function can be called without a complete 'TreeViewItem'.
-addColumnToTreeView' :: Gtk.CellRendererK r =>
+addColumnToTreeView' :: Gtk.IsCellRenderer r =>
     (Gtk.SeqStore a, Gtk.TreeView)
     -> r
     -> Text
