@@ -8,6 +8,7 @@ if [[ -d .cabal && -d .ghc ]]; then
 fi
 
 cabal update
+cd vcsgui
 cabal new-build
 
 # update the cache
