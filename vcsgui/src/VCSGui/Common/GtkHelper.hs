@@ -111,7 +111,7 @@ import qualified GI.Gtk.Objects.CellRendererText as Gtk
 import qualified Data.GI.Base.BasicTypes as Gtk (GObject)
 import Foreign.ForeignPtr (ForeignPtr)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
-import Data.GI.Base.BasicTypes (NullToNothing(..))
+import Data.GI.Base.BasicTypes (ManagedPtr(..), NullToNothing(..))
 import Data.Maybe (fromJust)
 
 -- Typesynonyms
@@ -387,7 +387,7 @@ addTextColumnToTreeView' item title map = do
 
 wrapWidget :: Gtk.GObject objClass =>
      Gtk.Builder
-     -> (ForeignPtr objClass -> objClass)
+     -> (ManagedPtr objClass -> objClass)
      -> Text -> IO (Text, objClass)
 wrapWidget builder constructor name = do
     hPutStrLn stderr $ " cast " ++ T.unpack name

@@ -1,5 +1,5 @@
 name: vcsgui
-version: 0.2.0.0
+version: 0.2.1.0
 cabal-version: >=1.8
 build-type: Simple
 license: GPL
@@ -43,7 +43,7 @@ library
         vcswrapper >=0.1.1 && <0.2,
         process >=1.0.1.5 && <1.5,
         text -any,
-        haskell-gi-base >=0.18 && <0.19,
+        haskell-gi-base >=0.20 && <0.21,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src
@@ -87,7 +87,7 @@ executable vcsgui
         vcswrapper >=0.1.1 && <0.2,
         process >=1.0.1.5 && <1.5,
         text -any,
-        haskell-gi-base >=0.18 && <0.19,
+        haskell-gi-base >=0.20 && <0.21,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src
@@ -129,7 +129,7 @@ executable vcsgui-askpass
         vcswrapper >=0.1.1 && <0.2,
         process >=1.0.1.5 && <1.5,
         text -any,
-        haskell-gi-base >=0.17 && <0.19,
+        haskell-gi-base >=0.20 && <0.21,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src/exe/askpass src

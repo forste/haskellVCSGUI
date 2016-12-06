@@ -41,7 +41,8 @@ import GI.Gtk.Objects.CellRendererToggle
        (onCellRendererToggleToggled, cellRendererToggleNew)
 import GI.Gtk.Interfaces.TreeModel (treeModelGetIterFromString)
 import GI.Gtk.Objects.Builder (builderGetObject, Builder(..))
-import Data.GI.Base.BasicTypes (NullToNothing(..), GObject)
+import Data.GI.Base.BasicTypes
+       (ManagedPtr(..), NullToNothing(..), GObject)
 import Foreign.ForeignPtr (ForeignPtr)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
 import Data.GI.Gtk.ModelView.SeqStore
@@ -249,7 +250,7 @@ getTreeViewFromGladeCustomStore builder name setupSeqStore = do
 ---
 wrapWidget :: GObject objClass =>
      Builder
-     -> (ForeignPtr objClass -> objClass)
+     -> (ManagedPtr objClass -> objClass)
      -> Text -> IO (Text, objClass)
 wrapWidget builder constructor name = do
     putStrLn $ " cast " ++ T.unpack name
