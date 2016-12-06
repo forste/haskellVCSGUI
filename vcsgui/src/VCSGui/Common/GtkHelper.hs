@@ -109,7 +109,6 @@ import qualified Data.GI.Gtk.ModelView.CellLayout as Gtk
 import qualified GI.Gtk.Objects.CellRendererText as Gtk
        (cellRendererTextNew, CellRendererText(..))
 import qualified Data.GI.Base.BasicTypes as Gtk (GObject)
-import Foreign.ForeignPtr (ForeignPtr)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
 import Data.GI.Base.BasicTypes (ManagedPtr(..), NullToNothing(..))
 import Data.Maybe (fromJust)
