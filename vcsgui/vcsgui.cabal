@@ -1,5 +1,5 @@
 name: vcsgui
-version: 0.2.1.0
+version: 0.2.1.1
 cabal-version: >=1.8
 build-type: Simple
 license: GPL
@@ -82,7 +82,7 @@ executable vcsgui
     build-depends:
         filepath >=1.2.0.0 && <1.5,
         base >=4.0.0.0 && <4.10,
-        directory >=1.1.0.0 && <1.3,
+        directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.1.1 && <0.2,
         process >=1.0.1.5 && <1.5,
@@ -124,7 +124,7 @@ executable vcsgui-askpass
     build-depends:
         filepath >=1.2.0.0 && <1.5,
         base >=4.0.0.0 && <4.10,
-        directory >=1.1.0.0 && <1.3,
+        directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.1.1 && <0.2,
         process >=1.0.1.5 && <1.5,
