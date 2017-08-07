@@ -1,5 +1,5 @@
 name: vcsgui
-version: 0.2.1.2
+version: 0.2.2.0
 cabal-version: >=1.8
 build-type: Simple
 license: GPL
@@ -37,11 +37,11 @@ library
         VCSGui.Mercurial
     build-depends:
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.10,
+        base >=4.0.0.0 && <4.11,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.1.1 && <0.2,
-        process >=1.0.1.5 && <1.5,
+        process >=1.0.1.5 && <1.7,
         text -any,
         haskell-gi-base >=0.20 && <0.21,
         gi-gtk >=3.0.6 && <3.1,
@@ -81,11 +81,11 @@ executable vcsgui
     main-is: Main.hs
     build-depends:
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.10,
+        base >=4.0.0.0 && <4.11,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.1.1 && <0.2,
-        process >=1.0.1.5 && <1.5,
+        process >=1.0.1.5 && <1.7,
         text -any,
         haskell-gi-base >=0.20 && <0.21,
         gi-gtk >=3.0.6 && <3.1,
@@ -123,11 +123,11 @@ executable vcsgui-askpass
     main-is: Main.hs
     build-depends:
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.10,
+        base >=4.0.0.0 && <4.11,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.1.1 && <0.2,
-        process >=1.0.1.5 && <1.5,
+        process >=1.0.1.5 && <1.7,
         text -any,
         haskell-gi-base >=0.20 && <0.21,
         gi-gtk >=3.0.6 && <3.1,
