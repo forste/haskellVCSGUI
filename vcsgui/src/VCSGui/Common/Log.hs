@@ -73,7 +73,7 @@ showLogGUI :: [Common.LogEntry]
             -- ^ logEntries to be displayed initially
             -> [Text]
             -- ^ options will be displayed in a menu as checkboxes (TODO this is currently not implemented)
-            -> Maybe ((Text, [Text]), (Text -> Common.Ctx [Common.LogEntry]))
+            -> Maybe ((Maybe Text, [Text]), Text -> Common.Ctx [Common.LogEntry])
             -- ^ (list of branchnames to display, Function called when a different branch is selected)
             --
             -- The function will be called with the selected branchname to repopulate the displayed LogEntries.
@@ -136,7 +136,7 @@ guiWithoutBranches logEntries options doCheckoutFn displayBranchNames = do
             False -> return()
         return ()
 
-guiAddBranches :: LogGUI -> (Text, [Text]) -> (Text -> Common.Ctx [Common.LogEntry]) -> Common.Ctx ()
+guiAddBranches :: LogGUI -> (Maybe Text, [Text]) -> (Text -> Common.Ctx [Common.LogEntry]) -> Common.Ctx ()
 guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
         -- set branch selection visible
         liftIO $ Gtk.setWidgetVisible (getItem $ lblBranch gui) True
@@ -144,7 +144,7 @@ guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
 
         -- fill with data®
         liftIO $ set (comboBranch gui) otherBranches
-        liftIO $ Gtk.comboBoxPrependText (getItem $ comboBranch gui) curBranch
+        forM_ curBranch $ Gtk.comboBoxPrependText (getItem $ comboBranch gui)
         liftIO $ Gtk.comboBoxSetActive (getItem $ comboBranch gui) 0
 
         -- register branch switch fn

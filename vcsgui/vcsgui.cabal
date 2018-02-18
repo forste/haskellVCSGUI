@@ -1,5 +1,5 @@
 name: vcsgui
-version: 0.2.2.0
+version: 0.3.0.0
 cabal-version: >=1.8
 build-type: Simple
 license: GPL
@@ -40,10 +40,10 @@ library
         base >=4.0.0.0 && <4.11,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
-        vcswrapper >=0.1.1 && <0.2,
+        vcswrapper >=0.2.0 && <0.3,
         process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.20 && <0.21,
+        haskell-gi-base >=0.20 && <0.22,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src
@@ -84,10 +84,10 @@ executable vcsgui
         base >=4.0.0.0 && <4.11,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
-        vcswrapper >=0.1.1 && <0.2,
+        vcswrapper >=0.2.0 && <0.3,
         process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.20 && <0.21,
+        haskell-gi-base >=0.20 && <0.22,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src
@@ -126,10 +126,10 @@ executable vcsgui-askpass
         base >=4.0.0.0 && <4.11,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
-        vcswrapper >=0.1.1 && <0.2,
+        vcswrapper >=0.2.0 && <0.3,
         process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.20 && <0.21,
+        haskell-gi-base >=0.20 && <0.22,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src/exe/askpass src
