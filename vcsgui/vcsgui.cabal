@@ -36,6 +36,7 @@ library
         VCSGui.Svn
         VCSGui.Mercurial
     build-depends:
+        aeson >=1.1.2.0 && <1.4,
         filepath >=1.2.0.0 && <1.5,
         base >=4.0.0.0 && <4.11,
         directory >=1.1.0.0 && <1.4,
@@ -80,6 +81,7 @@ executable vcsgui
         ghc-options: -optl-headerpad_max_install_names
     main-is: Main.hs
     build-depends:
+        aeson >=1.1.2.0 && <1.4,
         filepath >=1.2.0.0 && <1.5,
         base >=4.0.0.0 && <4.11,
         directory >=1.1.0.0 && <1.4,
@@ -122,6 +124,7 @@ executable vcsgui-askpass
         ghc-options: -optl-headerpad_max_install_names
     main-is: Main.hs
     build-depends:
+        aeson >=1.1.2.0 && <1.4,
         filepath >=1.2.0.0 && <1.5,
         base >=4.0.0.0 && <4.11,
         directory >=1.1.0.0 && <1.4,
