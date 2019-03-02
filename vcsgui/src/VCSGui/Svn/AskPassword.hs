@@ -139,5 +139,5 @@ loadAskpassGUI = do
     setToggleButtonActive (H.getItem checkbtUsePw) True
     checkbtSaveForSession <- H.getCheckButtonFromGlade builder accessorCheckbtSaveForSession
     setToggleButtonActive (H.getItem checkbtSaveForSession) True
-    boxUsePw <- nullToNothing (builderGetObject builder accessorboxUsePwd) >>= unsafeCastTo VBox . fromJust
+    boxUsePw <- builderGetObject builder accessorboxUsePwd >>= unsafeCastTo VBox . fromJust
     return $ AskpassGUI windowAskpass actOk actCancel entryPw checkbtUsePw checkbtSaveForSession boxUsePw

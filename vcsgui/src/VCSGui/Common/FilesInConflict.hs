@@ -50,7 +50,7 @@ import Data.GI.Gtk.ModelView.SeqStore
         seqStoreNew, SeqStore(..))
 import GI.Gtk.Objects.Window
        (setWindowTransientFor, setWindowTitle, Window(..))
-import Data.GI.Base (new', nullToNothing)
+import Data.GI.Base (new')
 import GI.Gtk.Objects.FileChooserDialog (FileChooserDialog(..))
 import GI.Gtk.Objects.Dialog (dialogRun, dialogAddButton)
 import GI.Gtk.Interfaces.FileChooser
@@ -253,7 +253,7 @@ wrapWidget :: GObject objClass =>
      -> Text -> IO (Text, objClass)
 wrapWidget builder constructor name = do
     putStrLn $ " cast " ++ T.unpack name
-    gobj <- nullToNothing (builderGetObject builder name) >>= unsafeCastTo constructor . fromJust
+    gobj <- builderGetObject builder name >>= unsafeCastTo constructor . fromJust
     return (name, gobj)
 
 getFromSeqStore :: (SeqStore a, TreeView)
@@ -291,7 +291,7 @@ showFolderChooserDialog title parent fcAction = do
         ResponseTypeCancel      -> widgetDestroy dialog >> return Nothing
         ResponseTypeDeleteEvent -> widgetDestroy dialog >> return Nothing
         ResponseTypeAccept      -> do
-            f <- nullToNothing $ fileChooserGetFilename dialog
+            f <- fileChooserGetFilename dialog
             widgetDestroy dialog
             return f
 

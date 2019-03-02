@@ -38,7 +38,7 @@ library
     build-depends:
         aeson >=1.1.2.0 && <1.5,
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.12,
+        base >=4.0.0.0 && <4.13,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.2.0 && <0.3,
@@ -83,7 +83,7 @@ executable vcsgui
     build-depends:
         aeson >=1.1.2.0 && <1.5,
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.12,
+        base >=4.0.0.0 && <4.13,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.2.0 && <0.3,
@@ -126,7 +126,7 @@ executable vcsgui-askpass
     build-depends:
         aeson >=1.1.2.0 && <1.5,
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.12,
+        base >=4.0.0.0 && <4.13,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.2.0 && <0.3,

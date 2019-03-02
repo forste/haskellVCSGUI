@@ -180,7 +180,7 @@ wrapWidget :: GObject objClass =>
      -> Text -> IO (Text, objClass)
 wrapWidget builder constructor name = do
     putStrLn $ " cast " ++ T.unpack name
-    gobj <- nullToNothing (builderGetObject builder name) >>= unsafeCastTo constructor . fromJust
+    gobj <- builderGetObject builder name >>= unsafeCastTo constructor . fromJust
     return (name, gobj)
 
 getFromSeqStore :: (SeqStore a, TreeView)

@@ -390,7 +390,7 @@ wrapWidget :: Gtk.GObject objClass =>
      -> Text -> IO (Text, objClass)
 wrapWidget builder constructor name = do
     hPutStrLn stderr $ " cast " ++ T.unpack name
-    gobj <- nullToNothing (Gtk.builderGetObject builder name) >>= unsafeCastTo constructor . fromJust
+    gobj <- Gtk.builderGetObject builder name >>= unsafeCastTo constructor . fromJust
     return (name, gobj)
 
 
