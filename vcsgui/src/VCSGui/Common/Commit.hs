@@ -39,7 +39,7 @@ import GI.Gtk.Objects.Action (onActionActivate)
 import GI.Gtk.Objects.Widget (widgetShowAll)
 import GI.Gtk.Objects.Builder (builderGetObject, Builder(..))
 import Data.GI.Base.BasicTypes
-       (ManagedPtr(..), NullToNothing(..), GObject)
+       (ManagedPtr(..), GObject)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
 
 --

@@ -110,7 +110,7 @@ import qualified GI.Gtk.Objects.CellRendererText as Gtk
        (cellRendererTextNew, CellRendererText(..))
 import qualified Data.GI.Base.BasicTypes as Gtk (GObject)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
-import Data.GI.Base.BasicTypes (ManagedPtr(..), NullToNothing(..))
+import Data.GI.Base.BasicTypes (ManagedPtr(..))
 import Data.Maybe (fromJust)
 
 -- Typesynonyms

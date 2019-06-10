@@ -42,7 +42,7 @@ import GI.Gtk.Objects.CellRendererToggle
 import GI.Gtk.Interfaces.TreeModel (treeModelGetIterFromString)
 import GI.Gtk.Objects.Builder (builderGetObject, Builder(..))
 import Data.GI.Base.BasicTypes
-       (ManagedPtr(..), NullToNothing(..), GObject)
+       (ManagedPtr(..), GObject)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
 import Data.GI.Gtk.ModelView.SeqStore
        (seqStoreAppend, seqStoreClear, seqStoreToList,
