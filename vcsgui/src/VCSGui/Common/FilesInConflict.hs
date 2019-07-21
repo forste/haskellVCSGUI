@@ -50,7 +50,7 @@ import Data.GI.Gtk.ModelView.SeqStore
         seqStoreNew, SeqStore(..))
 import GI.Gtk.Objects.Window
        (setWindowTransientFor, setWindowTitle, Window(..))
-import Data.GI.Base (new')
+import Data.GI.Base.GObject (new')
 import GI.Gtk.Objects.FileChooserDialog (FileChooserDialog(..))
 import GI.Gtk.Objects.Dialog (dialogRun, dialogAddButton)
 import GI.Gtk.Interfaces.FileChooser

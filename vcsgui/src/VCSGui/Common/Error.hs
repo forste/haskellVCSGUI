@@ -21,7 +21,7 @@ module VCSGui.Common.Error (
 import Data.Text (Text)
 import GI.Gtk.Objects.Dialog (constructDialogUseHeaderBar, dialogRun)
 import GI.Gtk.Objects.Widget (widgetDestroy)
-import Data.GI.Base (new')
+import Data.GI.Base.GObject (new')
 import GI.Gtk.Objects.MessageDialog
        (constructMessageDialogMessageType, constructMessageDialogButtons,
         setMessageDialogText, MessageDialog(..))

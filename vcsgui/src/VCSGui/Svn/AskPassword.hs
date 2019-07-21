@@ -38,7 +38,6 @@ import GI.Gtk.Objects.Widget
 import Data.GI.Base.Attributes (AttrOp(..))
 import GI.Gtk.Objects.Builder (builderGetObject)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
-import Data.GI.Base.BasicTypes (NullToNothing(..))
 --
 -- glade path and object accessors
 --
