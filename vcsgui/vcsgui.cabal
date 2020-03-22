@@ -35,20 +35,6 @@ library
         VCSGui.Git
         VCSGui.Svn
         VCSGui.Mercurial
-    build-depends:
-        aeson >=1.1.2.0 && <1.5,
-        filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.14,
-        directory >=1.1.0.0 && <1.4,
-        mtl >=2.0.1.0 && <2.3,
-        vcswrapper >=0.2.0 && <0.3,
-        process >=1.0.1.5 && <1.7,
-        text -any,
-        haskell-gi-base >=0.20 && <0.24,
-        gi-gtk >=3.0.6 && <3.1,
-        gi-gtk-hs >=0.3.0.0 && <0.4
-    hs-source-dirs: src
-    other-modules:
         VCSGui.Svn.Helper
         VCSGui.Common.Process
         VCSGui.Common.ConflictsResolved
@@ -75,6 +61,20 @@ library
         VCSGui.Common.Helpers
         Paths_vcsgui
 
+    build-depends:
+        aeson >=1.1.2.0 && <1.5,
+        filepath >=1.2.0.0 && <1.5,
+        base >=4.0.0.0 && <4.14,
+        directory >=1.1.0.0 && <1.4,
+        mtl >=2.0.1.0 && <2.3,
+        vcswrapper >=0.2.0 && <0.3,
+        process >=1.0.1.5 && <1.7,
+        text -any,
+        haskell-gi-base >=0.20 && <0.24,
+        gi-gtk >=3.0.6 && <3.1,
+        gi-gtk-hs >=0.3.0.0 && <0.4
+    hs-source-dirs: src
+
 executable vcsgui
 
     if os(osx)
@@ -91,32 +91,9 @@ executable vcsgui
         text -any,
         haskell-gi-base >=0.20 && <0.24,
         gi-gtk >=3.0.6 && <3.1,
-        gi-gtk-hs >=0.3.0.0 && <0.4
+        gi-gtk-hs >=0.3.0.0 && <0.4,
+        vcsgui
     hs-source-dirs: src
-    other-modules:
-        VCSGui.Svn.Helper
-        VCSGui.Common.Process
-        VCSGui.Common.ConflictsResolved
-        VCSGui.Common.MergeTool
-        VCSGui.Common.FilesInConflict
-        VCSGui.Git.Pull
-        VCSGui.Svn.Update
-        VCSGui.Svn.AskPassword
-        VCSGui
-        VCSGui.Svn.Log
-        VCSGui.Svn.Checkout
-        VCSGui.Svn.Commit
-        VCSGui.Git.Log
-        VCSGui.Git.Helpers
-        VCSGui.Git.Commit
-        VCSGui.Common.Log
-        VCSGui.Common.GtkHelper
-        VCSGui.Common.ExceptionHandler
-        VCSGui.Common.SetupConfig
-        VCSGui.Common.Error
-        VCSGui.Common.Commit
-        VCSGui.Common.Helpers
-        Paths_vcsgui
 
 executable vcsgui-askpass
 
@@ -134,18 +111,7 @@ executable vcsgui-askpass
         text -any,
         haskell-gi-base >=0.20 && <0.24,
         gi-gtk >=3.0.6 && <3.1,
-        gi-gtk-hs >=0.3.0.0 && <0.4
-    hs-source-dirs: src/exe/askpass src
-    other-modules:
-        VCSGui.Svn.Helper
-        VCSGui.Common.Process
-        VCSGui.Common.ConflictsResolved
-        VCSGui.Common.MergeTool
-        VCSGui.Common.FilesInConflict
-        VCSGui.Git.Pull
-        VCSGui.Svn.Update
-        VCSGui.Svn.AskPassword
-        Paths_vcsgui
-        VCSGui.Common.GtkHelper
-        VCSGui.Common.Helpers
+        gi-gtk-hs >=0.3.0.0 && <0.4,
+        vcsgui
+    hs-source-dirs: src/exe/askpass
 
