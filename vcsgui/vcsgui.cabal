@@ -62,15 +62,15 @@ library
         Paths_vcsgui
 
     build-depends:
-        aeson >=1.1.2.0 && <1.5,
+        aeson >=1.1.2.0 && <1.6,
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.14,
+        base >=4.0.0.0 && <4.15,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.2.0 && <0.3,
         process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.20 && <0.24,
+        haskell-gi-base >=0.20 && <0.25,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src
@@ -81,15 +81,15 @@ executable vcsgui
         ghc-options: -optl-headerpad_max_install_names
     main-is: Main.hs
     build-depends:
-        aeson >=1.1.2.0 && <1.5,
+        aeson >=1.1.2.0 && <1.6,
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.14,
+        base >=4.0.0.0 && <4.15,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.2.0 && <0.3,
         process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.20 && <0.24,
+        haskell-gi-base >=0.20 && <0.25,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4,
         vcsgui
@@ -101,15 +101,15 @@ executable vcsgui-askpass
         ghc-options: -optl-headerpad_max_install_names
     main-is: Main.hs
     build-depends:
-        aeson >=1.1.2.0 && <1.5,
+        aeson >=1.1.2.0 && <1.6,
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.14,
+        base >=4.0.0.0 && <4.15,
         directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
         vcswrapper >=0.2.0 && <0.3,
         process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.20 && <0.24,
+        haskell-gi-base >=0.20 && <0.25,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4,
         vcsgui

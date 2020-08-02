@@ -43,7 +43,7 @@ import qualified Data.GI.Gtk.ModelView.SeqStore as Gtk
 import qualified Data.GI.Gtk.ComboBox as Gtk
        (comboBoxSetActive, comboBoxPrependText)
 import qualified GI.Gtk.Objects.ComboBox as Gtk (onComboBoxChanged)
-import GI.Gtk.Objects.TreeViewColumn (noTreeViewColumn)
+import GI.Gtk.Objects.TreeViewColumn (TreeViewColumn)
 import qualified GI.Gtk as Gtk (setCellRendererTextText)
 
 getGladepath = getDataFileName "data/guiCommonLog.glade"
@@ -162,7 +162,7 @@ guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
         Gtk.treeModelGetIterFirst store >>= \case
             (True, firstRowIter) -> do
                 firstRow <- Gtk.treeModelGetPath store firstRowIter
-                Gtk.treeViewSetCursor view firstRow noTreeViewColumn False
+                Gtk.treeViewSetCursor view firstRow (Nothing :: Maybe TreeViewColumn) False
             _ -> return ()
 
 
