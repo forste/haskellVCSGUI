@@ -70,7 +70,7 @@ library
         vcswrapper >=0.2.0 && <0.3,
         process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.20 && <0.25,
+        haskell-gi-base >=0.20 && <0.26,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4
     hs-source-dirs: src
@@ -89,7 +89,7 @@ executable vcsgui
         vcswrapper >=0.2.0 && <0.3,
         process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.20 && <0.25,
+        haskell-gi-base >=0.20 && <0.26,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4,
         vcsgui
@@ -109,7 +109,7 @@ executable vcsgui-askpass
         vcswrapper >=0.2.0 && <0.3,
         process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.20 && <0.25,
+        haskell-gi-base >=0.20 && <0.26,
         gi-gtk >=3.0.6 && <3.1,
         gi-gtk-hs >=0.3.0.0 && <0.4,
         vcsgui
