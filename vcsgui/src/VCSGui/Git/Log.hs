@@ -28,11 +28,11 @@ import qualified Data.Text as T (unpack, pack)
 import Data.Text (Text)
 import qualified GI.Gtk.Objects.Dialog as Gtk
        (dialogRun, dialogGetContentArea, dialogAddButton, dialogNew)
-import qualified GI.Gtk.Enums as Gtk (ResponseType(..))
+import qualified GI.Gtk.Enums as Gtk (ResponseType(..), Orientation(..))
 import qualified GI.Gtk.Objects.Entry as Gtk
        (entryGetText, entryNew)
 import qualified GI.Gtk.Objects.Label as Gtk (labelNew)
-import qualified GI.Gtk.Objects.HBox as Gtk (hBoxNew)
+import qualified GI.Gtk.Objects.Box as Gtk (boxNew)
 import qualified GI.Gtk.Objects.Container as Gtk (containerAdd)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
 import GI.Gtk.Objects.Box (Box(..))
@@ -69,7 +69,7 @@ showLogGUI = do
 
         inputBranch <- Gtk.entryNew
         lblBranch <- Gtk.labelNew $ Just ("Enter a new branchname (empty for anonym branch):" :: Text)
-        box <- Gtk.hBoxNew False 2
+        box <- Gtk.boxNew Gtk.OrientationHorizontal 2
         Gtk.containerAdd upper box
         Gtk.containerAdd box lblBranch
         Gtk.containerAdd box inputBranch

@@ -37,13 +37,12 @@ import GI.Gtk.Objects.Action (onActionActivate)
 import GI.Gtk.Enums (ResponseType(..), FileChooserAction(..))
 import GI.Gtk.Objects.Widget (widgetDestroy, widgetShowAll)
 import GI.Gtk.Objects.CellRendererText (cellRendererTextNew)
-import Data.GI.Base.Attributes (AttrOp(..), AttrLabelProxy(..))
 import GI.Gtk.Objects.CellRendererToggle
        (onCellRendererToggleToggled, cellRendererToggleNew)
 import GI.Gtk.Interfaces.TreeModel (treeModelGetIterFromString)
 import GI.Gtk.Objects.Builder (builderGetObject, Builder(..))
-import Data.GI.Base.BasicTypes (NullToNothing(..), GObject)
-import Foreign.ForeignPtr (ForeignPtr)
+import Data.GI.Base.BasicTypes
+       (ManagedPtr(..), GObject)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
 import Data.GI.Gtk.ModelView.SeqStore
        (seqStoreAppend, seqStoreClear, seqStoreToList,
@@ -51,15 +50,14 @@ import Data.GI.Gtk.ModelView.SeqStore
         seqStoreNew, SeqStore(..))
 import GI.Gtk.Objects.Window
        (setWindowTransientFor, setWindowTitle, Window(..))
-import Data.GI.Base (new, nullToNothing)
+import Data.GI.Base.GObject (new')
 import GI.Gtk.Objects.FileChooserDialog (FileChooserDialog(..))
 import GI.Gtk.Objects.Dialog (dialogRun, dialogAddButton)
 import GI.Gtk.Interfaces.FileChooser
        (fileChooserGetFilename, setFileChooserAction)
 import Data.Maybe (fromJust)
-
-_active = AttrLabelProxy :: AttrLabelProxy "active"
-_text = AttrLabelProxy :: AttrLabelProxy "text"
+import GI.Gtk
+       (setCellRendererToggleActive, setCellRendererTextText)
 
 --
 -- glade path and object accessors
@@ -186,13 +184,13 @@ defaultSetUpTreeView mbcwd conflictingFiles filesToResolveGetter resolveMarker e
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "File"
-                               $ \scf -> [_text := T.pack $ filePath scf]
+                               $ \cell scf -> setCellRendererTextText cell . T.pack $ filePath scf
 
         renderer <- cellRendererToggleNew
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "Resolved"
-                               $ \scf -> [_active := isResolved scf]
+                               $ \cell scf -> setCellRendererToggleActive cell $ isResolved scf
 
         -- connect select action
         onCellRendererToggleToggled renderer $ \(columnId :: Text) -> do
@@ -251,11 +249,11 @@ getTreeViewFromGladeCustomStore builder name setupSeqStore = do
 ---
 wrapWidget :: GObject objClass =>
      Builder
-     -> (ForeignPtr objClass -> objClass)
+     -> (ManagedPtr objClass -> objClass)
      -> Text -> IO (Text, objClass)
 wrapWidget builder constructor name = do
     putStrLn $ " cast " ++ T.unpack name
-    gobj <- nullToNothing (builderGetObject builder name) >>= unsafeCastTo constructor . fromJust
+    gobj <- builderGetObject builder name >>= unsafeCastTo constructor . fromJust
     return (name, gobj)
 
 getFromSeqStore :: (SeqStore a, TreeView)
@@ -282,7 +280,7 @@ showFolderChooserDialog :: Text -- ^ title of the window
     -> FileChooserAction
     -> IO (Maybe FilePath)
 showFolderChooserDialog title parent fcAction = do
-    dialog <- new FileChooserDialog []
+    dialog <- new' FileChooserDialog []
     setWindowTitle dialog title
     dialogAddButton dialog "gtk-cancel" (fromIntegral $ fromEnum ResponseTypeCancel)
     dialogAddButton dialog "Select" (fromIntegral $ fromEnum ResponseTypeAccept)
@@ -293,7 +291,7 @@ showFolderChooserDialog title parent fcAction = do
         ResponseTypeCancel      -> widgetDestroy dialog >> return Nothing
         ResponseTypeDeleteEvent -> widgetDestroy dialog >> return Nothing
         ResponseTypeAccept      -> do
-            f <- nullToNothing $ fileChooserGetFilename dialog
+            f <- fileChooserGetFilename dialog
             widgetDestroy dialog
             return f
 

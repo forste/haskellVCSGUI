@@ -1,5 +1,5 @@
 name: vcsgui
-version: 0.2.0.0
+version: 0.3.0.0
 cabal-version: >=1.8
 build-type: Simple
 license: GPL
@@ -35,19 +35,6 @@ library
         VCSGui.Git
         VCSGui.Svn
         VCSGui.Mercurial
-    build-depends:
-        filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.10,
-        directory >=1.1.0.0 && <1.3,
-        mtl >=2.0.1.0 && <2.3,
-        vcswrapper >=0.1.1 && <0.2,
-        process >=1.0.1.5 && <1.5,
-        text -any,
-        haskell-gi-base >=0.17 && <0.18,
-        gi-gtk >=3.0.2 && <3.1,
-        gi-gtk-hs >=0.2.0.0 && <0.3
-    hs-source-dirs: src
-    other-modules:
         VCSGui.Svn.Helper
         VCSGui.Common.Process
         VCSGui.Common.ConflictsResolved
@@ -74,47 +61,39 @@ library
         VCSGui.Common.Helpers
         Paths_vcsgui
 
+    build-depends:
+        aeson >=1.1.2.0 && <1.6,
+        filepath >=1.2.0.0 && <1.5,
+        base >=4.0.0.0 && <4.15,
+        directory >=1.1.0.0 && <1.4,
+        mtl >=2.0.1.0 && <2.3,
+        vcswrapper >=0.2.0 && <0.3,
+        process >=1.0.1.5 && <1.7,
+        text -any,
+        haskell-gi-base >=0.20 && <0.26,
+        gi-gtk >=3.0.6 && <3.1,
+        gi-gtk-hs >=0.3.0.0 && <0.4
+    hs-source-dirs: src
+
 executable vcsgui
 
     if os(osx)
         ghc-options: -optl-headerpad_max_install_names
     main-is: Main.hs
     build-depends:
+        aeson >=1.1.2.0 && <1.6,
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.10,
-        directory >=1.1.0.0 && <1.3,
+        base >=4.0.0.0 && <4.15,
+        directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
-        vcswrapper >=0.1.1 && <0.2,
-        process >=1.0.1.5 && <1.5,
+        vcswrapper >=0.2.0 && <0.3,
+        process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.17 && <0.18,
-        gi-gtk >=3.0.2 && <3.1,
-        gi-gtk-hs >=0.2.0.0 && <0.3
+        haskell-gi-base >=0.20 && <0.26,
+        gi-gtk >=3.0.6 && <3.1,
+        gi-gtk-hs >=0.3.0.0 && <0.4,
+        vcsgui
     hs-source-dirs: src
-    other-modules:
-        VCSGui.Svn.Helper
-        VCSGui.Common.Process
-        VCSGui.Common.ConflictsResolved
-        VCSGui.Common.MergeTool
-        VCSGui.Common.FilesInConflict
-        VCSGui.Git.Pull
-        VCSGui.Svn.Update
-        VCSGui.Svn.AskPassword
-        VCSGui
-        VCSGui.Svn.Log
-        VCSGui.Svn.Checkout
-        VCSGui.Svn.Commit
-        VCSGui.Git.Log
-        VCSGui.Git.Helpers
-        VCSGui.Git.Commit
-        VCSGui.Common.Log
-        VCSGui.Common.GtkHelper
-        VCSGui.Common.ExceptionHandler
-        VCSGui.Common.SetupConfig
-        VCSGui.Common.Error
-        VCSGui.Common.Commit
-        VCSGui.Common.Helpers
-        Paths_vcsgui
 
 executable vcsgui-askpass
 
@@ -122,27 +101,17 @@ executable vcsgui-askpass
         ghc-options: -optl-headerpad_max_install_names
     main-is: Main.hs
     build-depends:
+        aeson >=1.1.2.0 && <1.6,
         filepath >=1.2.0.0 && <1.5,
-        base >=4.0.0.0 && <4.10,
-        directory >=1.1.0.0 && <1.3,
+        base >=4.0.0.0 && <4.15,
+        directory >=1.1.0.0 && <1.4,
         mtl >=2.0.1.0 && <2.3,
-        vcswrapper >=0.1.1 && <0.2,
-        process >=1.0.1.5 && <1.5,
+        vcswrapper >=0.2.0 && <0.3,
+        process >=1.0.1.5 && <1.7,
         text -any,
-        haskell-gi-base >=0.17 && <0.18,
-        gi-gtk >=3.0.2 && <3.1,
-        gi-gtk-hs >=0.2.0.0 && <0.3
-    hs-source-dirs: src/exe/askpass src
-    other-modules:
-        VCSGui.Svn.Helper
-        VCSGui.Common.Process
-        VCSGui.Common.ConflictsResolved
-        VCSGui.Common.MergeTool
-        VCSGui.Common.FilesInConflict
-        VCSGui.Git.Pull
-        VCSGui.Svn.Update
-        VCSGui.Svn.AskPassword
-        Paths_vcsgui
-        VCSGui.Common.GtkHelper
-        VCSGui.Common.Helpers
+        haskell-gi-base >=0.20 && <0.26,
+        gi-gtk >=3.0.6 && <3.1,
+        gi-gtk-hs >=0.3.0.0 && <0.4,
+        vcsgui
+    hs-source-dirs: src/exe/askpass
 

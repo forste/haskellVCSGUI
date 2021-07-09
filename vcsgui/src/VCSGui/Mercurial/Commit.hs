@@ -35,11 +35,9 @@ import Data.GI.Gtk.ModelView.SeqStore
         seqStoreNew, SeqStore(..))
 import GI.Gtk.Objects.CellRendererToggle
        (onCellRendererToggleToggled, cellRendererToggleNew)
-import Data.GI.Base.Attributes (AttrLabelProxy(..), AttrOp(..))
 import GI.Gtk.Interfaces.TreeModel (treeModelGetIterFromString)
-
-_text = AttrLabelProxy :: AttrLabelProxy "text"
-_active = AttrLabelProxy :: AttrLabelProxy "active"
+import qualified GI.Gtk as Gtk
+       (setCellRendererTextText, setCellRendererToggleActive)
 
 doCommit :: Text -> [FilePath] -> [Commit.Option] -> Wrapper.Ctx ()
 doCommit commitMsg files _ = do
@@ -68,9 +66,9 @@ setupSeqStore view = do
             let item = (store, view)
 
             toggleRenderer <- cellRendererToggleNew
-            addColumnToTreeView' item toggleRenderer "Commit" (\(Commit.GITSCFile s _ _)-> [_active := s])
-            addTextColumnToTreeView' item "File" (\(Commit.GITSCFile _ p _) -> [_text := T.pack p])
-            addTextColumnToTreeView' item "File status" (\(Commit.GITSCFile _ _ m) -> [_text := m])
+            addColumnToTreeView' item toggleRenderer "Commit" (\cell (Commit.GITSCFile s _ _) -> Gtk.setCellRendererToggleActive cell s)
+            addTextColumnToTreeView' item "File" (\cell (Commit.GITSCFile _ p _) -> Gtk.setCellRendererTextText cell $ T.pack p)
+            addTextColumnToTreeView' item "File status" (\cell (Commit.GITSCFile _ _ m) -> Gtk.setCellRendererTextText cell m)
 
             -- register toggle renderer
             onCellRendererToggleToggled toggleRenderer $ \filepath -> do

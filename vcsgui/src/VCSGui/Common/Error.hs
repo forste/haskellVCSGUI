@@ -19,22 +19,22 @@ module VCSGui.Common.Error (
 ) where
 
 import Data.Text (Text)
-import GI.Gtk.Objects.Dialog (dialogUseHeaderBar, dialogRun)
+import GI.Gtk.Objects.Dialog (constructDialogUseHeaderBar, dialogRun)
 import GI.Gtk.Objects.Widget (widgetDestroy)
-import Data.GI.Base (new)
+import Data.GI.Base.GObject (new')
 import GI.Gtk.Objects.MessageDialog
-       (messageDialogMessageType, messageDialogButtons,
+       (constructMessageDialogMessageType, constructMessageDialogButtons,
         setMessageDialogText, MessageDialog(..))
 import GI.Gtk.Enums (ButtonsType(..), MessageType(..))
-import Data.GI.Base.Attributes (AttrOp(..))
 
 -- | Displays a simple window displaying given 'String' as an error message.
 showErrorGUI :: Text -- ^ Message to display.
     -> IO ()
 showErrorGUI msg = do
-    dialog <- new MessageDialog [dialogUseHeaderBar := 0,
-                                 messageDialogMessageType := MessageTypeError,
-                                 messageDialogButtons := ButtonsTypeOk]
+    dialog <- new' MessageDialog [
+                  constructDialogUseHeaderBar 0,
+                  constructMessageDialogMessageType MessageTypeError,
+                  constructMessageDialogButtons ButtonsTypeOk]
     setMessageDialogText dialog msg
     _ <- dialogRun dialog
     widgetDestroy dialog

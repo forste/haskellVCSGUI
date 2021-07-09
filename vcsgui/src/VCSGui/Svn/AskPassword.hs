@@ -38,7 +38,6 @@ import GI.Gtk.Objects.Widget
 import Data.GI.Base.Attributes (AttrOp(..))
 import GI.Gtk.Objects.Builder (builderGetObject)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
-import Data.GI.Base.BasicTypes (NullToNothing(..))
 --
 -- glade path and object accessors
 --
@@ -139,5 +138,5 @@ loadAskpassGUI = do
     setToggleButtonActive (H.getItem checkbtUsePw) True
     checkbtSaveForSession <- H.getCheckButtonFromGlade builder accessorCheckbtSaveForSession
     setToggleButtonActive (H.getItem checkbtSaveForSession) True
-    boxUsePw <- nullToNothing (builderGetObject builder accessorboxUsePwd) >>= unsafeCastTo VBox . fromJust
+    boxUsePw <- builderGetObject builder accessorboxUsePwd >>= unsafeCastTo VBox . fromJust
     return $ AskpassGUI windowAskpass actOk actCancel entryPw checkbtUsePw checkbtSaveForSession boxUsePw

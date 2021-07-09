@@ -38,8 +38,8 @@ import Data.GI.Gtk.ModelView.SeqStore
 import GI.Gtk.Objects.Action (onActionActivate)
 import GI.Gtk.Objects.Widget (widgetShowAll)
 import GI.Gtk.Objects.Builder (builderGetObject, Builder(..))
-import Foreign.ForeignPtr (ForeignPtr)
-import Data.GI.Base.BasicTypes (NullToNothing(..), GObject)
+import Data.GI.Base.BasicTypes
+       (ManagedPtr(..), GObject)
 import Data.GI.Base.ManagedPtr (unsafeCastTo)
 
 --
@@ -176,11 +176,11 @@ getTreeViewFromGladeCustomStore builder name setupSeqStore = do
 ---
 wrapWidget :: GObject objClass =>
      Builder
-     -> (ForeignPtr objClass -> objClass)
+     -> (ManagedPtr objClass -> objClass)
      -> Text -> IO (Text, objClass)
 wrapWidget builder constructor name = do
     putStrLn $ " cast " ++ T.unpack name
-    gobj <- nullToNothing (builderGetObject builder name) >>= unsafeCastTo constructor . fromJust
+    gobj <- builderGetObject builder name >>= unsafeCastTo constructor . fromJust
     return (name, gobj)
 
 getFromSeqStore :: (SeqStore a, TreeView)

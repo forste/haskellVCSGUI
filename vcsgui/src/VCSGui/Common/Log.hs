@@ -40,14 +40,11 @@ import qualified GI.Gtk.Interfaces.TreeModel as Gtk
        (treeModelGetPath, treeModelGetIterFirst, treeModelGetIter)
 import qualified Data.GI.Gtk.ModelView.SeqStore as Gtk
        (seqStoreIterToIndex, seqStoreGetValue, SeqStore(..))
-import qualified Data.GI.Base.Attributes as Gtk (AttrOp(..))
 import qualified Data.GI.Gtk.ComboBox as Gtk
        (comboBoxSetActive, comboBoxPrependText)
 import qualified GI.Gtk.Objects.ComboBox as Gtk (onComboBoxChanged)
-import GI.Gtk.Objects.TreeViewColumn (noTreeViewColumn)
-import Data.GI.Base.Attributes (AttrLabelProxy(..))
-
-_text = AttrLabelProxy :: AttrLabelProxy "text"
+import GI.Gtk.Objects.TreeViewColumn (TreeViewColumn)
+import qualified GI.Gtk as Gtk (setCellRendererTextText)
 
 getGladepath = getDataFileName "data/guiCommonLog.glade"
 
@@ -76,7 +73,7 @@ showLogGUI :: [Common.LogEntry]
             -- ^ logEntries to be displayed initially
             -> [Text]
             -- ^ options will be displayed in a menu as checkboxes (TODO this is currently not implemented)
-            -> Maybe ((Text, [Text]), (Text -> Common.Ctx [Common.LogEntry]))
+            -> Maybe ((Maybe Text, [Text]), Text -> Common.Ctx [Common.LogEntry])
             -- ^ (list of branchnames to display, Function called when a different branch is selected)
             --
             -- The function will be called with the selected branchname to repopulate the displayed LogEntries.
@@ -131,15 +128,15 @@ guiWithoutBranches logEntries options doCheckoutFn displayBranchNames = do
     setupLogColumns :: LogGUI -> Bool -> IO ()
     setupLogColumns gui displayBranchNames = do
         let item = (logTreeView gui)
-        addTextColumnToTreeView item "Subject" (\Common.LogEntry { Common.subject = t } -> [_text Gtk.:= t])
-        addTextColumnToTreeView item "Author" (\Common.LogEntry { Common.author = t, Common.email = mail } -> [_text Gtk.:= t <> " <" <> mail <> ">"])
-        addTextColumnToTreeView item "Date" (\Common.LogEntry { Common.date = t } -> [_text Gtk.:= t])
+        addTextColumnToTreeView item "Subject" (\cell Common.LogEntry { Common.subject = t } -> Gtk.setCellRendererTextText cell t)
+        addTextColumnToTreeView item "Author" (\cell Common.LogEntry { Common.author = t, Common.email = mail } -> Gtk.setCellRendererTextText cell $ t <> " <" <> mail <> ">")
+        addTextColumnToTreeView item "Date" (\cell Common.LogEntry { Common.date = t } -> Gtk.setCellRendererTextText cell t)
         case displayBranchNames of
-            True -> addTextColumnToTreeView item "Branch" (\Common.LogEntry { Common.mbBranch = t } -> [_text Gtk.:= fromMaybe "" t])
+            True -> addTextColumnToTreeView item "Branch" (\cell Common.LogEntry { Common.mbBranch = t } -> Gtk.setCellRendererTextText cell $ fromMaybe "" t)
             False -> return()
         return ()
 
-guiAddBranches :: LogGUI -> (Text, [Text]) -> (Text -> Common.Ctx [Common.LogEntry]) -> Common.Ctx ()
+guiAddBranches :: LogGUI -> (Maybe Text, [Text]) -> (Text -> Common.Ctx [Common.LogEntry]) -> Common.Ctx ()
 guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
         -- set branch selection visible
         liftIO $ Gtk.setWidgetVisible (getItem $ lblBranch gui) True
@@ -147,7 +144,7 @@ guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
 
         -- fill with data®
         liftIO $ set (comboBranch gui) otherBranches
-        liftIO $ Gtk.comboBoxPrependText (getItem $ comboBranch gui) curBranch
+        forM_ curBranch $ Gtk.comboBoxPrependText (getItem $ comboBranch gui)
         liftIO $ Gtk.comboBoxSetActive (getItem $ comboBranch gui) 0
 
         -- register branch switch fn
@@ -165,7 +162,7 @@ guiAddBranches gui (curBranch, otherBranches) changeBranchFn = do
         Gtk.treeModelGetIterFirst store >>= \case
             (True, firstRowIter) -> do
                 firstRow <- Gtk.treeModelGetPath store firstRowIter
-                Gtk.treeViewSetCursor view firstRow noTreeViewColumn False
+                Gtk.treeViewSetCursor view firstRow (Nothing :: Maybe TreeViewColumn) False
             _ -> return ()
 
 

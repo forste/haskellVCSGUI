@@ -38,12 +38,10 @@ import Data.GI.Gtk.ModelView.SeqStore
         seqStoreNew, SeqStore(..))
 import GI.Gtk.Objects.CellRendererToggle
        (onCellRendererToggleToggled, cellRendererToggleNew)
-import Data.GI.Base.Attributes (AttrOp(..), AttrLabelProxy(..))
 import GI.Gtk.Interfaces.TreeModel (treeModelGetIterFromString)
 import GI.Gtk.Objects.CellRendererText (cellRendererTextNew)
-
-_active = AttrLabelProxy :: AttrLabelProxy "active"
-_text = AttrLabelProxy :: AttrLabelProxy "text"
+import GI.Gtk
+       (setCellRendererTextText, setCellRendererToggleActive)
 
 {-  |
     Shows a GUI showing status of subversion and possibilites to commit/cancel.
@@ -117,7 +115,7 @@ setUpTreeView listView = do
         H.addColumnToTreeView' treeViewItem
                                renderer
                                ""
-                               $ \scf -> [_active := C.selected scf]
+                               $ \cell scf -> setCellRendererToggleActive cell $ C.selected scf
 
         -- connect select action
         onCellRendererToggleToggled renderer $ \(columnId :: Text) -> do
@@ -133,19 +131,19 @@ setUpTreeView listView = do
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "Files to commit"
-                               $ \scf -> [_text := T.pack $ C.filePath scf]
+                               $ \cell scf -> setCellRendererTextText cell . T.pack $ C.filePath scf
 
         renderer <- cellRendererTextNew
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "Status"
-                               $ \scf -> [_text := C.status scf]
+                               $ \cell scf -> setCellRendererTextText cell $ C.status scf
 
         renderer <- cellRendererToggleNew
         H.addColumnToTreeView' treeViewItem
                                renderer
                                "Locked"
-                               $ \scf -> [_active := C.isLocked scf]
+                               $ \cell scf -> setCellRendererToggleActive cell $ C.isLocked scf
         return seqStore
     where
         ctxSelect status =  status == Svn.Added || status == Svn.Deleted || status==Svn.Modified ||
